@@ -3,8 +3,10 @@
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MstDealerController;
 use App\Http\Controllers\MstDepartmentController;
 use App\Http\Controllers\MstDropdownController;
+use App\Http\Controllers\MstEmployeeController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
 use App\Http\Controllers\UserController;
@@ -57,6 +59,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('position/update/{id}', [MstPositionController::class, 'update'])->name('position.update');
     Route::post('position/activate/{id}', [MstPositionController::class, 'activate'])->name('position.activate');
     Route::post('position/deactivate/{id}', [MstPositionController::class, 'deactivate'])->name('position.deactivate');
+
+    //Dealer
+    Route::get('/dealer', [MstDealerController::class, 'index'])->name('dealer.index');
+    Route::post('dealer/create', [MstDealerController::class, 'store'])->name('dealer.store');
+    Route::post('dealer/update/{id}', [MstDealerController::class, 'update'])->name('dealer.update');
+
+    //Employee
+    Route::get('/employee', [MstEmployeeController::class, 'index'])->name('employee.index');
+    Route::post('employee/create', [MstEmployeeController::class, 'store'])->name('employee.store');
+    Route::post('employee/update/{id}', [MstEmployeeController::class, 'update'])->name('employee.update');
+  
 
     //Audit Log
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog');

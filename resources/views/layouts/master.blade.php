@@ -148,7 +148,7 @@
                         <li class="menu-title" data-key="t-menu">Master Data</li>
 
                         <li>
-                            <a href="#">
+                            <a href="{{ route('employee.index') }}">
                                 <i class="mdi mdi-account-group"></i>
                                 <span>Master Employee</span>
                             </a>
@@ -166,7 +166,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="{{ route('dealer.index') }}">
                                 <i class="mdi mdi-office-building"></i>
                                 <span>Master Dealer</span>
                             </a>
