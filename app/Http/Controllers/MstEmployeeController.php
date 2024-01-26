@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MstDealers;
+use App\Models\MstDepartments;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,9 +20,12 @@ class MstEmployeeController extends Controller
     {
         // $datas=MstEmployees::get();
         $datas = MstEmployees::join('mst_dealers', 'mst_employees.id_dealer', '=', 'mst_dealers.id')
-        ->select('mst_employees.*', 'mst_dealers.dealer_name')
+        ->join('mst_departments', 'mst_employees.id_dept', '=', 'mst_departments.id')
+        ->join('mst_positions', 'mst_employees.id_position', '=', 'mst_positions.id')
+        ->select('mst_employees.*', 'mst_dealers.dealer_name', 'mst_departments.department_name', 'mst_positions.position_name')
         ->get();
         $dealer=MstDealers::get();
+        $department=MstDepartments::get();
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -31,7 +35,7 @@ class MstEmployeeController extends Controller
         $activity='View List Mst Employee';
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
         
-        return view('employee.index',compact('datas', 'dealer'));
+        return view('employee.index',compact('datas', 'dealer', 'department'));
         // dd($datas);
     }
     public function store(Request $request)
@@ -39,6 +43,9 @@ class MstEmployeeController extends Controller
 
         $request->validate([
             'id_dealer' => 'required',
+            'id_dept' => 'required',
+            'id_position' => 'required',
+            'email' => 'required',
             'employee_name' => 'required',
             'employee_nik' => 'required',
             'employee_telephone' => 'required',
@@ -50,6 +57,9 @@ class MstEmployeeController extends Controller
             
             MstEmployees::create([
                 'id_dealer' => $request->id_dealer,
+                'id_dept' => $request->id_dept,
+                'id_position' => $request->id_position,
+                'email' => $request->email,
                 'employee_name' => $request->employee_name,
                 'employee_nik' => $request->employee_nik,
                 'employee_telephone' => $request->employee_telephone,
@@ -78,6 +88,8 @@ class MstEmployeeController extends Controller
 
         $request->validate([
             'id_dealer' => 'required',
+            'id_dept' => 'required',
+            'id_position' => 'required',
             'employee_name' => 'required',
             'employee_nik' => 'required',
             'employee_telephone' => 'required',
@@ -87,6 +99,8 @@ class MstEmployeeController extends Controller
 
         $databefore = MstEmployees::where('id', $id)->first();
         $databefore->id_dealer = $request->id_dealer;
+        $databefore->id_dept = $request->id_dept;
+        $databefore->id_position = $request->id_position;
         $databefore->employee_name = $request->employee_name;
         $databefore->employee_nik = $request->employee_nik;
         $databefore->employee_telephone = $request->employee_telephone;
@@ -97,10 +111,12 @@ class MstEmployeeController extends Controller
             try{
                 MstEmployees::where('id', $id)->update([
                     'id_dealer' => $request->id_dealer,
+                    'id_dept' => $request->id_dept,
+                    'id_position' => $request->id_position,
                     'employee_name' => $request->employee_name,
                     'employee_nik' => $request->employee_nik,
                     'employee_telephone' => $request->employee_telephone,
-                    'employee_address' => $request->employee_address,
+                    'employee_address' => $request->employee_address
                 ]);
 
                 //Audit Log
@@ -119,6 +135,17 @@ class MstEmployeeController extends Controller
             }
         } else {
             return redirect()->back()->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
+        }
+    }
+
+    public function check_email(Request $request)
+    {
+        $email = $request->input('email');
+        $isEmailUsed = MstEmployees::where('email', $email)->first();
+        if ($isEmailUsed) {
+            return response()->json(['status' => 'used']);
+        } else {
+            return response()->json(['status' => 'available']);
         }
     }
 }

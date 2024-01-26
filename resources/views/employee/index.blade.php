@@ -47,6 +47,27 @@
                                                     </select>
                                                 </div>
                                                 <div class="col-lg-6 mb-3">
+                                                    <select class="form-select" name="id_dept" id="selectdepartment" required>
+                                                        <option value="" selected>-- Select department --</option>
+                                                        <option disabled>──────────</option>
+                                                        @foreach( $department as $item)
+                                                            <option value="{{ $item->id }}" {{ old('department_name') == $item->department_name ? 'selected' : '' }}> {{ $item->department_name }} </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-6 mb-3">
+                                                    <select class="form-select" name="id_position" id="selectPosition" required>
+                                                        <option value="" selected>-- Select Position --</option>
+                                                        <option disabled>──────────</option>
+                                                        <!-- ini isi dari ajax -->
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-12 mb-3">
+                                                    <label class="form-label">Email</label><label style="color: darkred">*</label>
+                                                    <input class="form-control" name="email" type="email" id="cek_mail" value="" placeholder="Input Email.." required>
+                                                    <p id="emailWarning" style="color: darkred;"></p>
+                                                </div>
+                                                <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Employee Name</label><label style="color: darkred">*</label>
                                                     <input class="form-control" name="employee_name" type="text" value="" placeholder="Input Employee Name.." required>
                                                 </div>
@@ -66,7 +87,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
+                                            <button type="submit" id="submitButton" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
                                         </div>
                                     </form>
                                     <script>
@@ -92,7 +113,10 @@
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Dealer</th>
+                                    <th class="align-middle text-center">Department</th>
+                                    <th class="align-middle text-center">Position</th>
                                     <th class="align-middle text-center">Employee Name</th>
+                                    <th class="align-middle text-center">Employee Email</th>
                                     <th class="align-middle text-center">Employee NIK</th>
                                     <th class="align-middle text-center">Employee Telephone</th>
                                     <th class="align-middle text-center">Employee Address</th>
@@ -106,7 +130,10 @@
                                     <tr>
                                         <td class="align-middle text-center">{{ $no }}</td>
                                         <td class="align-middle text-center"><b>{{ $data->dealer_name }}</b></td>
+                                        <td class="align-middle text-center"><b>{{ $data->department_name }}</b></td>
+                                        <td class="align-middle text-center"><b>{{ $data->position_name }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->employee_name }}</b></td>
+                                        <td class="align-middle text-center"><b>{{ $data->email }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->employee_nik }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->employee_telephone }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->employee_address }}</b></td>
@@ -180,6 +207,21 @@
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-lg-6 mb-3">
+                                                                    <select class="form-select" name="id_dept" id="selecteditDepartment" required>
+                                                                        <option value="" selected>-- Select Department --</option>
+                                                                        <option disabled>──────────</option>
+                                                                        @foreach( $department as $item)
+                                                                            <option value="{{ $item->id }}" @if($data->id_dept == $item->id) selected="selected" @endif> {{ $item->department_name }} </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-lg-6 mb-3">
+                                                                    <select class="form-select" name="id_position" id="selecteditPosition" required>
+                                                                        <option value="" selected>-- Select Position --</option>
+                                                                        <option disabled>──────────</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-lg-6 mb-3">
                                                                     <label class="form-label">Employee Name</label><label style="color: darkred">*</label>
                                                                     <input class="form-control" name="employee_name" type="text" value="{{ $data->employee_name }}" placeholder="Input Employee Name.." required>
                                                                 </div>
@@ -232,5 +274,82 @@
 
     </div>
 </div>
+
+<script>
+    // add
+    $(document).ready(function(){
+        $('#selectdepartment').change(function(){
+            var idDept = $(this).val();
+            $.ajax({
+                url: '/json_position/' + idDept,
+                type: 'GET',
+                success: function(data) {
+                    $('#selectPosition').empty();
+                    // console.log(data);
+                    $('#selectPosition').append('<option value="" disabled selected>-- Select Position --</option>');
+                    $('#selectPosition').append('<option value=""disabled>──────────</option>');
+                    $.each(data, function(index, value) {
+                        $('#selectPosition').append('<option value="' + value.id + '">' + value.position_name + '</option>');
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function(){
+        $('#cek_mail').on('input', function(){
+            var email = $(this).val();
+
+            checkEmailAvailability(email);
+        });
+
+        function checkEmailAvailability(email) {
+            $.ajax({
+                url: '/check_email_employee',
+                type: 'POST',
+                data: {
+                    email: email,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+
+                    // console.log(response);
+                    $('#emailWarning').remove();
+                    if (response.status === 'used') {
+                        $('#cek_mail').after('<p id="emailWarning" style="color: darkred;">Email sudah terpakai.</p>');
+                        $('#submitButton').prop('disabled', true);
+                    } else {
+                        $('#submitButton').prop('disabled', false);
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function(){
+        function loadPositions(idDept) {
+            $.ajax({
+                url: '/json_position/' + idDept,
+                type: 'GET',
+                success: function(data) {
+                    $('#selecteditPosition').empty();
+                    $.each(data, function(key, value) {
+                        $('#selecteditPosition').append('<option value="' + value.id + '">' + value.position_name + '</option>');
+                    });
+                }
+            });
+        }
+        $('#selecteditDepartment').change(function(){
+            var idDept = $(this).val();
+            loadPositions(idDept);
+        });
+
+        loadPositions($('#selecteditDepartment').val());
+    });
+</script>
 
 @endsection

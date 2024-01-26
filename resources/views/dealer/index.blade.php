@@ -38,6 +38,13 @@
                                         <div class="modal-body">
                                             <div class="row">
                                                 <div class="col-lg-12 mb-3">
+                                                    <select class="form-select" name="type" required>
+                                                        <option value="" selected>-- Select Type --</option>
+                                                        <option disabled>──────────</option>
+                                                        <option value="satu">Satu</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-12 mb-3">
                                                     <label class="form-label">Dealer Name</label><label style="color: darkred">*</label>
                                                     <input class="form-control" name="dealer_name" type="text" value="" placeholder="Input Dealer Name.." required>
                                                 </div>
@@ -75,6 +82,7 @@
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Dealer Name</th>
+                                    <th class="align-middle text-center">Dealer Type</th>
                                     <th class="align-middle text-center">Dealer Address</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -86,6 +94,7 @@
                                     <tr>
                                         <td class="align-middle text-center">{{ $no }}</td>
                                         <td class="align-middle text-center"><b>{{ $data->dealer_name }}</b></td>
+                                        <td class="align-middle text-center"><b>{{ $data->type }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->dealer_address }}</b></td>
                                         <td class="align-middle text-center">
                                             <div class="btn-group" role="group">
@@ -147,6 +156,13 @@
                                                         @csrf
                                                         <div class="modal-body">
                                                             <div class="row">
+                                                                <div class="col-lg-12 mb-3">
+                                                                    <select class="form-select" name="type" required>
+                                                                        <option value="" selected>-- Select Type --</option>
+                                                                        <option disabled>──────────</option>
+                                                                        <option value="satu">Satu</option>
+                                                                    </select>
+                                                                </div>
                                                                 <div class="col-lg-12 mb-3">
                                                                     <label class="form-label">Dealer Name</label><label style="color: darkred">*</label>
                                                                     <input class="form-control" name="dealer_name" type="text" value="{{ $data->dealer_name }}" placeholder="Input dealer Name.." required>

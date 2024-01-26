@@ -167,4 +167,12 @@ class MstPositionController extends Controller
             return redirect()->back()->with(['fail' => 'Failed to Deactivate Position ' . $name->position_name .'!']);
         }
     }
+
+    public function json_position($id)
+    {
+        $positions = MstPositions::where('id_department', $id)->get();
+
+        // dd($positions);
+        return response()->json($positions);
+    }
 }

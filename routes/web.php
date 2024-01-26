@@ -73,4 +73,8 @@ Route::middleware(['auth'])->group(function () {
 
     //Audit Log
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog');
+
+    //Mapping Json
+    Route::get('/json_position/{id}', [MstPositionController::class, 'json_position'])->name('json_position');
+    Route::post('/check_email_employee', [MstEmployeeController::class, 'check_email'])->name('check_email_employee');
 });
