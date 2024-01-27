@@ -39,14 +39,9 @@
                                             <div class="row">
                                                 <div class="col-lg-12">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Full Name</label><label style="color: darkred">*</label>
-                                                        <input class="form-control" name="name" type="text" value="" placeholder="Input Full Name.." required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <div class="mb-3">
                                                         <label class="form-label">Email</label><label style="color: darkred">*</label>
-                                                        <input class="form-control" name="email" type="email" value="" placeholder="Input Email.." required>
+                                                        <div id="emailWarning"></div>
+                                                        <input class="form-control" id="cek_mail" name="email" type="email" value="" placeholder="Input Email.." required>
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-12">
@@ -67,6 +62,37 @@
                                             <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-account-plus label-icon"></i>Add</button>
                                         </div>
                                     </form>
+                                    <script>
+                                        $(document).ready(function(){
+                                            $('#cek_mail').on('input', function(){
+                                                var email = $(this).val();
+                                    
+                                                checkEmailAvailability(email);
+                                            });
+                                    
+                                            function checkEmailAvailability(email) {
+                                                $.ajax({
+                                                    url: 'user/check_email_employee',
+                                                    type: 'POST',
+                                                    data: {
+                                                        email: email,
+                                                        _token: '{{ csrf_token() }}'
+                                                    },
+                                                    success: function(response) {
+                                    
+                                                        // console.log(response);
+                                                        $('#emailWarning').remove();
+                                                        if (response.status === 'notregistered') {
+                                                            $('#cek_mail').before('<div id="emailWarning"><div class="alert alert-warning alert-dismissible alert-label-icon label-arrow fade show" role="alert"><i class="mdi mdi-alert-outline label-icon"></i><strong>Warning</strong> - Email Not Registered As Employee<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div></div>');
+                                                            $('#submitButton').prop('disabled', true);
+                                                        } else {
+                                                            $('#submitButton').prop('disabled', false);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    </script>
                                     <script>
                                         document.getElementById('formadd').addEventListener('submit', function(event) {
                                             if (!this.checkValidity()) {
@@ -145,18 +171,6 @@
                                                         @csrf
                                                         <div class="modal-body">
                                                             <div class="row">
-                                                                <div class="col-lg-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label">Full Name</label><label style="color: darkred">*</label>
-                                                                        <input class="form-control" name="name" type="text" value="{{ $data->name }}" placeholder="Input Full Name.." required>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-lg-12">
-                                                                    <div class="mb-3">
-                                                                        <label class="form-label">Email</label><label style="color: darkred">*</label>
-                                                                        <input class="form-control" name="email" type="email" value="{{ $data->email }}" placeholder="Input Email.." required>
-                                                                    </div>
-                                                                </div>
                                                                 <div class="col-lg-12">
                                                                     <div class="mb-3">
                                                                         <label class="form-label">Role</label><label style="color: darkred">*</label>

@@ -11,6 +11,7 @@ use Browser;
 // Model
 use App\Models\User;
 use App\Models\MstDropdowns;
+use App\Models\MstEmployees;
 
 class UserController extends Controller
 {
@@ -38,21 +39,26 @@ class UserController extends Controller
         // dd($request->all());
 
         $request->validate([
-            'name' => 'required',
             'email' => 'required',
             'role' => 'required',
         ]);
 
+        $count= MstEmployees::where('email',$request->email)->count();
+        if($count < 1){
+            return redirect()->back()->with('warning','Email Have Not Registered As Employee');
+        } else {
+            $name= MstEmployees::where('email',$request->email)->first()->employee_name;
+        }
+
         $count= User::where('email',$request->email)->count();
         
         if($count > 0){
-            return redirect()->back()->with('warning','Email Was Already Registered');
+            return redirect()->back()->with('warning','Email Was Already Registered As User');
         } else {
             DB::beginTransaction();
             try{
                 $users = User::create([
-                    'department' => "Production",
-                    'name' => $request->name,
+                    'name' => $name,
                     'email' => $request->email,
                     'password' => Hash::make('password'),
                     'is_active' => '1',
@@ -83,43 +89,32 @@ class UserController extends Controller
         $iduser = decrypt($id);
 
         $request->validate([
-            'name' => 'required',
-            'email' => 'required',
             'role' => 'required',
         ]);
 
         $userbefore = User::where('id', $iduser)->first();
-        $userbefore->name = $request->name;
-        $userbefore->email = $request->email;
         $userbefore->role = $request->role;
 
         if($userbefore->isDirty()){
-            $count= User::where('email',$request->email)->whereNotIn('id', [$iduser])->count();
-            if($count > 0){
-                return redirect()->back()->with('warning','Email Was Already Registered');
-            } else {
-                DB::beginTransaction();
-                try{
-                    $users = User::where('id', $iduser)->update([
-                        'name' => $request->name,
-                        'email' => $request->email,
-                        'role' => $request->role
-                    ]);
+            DB::beginTransaction();
+            try{
+                $users = User::where('id', $iduser)->update([
+                    'role' => $request->role
+                ]);
 
-                    //Audit Log
-                    $username= auth()->user()->email; 
-                    $ipAddress=$_SERVER['REMOTE_ADDR'];
-                    $location='0';
-                    $access_from=Browser::browserName();
-                    $activity='Create New User ('. $request->email . ')';
-                    $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                //Audit Log
+                $username= auth()->user()->email; 
+                $ipAddress=$_SERVER['REMOTE_ADDR'];
+                $location='0';
+                $access_from=Browser::browserName();
+                $activity='Update User ('. $userbefore->name . ')';
+                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
 
-                    DB::commit();
-                    return redirect()->back()->with(['success' => 'Success Update User']);
-                } catch (\Exception $e) {
-                    dd($e);
-                    return redirect()->back()->with(['fail' => 'Failed to Update User!']);
-                }
+                DB::commit();
+                return redirect()->back()->with(['success' => 'Success Update User']);
+            } catch (\Exception $e) {
+                dd($e);
+                return redirect()->back()->with(['fail' => 'Failed to Update User!']);
             }
         } else {
             return redirect()->back()->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
@@ -207,6 +202,17 @@ class UserController extends Controller
         } catch (\Exception $e) {
             dd($e);
             return redirect()->back()->with(['fail' => 'Failed to Deactivate User ' . $name->email .'!']);
+        }
+    }
+
+    public function check_email(Request $request)
+    {
+        $email = $request->input('email');
+        $isEmailRegist = MstEmployees::where('email', $email)->first();
+        if ($isEmailRegist || $email == null) {
+            return response()->json(['status' => 'registered']);
+        } else {
+            return response()->json(['status' => 'notregistered']);
         }
     }
 }

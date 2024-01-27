@@ -221,7 +221,7 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-sm-6">
-                            © PT Olefina Tifaplas Polikemindo 2024
+                            © Dashboard NOS Honda Banten 2024
                         </div>
                         {{-- <div class="col-sm-6">
                             <div class="text-sm-end d-none d-sm-block">

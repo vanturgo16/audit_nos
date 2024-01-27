@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('user/activate/{id}', [UserController::class, 'activate'])->name('user.activate');
     Route::post('user/deactivate/{id}', [UserController::class, 'deactivate'])->name('user.deactivate');
     Route::post('user/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
+    Route::post('user/check_email_employee', [UserController::class, 'check_email'])->name('user.check_email_employee');
     
     //Dropdown
     Route::get('/dropdown', [MstDropdownController::class, 'index'])->name('dropdown.index');
