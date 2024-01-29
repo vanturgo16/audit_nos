@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AjaxMappingRegional;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -70,10 +71,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/employee', [MstEmployeeController::class, 'index'])->name('employee.index');
     Route::post('employee/create', [MstEmployeeController::class, 'store'])->name('employee.store');
     Route::post('employee/update/{id}', [MstEmployeeController::class, 'update'])->name('employee.update');
-  
 
     //Audit Log
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog');
+
+    // API Regional
+    Route::get('/area/ajax/mappingCity/{province_id}', [AjaxMappingRegional::class, 'selectCity'])->name('mappingCity');
+    Route::get('/area/ajax/mappingDistrict/{city_id}', [AjaxMappingRegional::class, 'selectDistrict'])->name('mappingDistrict');
+    Route::get('/area/ajax/mappingSubDistrict/{district_id}', [AjaxMappingRegional::class, 'selectSubDistrict'])->name('mappingSubDistrict');
+    Route::get('/area/ajax/mappingPostalCode/{subdistrict_id}', [AjaxMappingRegional::class, 'selectPostalCode'])->name('mappingPostalCode');
 
     //Mapping Json
     Route::get('/json_position/{id}', [MstPositionController::class, 'json_position'])->name('json_position');

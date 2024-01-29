@@ -7,6 +7,7 @@ use App\Models\MstDepartments;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Traits\ApiRegionalTrait;
 use Browser;
 
 // Model
@@ -15,9 +16,14 @@ use App\Models\MstEmployees;
 class MstEmployeeController extends Controller
 {
     use AuditLogsTrait;
+    use ApiRegionalTrait;
 
     public function index()
     {
+        // API
+        $tokenregional = $this->getTokenRegional();
+        $provinces = $this->getProvinceRegional($tokenregional);
+
         // $datas=MstEmployees::get();
         $datas = MstEmployees::join('mst_dealers', 'mst_employees.id_dealer', '=', 'mst_dealers.id')
         ->join('mst_departments', 'mst_employees.id_dept', '=', 'mst_departments.id')
@@ -35,7 +41,7 @@ class MstEmployeeController extends Controller
         $activity='View List Mst Employee';
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
         
-        return view('employee.index',compact('datas', 'dealer', 'department'));
+        return view('employee.index',compact('datas', 'dealer', 'department', 'provinces'));
         // dd($datas);
     }
     public function store(Request $request)

@@ -27,7 +27,7 @@
                         <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New employee</button>
                         {{-- Modal Add --}}
                         <div class="modal fade" id="add-new" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-top" role="document">
+                            <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="staticBackdropLabel">Add New Employee</h5>
@@ -35,7 +35,7 @@
                                     </div>
                                     <form action="{{ route('employee.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
                                         @csrf
-                                        <div class="modal-body">
+                                        <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                             <div class="row">
                                                 <div class="col-lg-12 mb-3">
                                                     <select class="form-select" name="id_dealer" required>
@@ -82,6 +82,40 @@
                                                 <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Employee address</label><label style="color: darkred">*</label>
                                                     <input class="form-control" name="employee_address" type="text" value="" placeholder="Input Employee Address.." required>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12 mb-3">
+                                                    <label class="form-label">Employee address</label><label style="color: darkred">*</label>
+                                                    <textarea class="form-control" rows="3" type="text" class="form-control" name="employee_address" placeholder="(Input Employee Address, Ex. Street/Unit/Floor/No)" value="{{ old('address') }}" required></textarea>
+                                                </div>
+                                                <div class="col-lg-6 mb-3">
+                                                    <select class="form-select" name="province" id="province" class="form-control" required>
+                                                        <option value="" selected>-- Select Province --</option>
+                                                        @foreach ($provinces as $province)
+                                                            <option value="{{ $province['nama'] }}"
+                                                            data-idProv="{{ $province['id'] }}">
+                                                            {{ $province['nama'] }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-6 mb-3">
+                                                    <select class="form-select" name="city" id="city" class="form-control" required>
+                                                        <option value="" selected>- Select City -</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-6 mb-3">
+                                                    <select class="form-select" name="district" id="district" class="form-control" required>
+                                                        <option value="" selected>- Select District -</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-6 mb-3">
+                                                    <select class="form-select" name="subdistrict" id="subdistrict" class="form-control" required>
+                                                        <option value="" selected>- Select Subdistrict -</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-lg-6 mb-3">
+                                                    <input name="zipcode" id="zipcode" type="text" class="form-control" placeholder="Input Postal Code" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -350,6 +384,108 @@
 
         loadPositions($('#selecteditDepartment').val());
     });
+</script>
+
+{{-- Script Regional --}}
+<script type="text/javascript">
+    $(document).ready(function() {
+        // getCitybyProvince
+        $('select[name="province"]').on('change', function() {
+            var idProv = $(this).find('option:selected').attr('data-idProv');
+            var url = '{{ route("mappingCity", ":id") }}';
+            url = url.replace(':id', idProv);
+            if (idProv) {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        $('select[name="city"]').empty();
+                        $('select[name="city"]').append(
+                            '<option value="" selected>- Choose City-</option>'
+                        );
+
+                        $.each(data, function(div, value) {
+                            $('select[name="city"]').append(
+                                '<option value="' +
+                                value.nama + '" data-idCity="' + value.id +
+                                '">' + value.nama + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('select[name="city"]').empty();
+            }
+        });
+
+        // getDistrictbyCity
+        $('select[name="city"]').on('change', function() {
+            var idCity = $(this).find('option:selected').attr('data-idCity');
+            var url = '{{ route("mappingDistrict", ":id") }}';
+            url = url.replace(':id', idCity);
+            if (idCity) {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        $('select[name="district"]').empty();
+                        $('select[name="district"]').append(
+                            '<option value="" selected>- Choose District-</option>'
+                        );
+
+                        $.each(data, function(div, value) {
+                            $('select[name="district"]').append(
+                                '<option value="' +
+                                value.nama + '" data-idDistrict="' + value.id +
+                                '">' + value.nama + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('select[name="district"]').empty();
+            }
+
+        });
+
+        // getSubDistrictbyDistrict
+        $('select[name="district"]').on('change', function() {
+            var idDistrict = $(this).find('option:selected').attr('data-idDistrict');
+            var url = '{{ route("mappingSubDistrict", ":id") }}';
+            url = url.replace(':id', idDistrict);
+            if (idDistrict) {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    dataType: "json",
+                    success: function(data) {
+                        $('select[name="subdistrict"]').empty();
+                        $('select[name="subdistrict"]').append(
+                            '<option value="" selected>- Choose District-</option>'
+                        );
+
+                        $.each(data, function(div, value) {
+                            $('select[name="subdistrict"]').append(
+                                '<option value="' +
+                                value.nama + '" data-zipcode="' + value
+                                .kodepos + '">' + value.nama + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('select[name="subdistrict"]').empty();
+            }
+        });
+
+        // zipcode
+        $('select[name="subdistrict"]').on('change', function() {
+            var zipcode = $(this).find('option:selected').attr('data-zipcode');
+            console.log(zipcode);
+            $('#zipcode').val(zipcode)
+        });
+
+    });
+
 </script>
 
 @endsection
