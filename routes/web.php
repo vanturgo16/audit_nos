@@ -5,6 +5,7 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MstBranchController;
+use App\Http\Controllers\MstChecklistController;
 use App\Http\Controllers\MstDepartmentController;
 use App\Http\Controllers\MstDropdownController;
 use App\Http\Controllers\MstEmployeeController;
@@ -71,6 +72,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/employee', [MstEmployeeController::class, 'index'])->name('employee.index');
     Route::post('employee/create', [MstEmployeeController::class, 'store'])->name('employee.store');
     Route::post('employee/update/{id}', [MstEmployeeController::class, 'update'])->name('employee.update');
+
+    //Checklist
+    Route::get('/checklist', [MstChecklistController::class, 'index'])->name('checklist.index');
+    Route::post('checklist/create', [MstChecklistController::class, 'store'])->name('checklist.store');
+    Route::post('checklist/update/{id}', [MstChecklistController::class, 'update'])->name('checklist.update');
+    Route::get('/checklist/mark/{id}', [MstChecklistController::class, 'mark'])->name('checklist.mark');
+    Route::post('checklist/createmark/{id}', [MstChecklistController::class, 'markstore'])->name('checklist.markstore');
+    Route::get('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete');
+
 
     //Audit Log
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog');

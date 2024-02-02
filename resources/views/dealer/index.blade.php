@@ -42,7 +42,7 @@
                                                         <option value="" selected>-- Select Type --</option>
                                                         <option disabled>──────────</option>
                                                         @foreach($type_dealer as $item)
-                                                            <option value="{{ $item->id }}" {{ old('name_value') == $item->name_value ? 'selected' : '' }}> {{ $item->name_value }} </option>
+                                                            <option value="{{ $item->name_value }}" {{ old('name_value') == $item->name_value ? 'selected' : '' }}> {{ $item->name_value }} </option>
                                                         @endforeach
                                                     </select>
                                                 </div>

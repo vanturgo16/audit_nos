@@ -184,7 +184,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="{{ route('checklist.index') }}">
                                 <i class="mdi mdi-check-network"></i>
                                 <span>Master Checklist</span>
                             </a>

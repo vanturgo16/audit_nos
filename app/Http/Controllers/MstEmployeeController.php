@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MstBranch;
-use App\Models\MstDepartments;
+
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +11,8 @@ use Browser;
 
 // Model
 use App\Models\MstEmployees;
+use App\Models\MstBranch;
+use App\Models\MstDepartments;
 
 class MstEmployeeController extends Controller
 {
