@@ -166,9 +166,9 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('dealer.index') }}">
+                            <a href="{{ route('branch.index') }}">
                                 <i class="mdi mdi-office-building"></i>
-                                <span>Master Dealer</span>
+                                <span>Master Branch</span>
                             </a>
                         </li>
                         <li>

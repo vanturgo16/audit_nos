@@ -62,7 +62,7 @@
                                                         <!-- ini isi dari ajax -->
                                                     </select>
                                                 </div>
-                                                <div class="col-lg-12 mb-3">
+                                                <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Email</label><label style="color: darkred">*</label>
                                                     <input class="form-control" name="email" type="email" id="cek_mail" value="" placeholder="Input Email.." required>
                                                     <p id="emailWarning" style="color: darkred;"></p>
@@ -79,15 +79,11 @@
                                                     <label class="form-label">Employee Telephone</label><label style="color: darkred">*</label>
                                                     <input class="form-control" name="employee_telephone" type="text" value="" placeholder="Input Employee Telephone.." required>
                                                 </div>
-                                                <div class="col-lg-6 mb-3">
-                                                    <label class="form-label">Employee address</label><label style="color: darkred">*</label>
-                                                    <input class="form-control" name="employee_address" type="text" value="" placeholder="Input Employee Address.." required>
-                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-lg-12 mb-3">
                                                     <label class="form-label">Employee address</label><label style="color: darkred">*</label>
-                                                    <textarea class="form-control" rows="3" type="text" class="form-control" name="employee_address" placeholder="(Input Employee Address, Ex. Street/Unit/Floor/No)" value="{{ old('address') }}" required></textarea>
+                                                    <textarea class="form-control" rows="3" type="text" class="form-control" name="employee_address" placeholder="(Input Employee Address, Ex. Street/Unit/Floor/No)" value="{{ old('employee_address') }}" required></textarea>
                                                 </div>
                                                 <div class="col-lg-6 mb-3">
                                                     <select class="form-select" name="province" id="province" class="form-control" required>
@@ -221,7 +217,7 @@
 
                                         {{-- Modal Update --}}
                                         <div class="modal fade" id="update{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-top" role="document">
+                                            <div class="modal-dialog modal-lg" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="staticBackdropLabel">Edit Employee</h5>
@@ -241,7 +237,7 @@
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-lg-6 mb-3">
-                                                                    <select class="form-select" name="id_dept" id="selecteditDepartment" required>
+                                                                    <select class="form-select" name="id_dept" id="selecteditDepartment{{ $data->id }}" required>
                                                                         <option value="" selected>-- Select Department --</option>
                                                                         <option disabled>──────────</option>
                                                                         @foreach( $department as $item)
@@ -250,10 +246,14 @@
                                                                     </select>
                                                                 </div>
                                                                 <div class="col-lg-6 mb-3">
-                                                                    <select class="form-select" name="id_position" id="selecteditPosition" required>
+                                                                    <select class="form-select" name="id_position" id="selecteditPosition{{ $data->id }}" required>
                                                                         <option value="" selected>-- Select Position --</option>
                                                                         <option disabled>──────────</option>
                                                                     </select>
+                                                                </div>
+                                                                <div class="col-lg-6 mb-3">
+                                                                    <label class="form-label">Email</label><label style="color: darkred">*</label>
+                                                                    <input class="form-control" name="email" type="email" value="{{ $data->email }}" placeholder="Input Email.." required>
                                                                 </div>
                                                                 <div class="col-lg-6 mb-3">
                                                                     <label class="form-label">Employee Name</label><label style="color: darkred">*</label>
@@ -267,9 +267,39 @@
                                                                     <label class="form-label">Employee Telephone</label><label style="color: darkred">*</label>
                                                                     <input class="form-control" name="employee_telephone" type="text" value="{{ $data->employee_telephone }}" placeholder="Input Employee Telephone.." required>
                                                                 </div>
-                                                                <div class="col-lg-6 mb-3">
-                                                                    <label class="form-label">Employee address</label><label style="color: darkred">*</label>
-                                                                    <input class="form-control" name="employee_address" type="text" value="{{ $data->employee_address }}" placeholder="Input Employee Address.." required>
+                                                                <div class="row">
+                                                                    <div class="col-lg-12 mb-3">
+                                                                        <label class="form-label">Employee address</label><label style="color: darkred">*</label>
+                                                                        <textarea class="form-control" rows="3" type="text" class="form-control" name="employee_address" placeholder="(Input Employee Address, Ex. Street/Unit/Floor/No)" required>{{ $data->employee_address }}</textarea>
+                                                                    </div>
+                                                                    <div class="col-lg-6 mb-3">
+                                                                        <select class="form-select" name="province" id="province" class="form-control" required>
+                                                                            <option value="" selected>-- Select Province --</option>
+                                                                            @foreach ($provinces as $province)
+                                                                                <option value="{{ $province['nama'] }}"
+                                                                                data-idProv="{{ $province['id'] }}" @if($data->province == $province['nama']) selected="selected" @endif>
+                                                                                {{ $province['nama'] }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-6 mb-3">
+                                                                        <select class="form-select" name="city" id="city" class="form-control" required>
+                                                                            <option value="" selected>- Select City -</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-6 mb-3">
+                                                                        <select class="form-select" name="district" id="district" class="form-control" required>
+                                                                            <option value="" selected>- Select District -</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-6 mb-3">
+                                                                        <select class="form-select" name="subdistrict" id="subdistrict" class="form-control" required>
+                                                                            <option value="" selected>- Select Subdistrict -</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-lg-6 mb-3">
+                                                                        <input name="zipcode" id="zipcode" type="text" class="form-control" placeholder="Input Postal Code" required>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -363,28 +393,33 @@
     });
 </script>
 
+@foreach ($datas as $datam)
 <script>
+    //edit
     $(document).ready(function(){
         function loadPositions(idDept) {
             $.ajax({
                 url: '/json_position/' + idDept,
                 type: 'GET',
+                
                 success: function(data) {
-                    $('#selecteditPosition').empty();
+                    $('#selecteditPosition{{ $datam->id }}').empty();
                     $.each(data, function(key, value) {
-                        $('#selecteditPosition').append('<option value="' + value.id + '">' + value.position_name + '</option>');
+                        var id_position = '{{$datam->id_position}}'
+                        $('#selecteditPosition{{ $datam->id }}').append('<option value="' + value.id + '" ' + (id_position == value.id ? 'selected="selected"' : '') + '>' + value.position_name + '</option>');
                     });
                 }
             });
         }
-        $('#selecteditDepartment').change(function(){
+        $('#selecteditDepartment{{ $datam->id }}').change(function(){
             var idDept = $(this).val();
             loadPositions(idDept);
         });
 
-        loadPositions($('#selecteditDepartment').val());
+        loadPositions($('#selecteditDepartment{{ $datam->id }}').val());
     });
 </script>
+@endforeach
 
 {{-- Script Regional --}}
 <script type="text/javascript">

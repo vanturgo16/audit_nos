@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MstDealers;
+use App\Models\MstBranch;
 use App\Models\MstDepartments;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ class MstEmployeeController extends Controller
         ->join('mst_positions', 'mst_employees.id_position', '=', 'mst_positions.id')
         ->select('mst_employees.*', 'mst_dealers.dealer_name', 'mst_departments.department_name', 'mst_positions.position_name')
         ->get();
-        $dealer=MstDealers::get();
+        $dealer=MstBranch::get();
         $department=MstDepartments::get();
 
         //Audit Log
@@ -55,7 +55,12 @@ class MstEmployeeController extends Controller
             'employee_name' => 'required',
             'employee_nik' => 'required',
             'employee_telephone' => 'required',
-            'employee_address' => 'required'
+            'employee_address' => 'required',
+            'province' => 'required',
+            'city' => 'required',
+            'district' => 'required',
+            'subdistrict' => 'required',
+            'zipcode' => 'required'
         ]);
 
         DB::beginTransaction();
@@ -70,6 +75,11 @@ class MstEmployeeController extends Controller
                 'employee_nik' => $request->employee_nik,
                 'employee_telephone' => $request->employee_telephone,
                 'employee_address' => $request->employee_address,
+                'province' => $request->province,
+                'city' => $request->city,
+                'district' => $request->district,
+                'subdistrict' => $request->subdistrict,
+                'postal_code' => $request->zipcode
             ]);
 
             //Audit Log
@@ -96,10 +106,16 @@ class MstEmployeeController extends Controller
             'id_dealer' => 'required',
             'id_dept' => 'required',
             'id_position' => 'required',
+            'email' => 'required',
             'employee_name' => 'required',
             'employee_nik' => 'required',
             'employee_telephone' => 'required',
-            'employee_address' => 'required'
+            'employee_address' => 'required',
+            'province' => 'required',
+            'city' => 'required',
+            'district' => 'required',
+            'subdistrict' => 'required',
+            'zipcode' => 'required'
         ]);
 
 
@@ -111,6 +127,11 @@ class MstEmployeeController extends Controller
         $databefore->employee_nik = $request->employee_nik;
         $databefore->employee_telephone = $request->employee_telephone;
         $databefore->employee_address = $request->employee_address;
+        $databefore->province = $request->province;
+        $databefore->city = $request->city;
+        $databefore->district = $request->district;
+        $databefore->subdistrict = $request->subdistrict;
+        $databefore->postal_code = $request->zipcode;
 
         if($databefore->isDirty()){
             DB::beginTransaction();
@@ -122,7 +143,12 @@ class MstEmployeeController extends Controller
                     'employee_name' => $request->employee_name,
                     'employee_nik' => $request->employee_nik,
                     'employee_telephone' => $request->employee_telephone,
-                    'employee_address' => $request->employee_address
+                    'employee_address' => $request->employee_address,
+                    'province' => $request->province,
+                    'city' => $request->city,
+                    'district' => $request->district,
+                    'subdistrict' => $request->subdistrict,
+                    'postal_code' => $request->zipcode
                 ]);
 
                 //Audit Log
