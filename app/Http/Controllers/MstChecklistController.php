@@ -6,11 +6,13 @@ use App\Models\MstChecklistDetails;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+// use Intervention\Image\Facades\Image;
 use Browser;
 
 //model
 use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
+use App\Models\MstParentChecklists;
 
 class MstChecklistController extends Controller
 {
@@ -19,8 +21,12 @@ class MstChecklistController extends Controller
     public function index()
     {
 
-        $datas=MstChecklists::get();
+        // $datas=MstChecklists::get();
+        $datas = MstChecklists::join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
+        ->select('mst_checklists.*', 'mst_parent_checklists.type_checklist', 'mst_parent_checklists.parent_point_checklist', 'mst_parent_checklists.path_guide_premises')
+        ->get();
         $type_checklist = MstDropdowns ::where('category', 'Type Checklist')->get();
+        $type_parent = MstParentChecklists ::get();
 
         //Audit Log
         $username= auth()->user()->email; 
@@ -30,7 +36,7 @@ class MstChecklistController extends Controller
         $activity='View List Mst Checklist';
         $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
         
-        return view('checklist.index',compact('datas', 'type_checklist'));
+        return view('checklist.index',compact('datas', 'type_checklist', 'type_parent'));
         // dd($datas);
     }
     public function store(Request $request)
@@ -38,7 +44,8 @@ class MstChecklistController extends Controller
 
         $request->validate([
             'type_checklist' => 'required',
-            'point_checklist' => 'required',
+            'parent_point_checklist' => 'required',
+            'q_child_point' => 'required',
             'sub_point_checklist' => 'required',
             'indikator' => 'required',
             'mandatory_silver' => 'required',
@@ -47,12 +54,55 @@ class MstChecklistController extends Controller
             'upload_file' => 'required'
         ]);
 
+        if($request->parent_point_checklist == "AddParent"){
+            
+            $add_parent = $request->add_parent;
+            $request->validate([
+                'thumbnail' => 'required|image|mimes:jpg,jpeg,png|max:3072'
+            ]);
+            $imagePath = $request->file('thumbnail')->store('images/thumbnails', 'public');
+
+            // $image = Image::make($request->file('thumbnail')->getRealPath());
+            // $extension = $request->file('thumbnail')->getClientOriginalExtension();
+            // $image->stream($extension, 80);
+            // $imagePath = $request->file('thumbnail')->storeAs('images/thumbnails', $request->file('thumbnail')->hashName(), 'public');
+            // Storage::delete($request->file('thumbnail')->hashName());
+
+                DB::beginTransaction();
+            try{
+                
+                $newParentChecklist =   MstParentChecklists::create([
+                                            'type_checklist' => $request->type_checklist,
+                                            'parent_point_checklist' => $add_parent,
+                                            'path_guide_premises' => $imagePath
+                                        ]);
+
+
+                $id_parent = $newParentChecklist->id;
+                DB::commit();
+
+            } catch (\Exception $e) {
+
+                DB::rollBack();
+                dd($e);
+            }
+
+        }else{
+            $id_parent = $request->parent_point_checklist;
+        }
+
+        if($request->q_child_point == "0"){
+            $child_checklist = null;
+        }elseif($request->q_child_point == "1"){
+            $child_checklist = $request->child_checklist;
+        }
+
         DB::beginTransaction();
         try{
             
             MstChecklists::create([
-                'type_checklist' => $request->type_checklist,
-                'point_checklist' => $request->point_checklist,
+                'id_parent_checklist' => $id_parent,
+                'child_point_checklist' => $child_checklist,
                 'sub_point_checklist' => $request->sub_point_checklist,
                 'indikator' => $request->indikator,
                 'mandatory_silver' => $request->mandatory_silver,

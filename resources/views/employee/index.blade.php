@@ -55,10 +55,10 @@
                                         <td class="align-middle text-center"><b>{{ $data->department_name }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->position_name }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->employee_name }}</b></td>
-                                        <td class="align-middle text-center"><b>{{ $data->email }}</b></td>
-                                        <td class="align-middle text-center"><b>{{ $data->employee_nik }}</b></td>
-                                        <td class="align-middle text-center"><b>{{ $data->employee_telephone }}</b></td>
-                                        <td class="align-middle text-center"><b>{{ $data->employee_address }}</b></td>
+                                        <td class="align-middle text-center">{{ $data->email }}</td>
+                                        <td class="align-middle text-center">{{ $data->employee_nik }}</td>
+                                        <td class="align-middle text-center">{{ $data->employee_telephone }}</td>
+                                        <td class="align-middle text-center">{{ $data->employee_address }}</td>
                                         <td class="align-middle text-center">
                                             <div class="btn-group" role="group">
                                                 <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
