@@ -17,3 +17,12 @@
     padding-right: 0.1rem;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.586);
 }
+.truncate-text {
+    white-space: normal;
+}
+.left-align {
+    text-align: left;
+}
+.text-bold {
+    font-weight: bold;
+}

@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Browser;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 // Model
 use App\Models\MstDepartments;
@@ -15,28 +15,39 @@ class MstDepartmentController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index()
+    public function index(Request $request)
     {
-        $datas=MstDepartments::get();
+        if ($request->ajax()) {
+            $data = $this->getData();
+            return $data;
+        }
 
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Department';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst Department');
         
-        return view('department.index',compact('datas'));
+        return view('department.index');
+    }
+
+    private function getData()
+    {
+        $query = MstDepartments::orderBy('created_at')->get();
+        $data = DataTables::of($query)
+            ->addColumn('action', function ($data) {
+                return view('department.action', compact('data'));
+            })
+            ->toJson();
+        return $data;
     }
 
     public function store(Request $request)
     {
         // dd($request->all());
-
-        $request->validate([
-            'department_name' => 'required',
+        $validate = Validator::make($request->all(),[
+            'department_name' => 'required'
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         DB::beginTransaction();
         try{
@@ -47,17 +58,12 @@ class MstDepartmentController extends Controller
             ]);
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Create New Department';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Create New Department');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Create New Department']);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Create New Department!']);
         }
     }
@@ -68,9 +74,12 @@ class MstDepartmentController extends Controller
 
         $id = decrypt($id);
 
-        $request->validate([
+        $validate = Validator::make($request->all(),[
             'department_name' => 'required'
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         $databefore = MstDepartments::where('id', $id)->first();
         $databefore->department_name = $request->department_name;
@@ -83,17 +92,12 @@ class MstDepartmentController extends Controller
                 ]);
 
                 //Audit Log
-                $username= auth()->user()->email; 
-                $ipAddress=$_SERVER['REMOTE_ADDR'];
-                $location='0';
-                $access_from=Browser::browserName();
-                $activity='Update Department';
-                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                $this->auditLogsShort('Update Department');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Update Department']);
-            } catch (\Exception $e) {
-                dd($e);
+            } catch (Exception $e) {
+                DB::rollback();
                 return redirect()->back()->with(['fail' => 'Failed to Update Department!']);
             }
         } else {
@@ -114,17 +118,12 @@ class MstDepartmentController extends Controller
             $name = MstDepartments::where('id', $id)->first();
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Activate Department ('. $name->department_name . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Activate Department ('. $name->department_name . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Activate Department ' . $name->department_name]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Activate Department ' . $name->department_name .'!']);
         }
     }
@@ -142,17 +141,12 @@ class MstDepartmentController extends Controller
             $name = MstDepartments::where('id', $id)->first();
             
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Deactivate Department ('. $name->department_name . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Deactivate Department ('. $name->department_name . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Deactivate Department ' . $name->department_name]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Deactivate Department ' . $name->department_name .'!']);
         }
     }

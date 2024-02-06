@@ -6,7 +6,8 @@ use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Browser;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 // Model
 use App\Models\User;
@@ -17,31 +18,44 @@ class UserController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index()
+    public function index(Request $request)
     {
-        $datas=User::get();
-
         $role = MstDropdowns::where('category', 'Role User')->get();
 
+        if ($request->ajax()) {
+            $data = $this->getData($role);
+            return $data;
+        }
+
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst User';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst User');
         
-        return view('users.index',compact('datas', 'role'));
+        return view('users.index', compact('role'));
+    }
+
+    private function getData($role)
+    {
+        $query = User::orderBy('created_at')->get();
+        $data = DataTables::of($query)
+            ->addColumn('action', function ($data) use ($role){
+                return view('users.action', compact('data', 'role'));
+            })
+            ->toJson();
+
+        return $data;
     }
 
     public function store(Request $request)
     {
         // dd($request->all());
 
-        $request->validate([
+        $validate = Validator::make($request->all(),[
             'email' => 'required',
             'role' => 'required',
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         $count= MstEmployees::where('email',$request->email)->count();
         if($count < 1){
@@ -66,17 +80,12 @@ class UserController extends Controller
                 ]);
 
                 //Audit Log
-                $username= auth()->user()->email; 
-                $ipAddress=$_SERVER['REMOTE_ADDR'];
-                $location='0';
-                $access_from=Browser::browserName();
-                $activity='Create New User ('. $request->email . ')';
-                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                $this->auditLogsShort('Create New User ('. $request->email . ')');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Create New User']);
-            } catch (\Exception $e) {
-                dd($e);
+            } catch (Exception $e) {
+                DB::rollback();
                 return redirect()->back()->with(['fail' => 'Failed to Create New User!']);
             }
         }
@@ -88,9 +97,12 @@ class UserController extends Controller
 
         $iduser = decrypt($id);
 
-        $request->validate([
+        $validate = Validator::make($request->all(),[
             'role' => 'required',
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         $userbefore = User::where('id', $iduser)->first();
         $userbefore->role = $request->role;
@@ -103,17 +115,12 @@ class UserController extends Controller
                 ]);
 
                 //Audit Log
-                $username= auth()->user()->email; 
-                $ipAddress=$_SERVER['REMOTE_ADDR'];
-                $location='0';
-                $access_from=Browser::browserName();
-                $activity='Update User ('. $userbefore->name . ')';
-                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                $this->auditLogsShort('Update User ('. $userbefore->email . ')');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Update User']);
-            } catch (\Exception $e) {
-                dd($e);
+            } catch (Exception $e) {
+                DB::rollback();
                 return redirect()->back()->with(['fail' => 'Failed to Update User!']);
             }
         } else {
@@ -124,8 +131,7 @@ class UserController extends Controller
     public function delete($id)
     {
         $iduser = decrypt($id);
-
-        dd($iduser);
+        // dd($iduser);
 
         DB::beginTransaction();
         try{
@@ -134,17 +140,12 @@ class UserController extends Controller
             $name = User::where('id', $id)->first();
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Delete User ('. $name->email . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Delete User ('. $name->email . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Delete User ' . $name->email]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Delete User ' . $name->email .'!']);
         }
     }
@@ -162,17 +163,12 @@ class UserController extends Controller
             $name = User::where('id', $id)->first();
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Activate User ('. $name->email . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Activate User ('. $name->email . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Activate User ' . $name->email]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Activate User ' . $name->email .'!']);
         }
     }
@@ -190,17 +186,12 @@ class UserController extends Controller
             $name = User::where('id', $id)->first();
             
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Deactivate User ('. $name->email . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Deactivate User ('. $name->email . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Deactivate User ' . $name->email]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Deactivate User ' . $name->email .'!']);
         }
     }

@@ -22,8 +22,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-
-                        <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
+                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
@@ -32,20 +31,7 @@
                                     <th class="align-middle text-center">Activity</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php $no = 0;?> 
-                                @foreach ($logs as $log)
-                                <?php $no++ ;?>
-                                    <tr>
-                                        <td class="align-middle text-center">{{ $no }}</td>
-                                        <td class="align-middle">{{ $log->username }}</td>
-                                        <td class="align-middle">{{ $log->ip_address }} - <b>{{ $log->access_from }}</b><br>{{ $log->created_at }}</td>
-                                        <td class="align-middle">{{ $log->activity }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
-
                     </div>
                 </div>
             </div>
@@ -53,5 +39,42 @@
 
     </div>
 </div>
+
+<script>
+    $(function() {
+        $('#server-side-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{!! route('auditlog') !!}',
+            columns: [{
+                data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    },
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },
+                {
+                    orderable: true,
+                    data: 'username',
+                    name: 'username'
+                },
+                {
+                    data: 'ip_address',
+                    orderable: true,
+                    render: function(data, type, row) {
+                        return row.ip_address + ' - <b>' + row.access_from + '</b><br>' + row.created_at;
+                    },
+                },
+                {
+                    orderable: true,
+                    data: 'activity',
+                    name: 'activity'
+                },
+            ],
+        });
+    });
+</script>
 
 @endsection

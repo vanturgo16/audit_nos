@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Browser;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 // Model
 use App\Models\MstDropdowns;
@@ -15,33 +15,46 @@ class MstDropdownController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index()
+    public function index(Request $request)
     {
-        $datas=MstDropdowns::get();
-
         $category = MstDropdowns::select('category')->get();
         $category = $category->unique('category');
 
+        if ($request->ajax()) {
+            $data = $this->getData($category);
+            return $data;
+        }
+
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Dropdown';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst Dropdown');
         
-        return view('dropdown.index',compact('datas', 'category'));
+        return view('dropdown.index',compact('category'));
+    }
+
+    private function getData($category)
+    {
+        $query=MstDropdowns::orderBy('created_at')->get();
+
+        $data = DataTables::of($query)
+            ->addColumn('action', function ($data) use ($category){
+                return view('dropdown.action', compact('data', 'category'));
+            })
+            ->toJson();
+
+        return $data;
     }
 
     public function store(Request $request)
     {
         // dd($request->all());
-
-        $request->validate([
+        $validate = Validator::make($request->all(),[
             'category' => 'required',
             'name_value' => 'required',
             'code_format' => 'required',
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         if($request->category == "NewCat"){
             $category = $request->addcategory;
@@ -61,17 +74,12 @@ class MstDropdownController extends Controller
             ]);
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Create New Dropdown';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Create New Dropdown');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Create New Dropdown']);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Create New Dropdown!']);
         }
     }
@@ -81,12 +89,14 @@ class MstDropdownController extends Controller
         // dd($request->all());
 
         $id = decrypt($id);
-
-        $request->validate([
+        $validate = Validator::make($request->all(),[
             'category' => 'required',
             'name_value' => 'required',
             'code_format' => 'required',
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         if($request->category == "NewCat"){
             $category = $request->addcategory;
@@ -110,17 +120,12 @@ class MstDropdownController extends Controller
                 ]);
 
                 //Audit Log
-                $username= auth()->user()->email; 
-                $ipAddress=$_SERVER['REMOTE_ADDR'];
-                $location='0';
-                $access_from=Browser::browserName();
-                $activity='Update Dropdown';
-                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                $this->auditLogsShort('Update Dropdown');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Update Dropdown']);
-            } catch (\Exception $e) {
-                dd($e);
+            } catch (Exception $e) {
+                DB::rollback();
                 return redirect()->back()->with(['fail' => 'Failed to Update Dropdown!']);
             }
         } else {
@@ -141,17 +146,12 @@ class MstDropdownController extends Controller
             $name = MstDropdowns::where('id', $id)->first();
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Activate Dropdown ('. $name->name_value . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Activate Dropdown ('. $name->name_value . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Activate Dropdown ' . $name->name_value]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Activate Dropdown ' . $name->name_value .'!']);
         }
     }
@@ -169,17 +169,12 @@ class MstDropdownController extends Controller
             $name = MstDropdowns::where('id', $id)->first();
             
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Deactivate Dropdown ('. $name->name_value . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Deactivate Dropdown ('. $name->name_value . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Deactivate Dropdown ' . $name->name_value]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Deactivate Dropdown ' . $name->name_value .'!']);
         }
     }

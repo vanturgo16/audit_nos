@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Browser;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
 
 // Model
 use App\Models\MstPositions;
@@ -16,34 +16,47 @@ class MstPositionController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index()
+    public function index(Request $request)
     {
-        $datas=MstPositions::select('mst_positions.*', 'mst_departments.department_name as department')
-            ->leftjoin('mst_departments', 'mst_positions.id_department', 'mst_departments.id')
-            ->get();
-
         $departments=MstDepartments::where('is_active', 1)->get();
-        $alldepartments=MstDepartments::get();
+
+        if ($request->ajax()) {
+            $data = $this->getData($departments);
+            return $data;
+        }
 
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Position';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst Position');
         
-        return view('position.index',compact('datas', 'departments', 'alldepartments'));
+        return view('position.index',compact('departments'));
+    }
+
+    private function getData($departments)
+    {
+        $query=MstPositions::select('mst_positions.*', 'mst_departments.department_name as department')
+            ->leftjoin('mst_departments', 'mst_positions.id_department', 'mst_departments.id')
+            ->orderBy('mst_positions.created_at')
+            ->get();
+
+        $data = DataTables::of($query)
+            ->addColumn('action', function ($data) use ($departments){
+                return view('position.action', compact('data', 'departments'));
+            })
+            ->toJson();
+
+        return $data;
     }
 
     public function store(Request $request)
     {
         // dd($request->all());
-
-        $request->validate([
+        $validate = Validator::make($request->all(),[
             'id_department' => 'required',
             'position_name' => 'required',
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         DB::beginTransaction();
         try{
@@ -55,17 +68,12 @@ class MstPositionController extends Controller
             ]);
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Create New Position';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Create New Position');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Create New Position']);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Create New Position!']);
         }
     }
@@ -76,10 +84,13 @@ class MstPositionController extends Controller
 
         $id = decrypt($id);
 
-        $request->validate([
+        $validate = Validator::make($request->all(),[
             'id_department' => 'required',
             'position_name' => 'required',
         ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
 
         $databefore = MstPositions::where('id', $id)->first();
         $databefore->id_department = $request->id_department;
@@ -94,17 +105,12 @@ class MstPositionController extends Controller
                 ]);
 
                 //Audit Log
-                $username= auth()->user()->email; 
-                $ipAddress=$_SERVER['REMOTE_ADDR'];
-                $location='0';
-                $access_from=Browser::browserName();
-                $activity='Update Position';
-                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                $this->auditLogsShort('Update Position');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Update Position']);
-            } catch (\Exception $e) {
-                dd($e);
+            } catch (Exception $e) {
+                DB::rollback();
                 return redirect()->back()->with(['fail' => 'Failed to Update Position!']);
             }
         } else {
@@ -125,17 +131,12 @@ class MstPositionController extends Controller
             $name = MstPositions::where('id', $id)->first();
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Activate Position ('. $name->position_name . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Activate Position ('. $name->position_name . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Activate Position ' . $name->position_name]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Activate Position ' . $name->position_name .'!']);
         }
     }
@@ -153,17 +154,12 @@ class MstPositionController extends Controller
             $name = MstPositions::where('id', $id)->first();
             
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Deactivate Position ('. $name->position_name . ')';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Deactivate Position ('. $name->position_name . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Deactivate Position ' . $name->position_name]);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Deactivate Position ' . $name->position_name .'!']);
         }
     }
