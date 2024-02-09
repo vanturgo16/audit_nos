@@ -191,6 +191,14 @@
                             </a>
                         </li>
 
+                        <li class="menu-title" data-key="t-menu">Checklist Audit</li>
+                        <li>
+                            <a href="{{ route('periodchecklist.index') }}">
+                                <i class="mdi mdi-check-underline-circle"></i>
+                                <span>Period Checklist</span>
+                            </a>
+                        </li>
+
                         <li class="menu-title" data-key="t-menu">Logs</li>
                         <li>
                             <a href="{{ route('auditlog') }}">

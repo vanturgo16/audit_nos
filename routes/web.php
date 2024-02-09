@@ -4,11 +4,13 @@ use App\Http\Controllers\AjaxMappingRegional;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MstAssignChecklistController;
 use App\Http\Controllers\MstBranchController;
 use App\Http\Controllers\MstChecklistController;
 use App\Http\Controllers\MstDepartmentController;
 use App\Http\Controllers\MstDropdownController;
 use App\Http\Controllers\MstEmployeeController;
+use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
 use App\Http\Controllers\UserController;
@@ -80,6 +82,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checklist/mark/{id}', [MstChecklistController::class, 'mark'])->name('checklist.mark');
     Route::post('checklist/createmark/{id}', [MstChecklistController::class, 'markstore'])->name('checklist.markstore');
     Route::get('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete');
+    
+    //Period Checklist
+    Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index');
+    Route::post('periodchecklist/create', [MstPeriodChecklistController::class, 'store'])->name('periodchecklist.store');
+    Route::post('periodchecklist/update/{id}', [MstPeriodChecklistController::class, 'update'])->name('periodchecklist.update');
+    Route::post('periodchecklist/activate/{id}', [MstPeriodChecklistController::class, 'activate'])->name('periodchecklist.activate');
+    Route::post('periodchecklist/deactivate/{id}', [MstPeriodChecklistController::class, 'deactivate'])->name('periodchecklist.deactivate');
+    
+    //Assign Checklist
+    Route::get('/assignchecklist/{id}', [MstAssignChecklistController::class, 'index'])->name('assignchecklist.index');
+    Route::post('assignchecklist/create/{id}', [MstAssignChecklistController::class, 'store'])->name('assignchecklist.store');
+    Route::post('assignchecklist/delete/{id}', [MstAssignChecklistController::class, 'delete'])->name('assignchecklist.delete');
 
 
     //Audit Log
