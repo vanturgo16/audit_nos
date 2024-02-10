@@ -64,6 +64,39 @@
                             <span>{!! $data->indikator !!}</span>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Mandatory :</span></div>
+                                <span>
+                                    @if($data->mandatory_silver == 1)
+                                        <span class="badge bg-success text-white">S</span>
+                                    @endif
+                                    @if($data->mandatory_gold == 1)
+                                        <span class="badge bg-success text-white">G</span>
+                                    @endif
+                                    @if($data->mandatory_platinum == 1)
+                                        <span class="badge bg-success text-white">P</span>
+                                    @endif
+                                    @if($data->mandatory_silver != 1 && $data->mandatory_gold != 1 && $data->mandatory_platinum != 1)
+                                        <span class="badge bg-secondary text-white">Null</span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <div><span class="fw-bold">File Upload :</span></div>
+                                <span>
+                                    @if($data->upload_file == 1)
+                                        <span class="badge bg-success text-white">Yes</span>
+                                    @else
+                                        <span class="badge bg-danger text-white">No</span>
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>

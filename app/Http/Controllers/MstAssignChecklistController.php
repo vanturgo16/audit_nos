@@ -115,4 +115,11 @@ class MstAssignChecklistController extends Controller
             return redirect()->back()->with(['fail' => 'Failed to Delete Assign Checklist']);
         }
     }
+    public function searchchecklist($id)
+    {
+        $data = MstChecklists::where('id', $id)->first();
+
+        $data = $data->toArray();
+        return response()->json($data);
+    }
 }

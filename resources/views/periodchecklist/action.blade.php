@@ -117,11 +117,11 @@
                             <div class="row">
                                 <div class="col-6 mb-3">
                                     <label class="form-label">Start Date</label><label style="color: darkred">*</label>
-                                    <input class="form-control" name="start_date" type="datetime-local" value="{{ $data->start_date }}" required>
+                                    <input class="form-control" name="start_date" type="date" value="{{ $data->start_date }}" required>
                                 </div>
                                 <div class="col-6 mb-3">
                                     <label class="form-label">End Date</label><label style="color: darkred">*</label>
-                                    <input class="form-control" name="end_date" type="datetime-local" value="{{ $data->end_date }}" required>
+                                    <input class="form-control" name="end_date" type="date" value="{{ $data->end_date }}" required>
                                 </div>
                             </div>
                         </div>

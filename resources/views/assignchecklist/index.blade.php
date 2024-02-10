@@ -1,13 +1,12 @@
 @extends('layouts.master')
 
 @section('konten')
-
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Assign Checklist</h4>
+                    <h4 class="mb-sm-0 font-size-18">Assign Checklist</h4>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Checklist Audit</a></li>
@@ -34,6 +33,20 @@
                             <td class="align-middle"><b>Branch Name</b></td>
                             <td class="align-middle">: {{ $period->dealer_name }}</td>
                         </tr>
+                        <tr>
+                            <td class="align-middle"><b>Date</b></td>
+                            <td class="align-middle">: {{ $period->start_date }} <b> Until </b>{{ $period->end_date }}</td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle"><b>Status</b></td>
+                            <td class="align-middle">
+                                @if ($period->is_active == 1)
+                                    <span class="badge bg-success text-white">Active</span>
+                                @else
+                                    <span class="badge bg-danger text-white">Inactive</span>
+                                @endif
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -44,7 +57,7 @@
                         <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Assign Checklist</button>
                         {{-- Modal Add --}}
                         <div class="modal fade" id="add-new" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-top" role="document">
+                            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="staticBackdropLabel">Add New Assign Checklist</h5>
@@ -56,7 +69,7 @@
                                             <div class="row">
                                                 <div class="col-12 mb-2">
                                                     <label class="form-label">Master Checklist</label><label style="color: darkred">*</label>
-                                                    <select class="form-select" name="id_mst_checklist" required>
+                                                    <select class="form-select js-example-basic-single" name="id_mst_checklist" id="id_mst_checklist" style="width: 100%" required>
                                                         <option value="" selected>--Select Checklist--</option>
                                                         @foreach($checklists as $item)
                                                             <option value="{{ $item->id_checklist }}">
@@ -68,6 +81,26 @@
                                                             </option>
                                                         @endforeach
                                                     </select>
+                                                </div>
+                                                <div class="col-12 mb-2">
+                                                    <label class="form-label">Indikator</label>
+                                                    <textarea class="form-control" id="indikator" rows="5" placeholder="Auto Fill.." readonly>Select Checklist</textarea>
+                                                </div>
+                                                <div class="col-6 mb-2">
+                                                    <label class="form-label">Mandatory</label>
+                                                    <div id="mandatory">
+                                                        <span class="badge bg-secondary text-white">Select Checklist</span>
+                                                        {{-- <span class="badge bg-success text-white">S</span>
+                                                        <span class="badge bg-success text-white">G</span>
+                                                        <span class="badge bg-success text-white">P</span> --}}
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 mb-2">
+                                                    <label class="form-label">File Upload</label>
+                                                    <div id="fileupload">
+                                                        <span class="badge bg-secondary text-white">Select Checklist</span>
+                                                        {{-- <span class="badge bg-success text-white">Yes</span> --}}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -86,6 +119,46 @@
                                             submitButton.disabled = true;
                                             submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
                                             return true; // Allow form submission
+                                        });
+
+                                        $(document).ready(function(){
+                                            $('#id_mst_checklist').change(function(){
+                                                var id = $(this).val();
+                                                if(id == ""){
+                                                    $('#indikator').html('Select Checklist');
+                                                    $('#mandatory').html('<span class="badge bg-secondary text-white">Select Checklist</span>');
+                                                    $('#fileupload').html('<span class="badge bg-secondary text-white">Select Checklist</span>');
+                                                } else {
+                                                    $.ajax({
+                                                        url: '/searchchecklist/' + id,
+                                                        type: 'GET',
+                                                        success: function(data) {
+                                                            var strippedHtml = $('<div>').html(data.indikator).text();
+                                                            $('#indikator').html(strippedHtml);
+                                                            console.log(data)
+                                                            var html = ''
+                                                            if(data.mandatory_silver == 1){
+                                                                html += '<span class="badge bg-success text-white">S</span>';
+                                                            }
+                                                            if(data.mandatory_gold == 1){
+                                                                html += '<span class="badge bg-success text-white">G</span>';
+                                                            }
+                                                            if(data.mandatory_platinum == 1){
+                                                                html += '<span class="badge bg-success text-white">P</span>';
+                                                            }
+                                                            $('#mandatory').html(html);
+                                                            if(data.mandatory_silver != 1 && data.mandatory_gold != 1 && data.mandatory_platinum != 1){
+                                                                $('#mandatory').html('<span class="badge bg-secondary text-white">Null</span>');
+                                                            }
+                                                            if(data.upload_file == 1){
+                                                                $('#fileupload').html('<span class="badge bg-success text-white">Yes</span>');
+                                                            } else {
+                                                                $('#fileupload').html('<span class="badge bg-danger text-white">No</span>');
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            });
                                         });
                                     </script>
                                 </div>
@@ -174,5 +247,6 @@
             ],
         });
     });
+
 </script>
 @endsection
