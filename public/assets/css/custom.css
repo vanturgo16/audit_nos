@@ -1,0 +1,47 @@
+.drpdwn:hover {
+    background-color: #4e73df;
+    color: #ffff;
+}
+.drpdwn-dgr:hover {
+    background-color: red;
+    color: #ffff;
+}
+.drpdwn-scs:hover {
+    background-color: rgb(0, 185, 52);
+    color: #ffff;
+}
+.dropdown-menu2 {
+    background-color: #f3f3f3;
+    border: 0.1rem solid #5a5c68;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.586);
+}
+.truncate-text {
+    white-space: normal;
+}
+.left-align {
+    text-align: left;
+}
+.text-bold {
+    font-weight: bold;
+}
+
+.select2-container .select2-selection--single {
+    height: 39px; /* Match input height */
+    border: 1px solid #ced4da; /* Match input border color */
+    border-radius: 0.25rem; /* Match input border-radius */
+}
+
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__rendered {
+    line-height: 32px; /* Center text vertically */
+    color: #495057; /* Match input text color */
+}
+
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow {
+    height: 32px; /* Adjust arrow button height */
+}
