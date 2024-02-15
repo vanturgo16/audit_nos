@@ -7,9 +7,9 @@
         <title>Login | NOS Honda Banten</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- App favicon -->
-        <link rel="shortcut icon" href="{{ asset('assets/images/icon.png') }}">
+        <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
         <!-- preloader css -->
-        <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" />
+        {{-- <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" /> --}}
         <!-- Bootstrap Css -->
         <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
         <!-- Icons Css -->
@@ -98,7 +98,9 @@
                                         </script>
                                     </div>
                                     <div class="mt-4 mt-md-5 text-center">
-                                        <p class="mb-0">© Dashboard NOS Honda Banten 2024</p>
+                                        <p class="mb-0">
+                                            © Dashboard NOS PT Mitra Sendang Kemakmuran Banten 2024
+                                        </p>
                                     </div>
                                 </div>
                             </div>

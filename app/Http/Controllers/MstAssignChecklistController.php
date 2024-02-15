@@ -30,6 +30,14 @@ class MstAssignChecklistController extends Controller
             ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
             ->get();
 
+        $previewlist=MstAssignChecklists::select('mst_parent_checklists.type_checklist')
+            ->leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_periode_checklists.id', $id)
+            ->groupby('mst_parent_checklists.type_checklist')
+            ->get();
+
         if ($request->ajax()) {
             $data = $this->getData($period, $checklists);
             return $data;
@@ -38,7 +46,7 @@ class MstAssignChecklistController extends Controller
         //Audit Log
         $this->auditLogsShort('View List Mst Assign Checklist ('. $period->period . ')');
         
-        return view('assignchecklist.index',compact('period', 'checklists'));
+        return view('assignchecklist.index',compact('period', 'checklists', 'previewlist'));
     }
 
     private function getData($period, $checklists)
@@ -121,5 +129,27 @@ class MstAssignChecklistController extends Controller
 
         $data = $data->toArray();
         return response()->json($data);
+    }
+
+    public function preview($id, $type_checklist){
+        $id = decrypt($id);
+        // dd($id);
+
+        $previews=MstAssignChecklists::select('mst_parent_checklists.*', 'mst_checklists.*')
+            ->leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_periode_checklists.id', $id)
+            ->where('mst_parent_checklists.type_checklist', $type_checklist)
+            ->orderby('mst_parent_checklists.parent_point_checklist')
+            ->get();
+
+
+            dd($previews);
+        
+        //Audit Log
+        $this->auditLogsShort('Preview Assign Checklist');
+        
+        return view('assignchecklist.previewform',compact('type_checklist', 'previews'));
     }
 }

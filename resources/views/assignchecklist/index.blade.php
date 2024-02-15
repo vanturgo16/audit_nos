@@ -164,6 +164,47 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#preview"><i class="mdi mdi-eye-circle label-icon"></i> Preview Form</button> --}}
+                        <div class="modal fade" id="preview" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="staticBackdropLabel">Preview Form List (Grouped By Type Checklist)</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-12 mb-2">
+                                                <div class="card-body">
+                                                    <table class="table table-bordered dt-responsive nowrap w-100">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="align-middle text-center">Type Checklist</th>
+                                                                <th class="align-middle text-center">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($previewlist as $data)
+                                                                <tr>
+                                                                    <td class="align-middle text-center"><b>{{ $data->type_checklist }}</b></td>
+                                                                    <td class="align-middle text-center">
+                                                                        <a href="{{ route('assignchecklist.preview', ['id' => encrypt($period->id), 'type_checklist' => $data->type_checklist]) }}" type="button" class="btn btn-info waves-effect btn-label waves-light"><i class="mdi mdi-eye-circle label-icon"></i> Preview</a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="card-body">
                         <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">

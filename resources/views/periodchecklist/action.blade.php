@@ -16,7 +16,7 @@
 </div>
 
 {{-- MODAL --}}
-<div class="left-align">
+<div class="left-align truncate-text">
     {{-- Modal Info --}}
     <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
