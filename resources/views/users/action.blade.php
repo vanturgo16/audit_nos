@@ -15,7 +15,7 @@
 </div>
 
 {{-- MODAL --}}
-<div class="left-align">
+<div class="left-align truncate-text">
     {{-- Modal Edit User --}}
     <div class="modal fade" id="edit-user{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">

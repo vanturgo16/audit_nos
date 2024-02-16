@@ -33,7 +33,7 @@
                             <div class="col-12">
                                 <div class="text-center">
                                     <h5>Welcome to the "Audit Dashboard NOS"</h5>
-                                    <p class="text-muted">Here you can manage NOS (Network Operational Standard) in Honda Banten Regional</p>
+                                    <p class="text-muted">Here you can manage NOS (Network Operational Standard) in PT Mitra Sendang Kemakmuran Banten Regional</p>
                                 </div>
                             </div>
                         </div>

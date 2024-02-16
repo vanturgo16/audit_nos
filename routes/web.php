@@ -95,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('assignchecklist/create/{id}', [MstAssignChecklistController::class, 'store'])->name('assignchecklist.store');
     Route::post('assignchecklist/delete/{id}', [MstAssignChecklistController::class, 'delete'])->name('assignchecklist.delete');
     Route::get('/searchchecklist/{id}', [MstAssignChecklistController::class, 'searchchecklist'])->name('searchchecklist');
+    Route::get('/preview/{id}/{type_checklist}', [MstAssignChecklistController::class, 'preview'])->name('assignchecklist.preview');
 
 
     //Audit Log
