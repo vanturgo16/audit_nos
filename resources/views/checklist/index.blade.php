@@ -161,10 +161,6 @@
                                                         </tr>
                                                     </table>
                                                 </div>
-                                                <!-- <div class="col-lg-12 mb-3">
-                                                    <label class="form-label">Indikator</label><label style="color: darkred">*</label>
-                                                    <textarea class="form-control" rows="2" type="text" class="form-control" name="indikator" placeholder="(Input your Question)" value="{{ old('indikator') }}" required></textarea>
-                                                </div> -->
                                                 <div class="col-lg-4 mb-3">
                                                     <label class="form-label d-block">Mandatory Silver<label style="color: darkred">*</label></label>
                                                     <div class="form-check form-check-inline">
@@ -258,7 +254,13 @@
                                         <td class="align-middle text-center">{{ $no }}</td>
                                         <td class="align-middle text-center"><b>{{ $data->type_checklist }}</b></td>
                                         <td class="align-middle text-center">{{ $data->parent_point_checklist }}</td>
-                                        <td class="align-middle text-center">{{ $data->child_point_checklist }}</td>
+                                        <td class="align-middle text-center">
+                                            @if(empty($data->child_point_checklist))
+                                                -
+                                            @else
+                                                {{ $data->child_point_checklist }}
+                                            @endif
+                                        </td>
                                         <td class="align-middle text-center">{{ $data->sub_point_checklist }}</td>
                                         <td class="align-middle text-center">
                                             @if($data->mandatory_silver == 1)
@@ -269,6 +271,9 @@
                                             @endif
                                             @if($data->mandatory_platinum == 1)
                                                 <span class="badge bg-success text-white">P</span>
+                                            @endif
+                                            @if(empty($data->mandatory_silver) && empty($data->mandatory_gold) && empty($data->mandatory_platinum))
+                                                -
                                             @endif
                                         </td>
                                         <td class="align-middle text-center"> 
@@ -294,7 +299,7 @@
                                         
                                         {{-- Modal Info --}}
                                         <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-top" role="document">
+                                            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="staticBackdropLabel">Info Checklist</h5>
@@ -314,7 +319,13 @@
                                                                 <div class="form-group">
                                                                     <div><span class="fw-bold">Child Point Name :</span></div>
                                                                     <span>
-                                                                        <span>{{ $data->child_point_checklist }}</span>
+                                                                        <span>
+                                                                        @if(empty($data->child_point_checklist))
+                                                                            -
+                                                                        @else
+                                                                            {{ $data->child_point_checklist }}
+                                                                        @endif
+                                                                        </span>
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -346,6 +357,9 @@
                                                                             @endif
                                                                             @if($data->mandatory_platinum == 1)
                                                                                 <span class="badge bg-success text-white">P</span>
+                                                                            @endif
+                                                                            @if(empty($data->mandatory_silver) && empty($data->mandatory_gold) && empty($data->mandatory_platinum))
+                                                                                -
                                                                             @endif
                                                                         </span>
                                                                     </span>
@@ -397,6 +411,7 @@
                                                                 <label class="form-label">Sub Point</label><label style="color: darkred">*</label>
                                                                 <input class="form-control" name="sub_point_checklist" type="text" value="{{ $data->sub_point_checklist }}" placeholder="Input Sub Point.." required>
                                                             </div>
+                                                            
                                                             <div class="col-lg-12 mb-3">
                                                                 <label class="form-label">Indikator</label><label style="color: darkred">*</label>
                                                                 <textarea class="form-control" rows="2" type="text" class="form-control" name="indikator" placeholder="(Input your Question)" required>{{ $data->indikator }}</textarea>

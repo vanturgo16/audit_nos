@@ -23,6 +23,34 @@
 
         <div class="row">
             <div class="col-12">
+                <table class="table table-bordered dt-responsive nowrap w-100">
+                    <tbody>
+                        <tr>
+                            <td class="align-middle"><b>Type Checklist</b></td>
+                            <td class="align-middle">: {{ $checklist->type_checklist }}</td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle"><b>Parent Point</b></td>
+                            <td class="align-middle">: {{ $checklist->parent_point_checklist }}</td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle"><b>Child Point</b></td>
+                            <td class="align-middle">: 
+                                @if(empty($checklist->child_point_checklist))
+                                    -
+                                @else
+                                    {{ $checklist->child_point_checklist }}
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle"><b>Sub Point</b></td>
+                            <td class="align-middle">: {{ $checklist->sub_point_checklist }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
                         <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Mark</button>
@@ -40,18 +68,33 @@
                                             <div class="row">
                                                 <div class="col-lg-9 mb-3">
                                                     <label class="form-label">Meta Name</label><label style="color: darkred">*</label>
-                                                    <select class="form-select" name="meta_name" id="meta_name" required>
-                                                        <option value="" selected>-- Select Type --</option>
-                                                        <option disabled>──────────</option>
+                                                    <div id="meta_name">
                                                         @foreach($type_mark as $item)
-                                                            <option value="{{ $item->name_value }}" data-code-format="{{ $item->code_format }}">{{ $item->name_value }}</option>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="meta_name[]" id="meta_name_{{ $item->id }}" value="{{ $item->id }}" @if($datas->contains('meta_name', $item->name_value)) checked @endif>
+                                                                <label class="form-check-label" for="meta_name_{{ $item->id }}">{{ $item->name_value }}</label>
+                                                            </div>
                                                         @endforeach
-                                                    </select>
+                                                    </div>
+
+
                                                 </div>
-                                                <div class="col-lg-3 mb-3">
-                                                    <label class="form-label">Result</label><label style="color: darkred">*</label>
-                                                    <input class="form-control" name="result" type="text" placeholder="Result.." required readonly>
-                                                </div>
+
+                                                <script>
+                                                    document.getElementById('meta_name').addEventListener('change', function () {
+                                                        var checkboxes = this.querySelectorAll('input[type="checkbox"]:checked');
+                                                        var selectedOptions = [];
+
+                                                        checkboxes.forEach(function (checkbox) {
+                                                            selectedOptions.push({
+                                                                name_value: checkbox.value,
+                                                                code_format: checkbox.getAttribute('data-code-format')
+                                                            });
+                                                        });
+
+                                                        console.log(selectedOptions);
+                                                    });
+                                                </script>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -114,21 +157,5 @@
     </div>
 </div>
 
-
-<script>
-    $(document).ready(function(){
-        // Ketika nilai dropdown berubah
-        $('#meta_name').change(function(){
-            // Ambil nilai yang dipilih
-            var selectedValue = $(this).val();
-
-            // Ambil data-code-format dari opsi yang dipilih
-            var codeFormat = $('#meta_name option:selected').data('code-format');
-
-            // Set nilai pada input "Result"
-            $('input[name="result"]').val(codeFormat);
-        });
-    });
-</script>
 
 @endsection
