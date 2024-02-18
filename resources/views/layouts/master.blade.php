@@ -144,9 +144,9 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('branch.index') }}">
+                            <a href="{{ route('jaringan.index') }}">
                                 <i class="mdi mdi-office-building"></i>
-                                <span>Master Branch</span>
+                                <span>Master Jaringan</span>
                             </a>
                         </li>
                         <li>
@@ -173,6 +173,12 @@
                             <a href="{{ route('periodchecklist.index') }}">
                                 <i class="mdi mdi-check-underline-circle"></i>
                                 <span>Period Checklist</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('checklist.form') }}">
+                                <i class="mdi mdi-check-underline-circle"></i>
+                                <span>Form Checklist</span>
                             </a>
                         </li>
 

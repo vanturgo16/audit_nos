@@ -139,9 +139,15 @@
                     orderable: true,
                     searchable: true,
                     className: 'align-middle text-center',
+                    // render: function(data, type, row) {
+                    //     return row.start_date + '<b> Until </b>' + row.end_date;
+                    // },
                     render: function(data, type, row) {
-                        return row.start_date + '<b> Until </b>' + row.end_date;
+                        var startDate = new Date(row.start_date);
+                        var endDate = new Date(row.end_date);
+                        return startDate.toLocaleDateString('id-ID').replace(/\//g, '-') + '<b> Until </b>' + endDate.toLocaleDateString('id-ID').replace(/\//g, '-');
                     },
+
                 },
                 {
                     data: 'is_active',

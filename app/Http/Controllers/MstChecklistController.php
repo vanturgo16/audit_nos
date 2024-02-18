@@ -279,5 +279,9 @@ class MstChecklistController extends Controller
         }
         
     }
+    public function form()
+    {
+        return view('checklist.form');
+    }
 
 }

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 // Model
 use App\Models\MstPeriodeChecklists;
-use App\Models\MstBranch;
+use App\Models\MstJaringan;
 
 class MstPeriodChecklistController extends Controller
 {
@@ -18,7 +18,7 @@ class MstPeriodChecklistController extends Controller
 
     public function index(Request $request)
     {
-        $branchs = MstBranch::get();
+        $branchs = MstJaringan::get();
 
         if ($request->ajax()) {
             $data = $this->getData($branchs);

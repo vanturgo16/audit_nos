@@ -11,7 +11,7 @@ use Browser;
 
 // Model
 use App\Models\MstEmployees;
-use App\Models\MstBranch;
+use App\Models\MstJaringan;
 use App\Models\MstDepartments;
 
 class MstEmployeeController extends Controller
@@ -31,7 +31,7 @@ class MstEmployeeController extends Controller
         ->join('mst_positions', 'mst_employees.id_position', '=', 'mst_positions.id')
         ->select('mst_employees.*', 'mst_dealers.dealer_name', 'mst_departments.department_name', 'mst_positions.position_name')
         ->get();
-        $dealer=MstBranch::get();
+        $dealer=MstJaringan::get();
         $department=MstDepartments::get();
 
         //Audit Log

@@ -35,7 +35,7 @@
                         </tr>
                         <tr>
                             <td class="align-middle"><b>Date</b></td>
-                            <td class="align-middle">: {{ $period->start_date }} <b> Until </b>{{ $period->end_date }}</td>
+                            <td class="align-middle">: {{ Carbon\Carbon::parse($period->start_date)->format('d-m-Y') }} <b> Until </b>{{ Carbon\Carbon::parse($period->end_date)->format('d-m-Y') }}</td>
                         </tr>
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
