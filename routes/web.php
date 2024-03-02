@@ -10,6 +10,7 @@ use App\Http\Controllers\MstChecklistController;
 use App\Http\Controllers\MstDepartmentController;
 use App\Http\Controllers\MstDropdownController;
 use App\Http\Controllers\MstEmployeeController;
+use App\Http\Controllers\MstFormChecklistController;
 use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
@@ -74,9 +75,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/employee', [MstEmployeeController::class, 'index'])->name('employee.index');
     Route::post('employee/create', [MstEmployeeController::class, 'store'])->name('employee.store');
     Route::post('employee/update/{id}', [MstEmployeeController::class, 'update'])->name('employee.update');
-
+    
     //Checklist
-    Route::get('/form', [MstChecklistController::class, 'form'])->name('checklist.form');
     Route::get('/checklist', [MstChecklistController::class, 'index'])->name('checklist.index');
     Route::post('checklist/create', [MstChecklistController::class, 'store'])->name('checklist.store');
     Route::post('checklist/update/{id}', [MstChecklistController::class, 'update'])->name('checklist.update');
@@ -96,7 +96,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('assignchecklist/create/{id}', [MstAssignChecklistController::class, 'store'])->name('assignchecklist.store');
     Route::post('assignchecklist/delete/{id}', [MstAssignChecklistController::class, 'delete'])->name('assignchecklist.delete');
     Route::get('/searchchecklist/{id}', [MstAssignChecklistController::class, 'searchchecklist'])->name('searchchecklist');
-    Route::get('/preview/{id}/{type_checklist}', [MstAssignChecklistController::class, 'preview'])->name('assignchecklist.preview');
+    Route::post('/assignchecklist/submit/{id}', [MstAssignChecklistController::class, 'submit'])->name('assignchecklist.submit');
+
+    //Form Checklist 
+    Route::get('/form', [MstFormChecklistController::class, 'form'])->name('formchecklist.form');
+    Route::get('/formchecklist', [MstFormChecklistController::class, 'index'])->name('formchecklist.index');
+    Route::get('/formchecklist/periode/{id}', [MstFormChecklistController::class, 'periode_jaringan'])->name('formchecklist.periode');
+    Route::get('/formchecklist/periode/typechecklist/{id}', [MstFormChecklistController::class, 'typechecklist'])->name('formchecklist.typechecklist');
+    Route::get('/formchecklist/periode/typechecklist/start/{id}', [MstFormChecklistController::class, 'startchecklist'])->name('formchecklist.start');
+    Route::get('/formchecklist/periode/typechecklist/checklistform/{id}', [MstFormChecklistController::class, 'checklistform'])->name('formchecklist.checklistform');
+    Route::post('/formchecklist/periode/typechecklist/checklistform/store/{id}', [MstFormChecklistController::class, 'store'])->name('formchecklist.store');
+    
 
 
     //Audit Log

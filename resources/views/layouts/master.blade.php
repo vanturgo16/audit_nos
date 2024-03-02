@@ -176,7 +176,13 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('checklist.form') }}">
+                            <a href="{{ route('formchecklist.form') }}">
+                                <i class="mdi mdi-check-underline-circle"></i>
+                                <span>Contoh Form Checklist</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('formchecklist.index') }}">
                                 <i class="mdi mdi-check-underline-circle"></i>
                                 <span>Form Checklist</span>
                             </a>

@@ -30,7 +30,7 @@
                             <td class="align-middle">: {{ $period->period }}</td>
                         </tr>
                         <tr>
-                            <td class="align-middle"><b>Branch Name</b></td>
+                            <td class="align-middle"><b><i>Jaringan</i> Name</b></td>
                             <td class="align-middle">: {{ $period->dealer_name }}</td>
                         </tr>
                         <tr>
@@ -54,7 +54,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Assign Checklist</button>
+                        @if($period->is_active == 0)
+                            <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Assign Checklist</button>
+                            @if($check == 1)
+                                <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Submit</button>
+                            @endif
                         {{-- Modal Add --}}
                         <div class="modal fade" id="add-new" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-top modal-lg" role="document">
@@ -164,46 +168,47 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <button type="button" class="btn btn-info waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#preview"><i class="mdi mdi-eye-circle label-icon"></i> Preview Form</button> --}}
-                        <div class="modal fade" id="preview" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                        {{-- Modal Submit --}}
+                        <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-top" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">Preview Form List (Grouped By Type Checklist)</h5>
+                                        <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <div class="col-12 mb-2">
-                                                <div class="card-body">
-                                                    <table class="table table-bordered dt-responsive nowrap w-100">
-                                                        <thead>
-                                                            <tr>
-                                                                <th class="align-middle text-center">Type Checklist</th>
-                                                                <th class="align-middle text-center">Action</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach ($previewlist as $data)
-                                                                <tr>
-                                                                    <td class="align-middle text-center"><b>{{ $data->type_checklist }}</b></td>
-                                                                    <td class="align-middle text-center">
-                                                                        <a href="{{ route('assignchecklist.preview', ['id' => encrypt($period->id), 'type_checklist' => $data->type_checklist]) }}" type="button" class="btn btn-info waves-effect btn-label waves-light"><i class="mdi mdi-eye-circle label-icon"></i> Preview</a>
-                                                                    </td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                    <form action="{{ route('assignchecklist.submit', encrypt($period->id)) }}" id="formsubmit" method="POST">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <p>
+                                                    Start submit this checklist? 
+                                                    (You are not longer to edit this checklist!)
+                                                </p>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                    </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                                        </div>
+                                    </form>
+                                    <script>
+                                        document.getElementById('formsubmit').addEventListener('submit', function(event) {
+                                            if (!this.checkValidity()) {
+                                                event.preventDefault(); // Prevent form submission if it's not valid
+                                                return false;
+                                            }
+                                            var submitButton = this.querySelector('button[name="sb"]');
+                                            submitButton.disabled = true;
+                                            submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
+                                            return true; // Allow form submission
+                                        });
+                                    </script>
                                 </div>
                             </div>
                         </div>
+                        @endif
+
+                        
 
                     </div>
                     <div class="card-body">

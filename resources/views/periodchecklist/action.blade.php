@@ -5,13 +5,15 @@
     </button>
     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
         <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-information"></span> | Info</a></li>
-        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#update{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit</a></li>
-        <li><a class="dropdown-item drpdwn" href="{{ route('assignchecklist.index', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Assign Checklist</a></li>
         @if($data->is_active == 0)
+        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#update{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit</a></li>
+        @endif
+        <li><a class="dropdown-item drpdwn" href="{{ route('assignchecklist.index', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Assign Checklist</a></li>
+        <!-- @if($data->is_active == 0)
             <li><a class="dropdown-item drpdwn-scs" href="#" data-bs-toggle="modal" data-bs-target="#activate{{ $data->id }}"><span class="mdi mdi-check-circle"></span> | Activate</a></li>
         @else
             <li><a class="dropdown-item drpdwn-dgr" href="#" data-bs-toggle="modal" data-bs-target="#deactivate{{ $data->id }}"><span class="mdi mdi-close-circle"></span> | Deactivate</a></li>
-        @endif
+        @endif -->
     </ul>
 </div>
 

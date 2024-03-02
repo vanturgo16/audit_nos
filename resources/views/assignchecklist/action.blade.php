@@ -5,7 +5,9 @@
     </button>
     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id_assign_checklist }}">
         <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id_assign_checklist }}"><span class="mdi mdi-information"></span> | Info</a></li>
+        @if($period->is_active == 0)
         <li><a class="dropdown-item drpdwn-dgr" href="#" data-bs-toggle="modal" data-bs-target="#delete{{ $data->id_assign_checklist }}"><span class="mdi mdi-delete-alert"></span> | Delete</a></li>
+        @endif
     </ul>
 </div>
 

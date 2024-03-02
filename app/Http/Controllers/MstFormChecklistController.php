@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChecklistJaringan;
+use App\Models\ChecklistResponse;
+use App\Models\MstAssignChecklists;
 use App\Models\MstChecklistDetails;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
@@ -12,129 +15,161 @@ use Browser;
 //model
 use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
+use App\Models\MstJaringan;
 use App\Models\MstParentChecklists;
+use App\Models\MstPeriodeChecklists;
+use Carbon\Carbon;
+use DateTime;
 
-class MstChecklistController extends Controller
+class MstFormChecklistController extends Controller
 {
     use AuditLogsTrait;
-
+    public function form()
+    {
+        return view('formchecklist.form');
+    }
     public function index(Request $request)
     {
 
         // $datas=MstChecklists::get();
-        $datas = MstChecklists::join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
-        ->select('mst_checklists.*', 'mst_parent_checklists.type_checklist', 'mst_parent_checklists.parent_point_checklist', 'mst_parent_checklists.path_guide_premises')
-        ->get();
-        $type_checklist = MstDropdowns ::where('category', 'Type Checklist')->get();
-        $type_parent = MstParentChecklists ::get();
+        $datas = MstJaringan::get();
 
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Checklist';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View Jaringan Checklist');
         
-        return view('checklist.index',compact('datas', 'type_checklist', 'type_parent'));
-        // dd($datas);
+        return view('formchecklist.index',compact('datas'));
     }
-    public function store(Request $request)
+
+    public function periode_jaringan($id)
     {
+        $id = decrypt($id);
+        $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
+        ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+        ->orderBy('mst_periode_checklists.created_at')
+        ->where('mst_dealers.id', $id)
+        ->where('mst_periode_checklists.is_active', '1')
+        ->get();
 
-        $request->validate([
-            'type_checklist' => 'required',
-            'parent_point_checklist' => 'required',
-            'q_child_point' => 'required',
-            'sub_point_checklist' => 'required',
-            'indikator' => 'required',
-            'mandatory_silver' => 'required',
-            'mandatory_gold' => 'required',
-            'mandatory_platinum' => 'required',
-            'upload_file' => 'required'
-        ]);
+        // dd($datas);
 
-        if($request->parent_point_checklist == "AddParent"){
-            
-            $add_parent = $request->add_parent;
-            $request->validate([
-                'thumbnail' => 'required|image|mimes:jpg,jpeg,png|max:3072'
-            ]);
-            // $imagePath = $request->file('thumbnail')->store('images');
-            // $url = asset('thumbnails/', $imagePath);
-            if($request->hasFile('thumbnail')){
-                $path_loc_thumb = $request->file('thumbnail');
-                $name = $path_loc_thumb ->hashName();
-                $path_loc_thumb->move(public_path('assets/images/thumbnails'), $name);
-                $url_thumb = 'assets/images/thumbnails/'.$name;
-            }else{
-                $url_thumb = null;
-                return redirect()->back()->with(['fail' => 'Failed to Save File!']); 
-            }
-// dd($url_thumb);
-            // $image = Image::make($request->file('thumbnail')->getRealPath());
-            // $extension = $request->file('thumbnail')->getClientOriginalExtension();
-            // $image->stream($extension, 80);
-            // $imagePath = $request->file('thumbnail')->storeAs('images/thumbnails', $request->file('thumbnail')->hashName(), 'public');
-            // Storage::delete($request->file('thumbnail')->hashName());
+        //Audit Log
+        $this->auditLogsShort('View Periode Form Checklist');
 
-                DB::beginTransaction();
-            try{
-                
-                $newParentChecklist =   MstParentChecklists::create([
-                                            'type_checklist' => $request->type_checklist,
-                                            'parent_point_checklist' => $add_parent,
-                                            'path_guide_premises' => $url_thumb
-                                        ]);
+        return view('formchecklist.periode',compact('datas'));
+
+    }
+    public function typechecklist($id)
+    {
+        $id = decrypt($id);
+
+        $datas = ChecklistJaringan::all()->where('id_periode', $id);
 
 
-                $id_parent = $newParentChecklist->id;
-                DB::commit();
+        //Audit Log
+        $this->auditLogsShort('View Data Checklist, Period: ', $id);
 
-            } catch (\Exception $e) {
-
-                DB::rollBack();
-                dd($e);
-            }
-
-        }else{
-            $id_parent = $request->parent_point_checklist;
-        }
-
-        if($request->q_child_point == "0"){
-            $child_checklist = null;
-        }elseif($request->q_child_point == "1"){
-            $child_checklist = $request->child_checklist;
-        }
-
+        return view('formchecklist.typechecklist',compact('datas'));
+    }
+    public function startchecklist($id)
+    {
+        $id = decrypt($id);
+        
         DB::beginTransaction();
         try{
-            
-            MstChecklists::create([
-                'id_parent_checklist' => $id_parent,
-                'child_point_checklist' => $child_checklist,
-                'sub_point_checklist' => $request->sub_point_checklist,
-                'indikator' => $request->indikator,
-                'mandatory_silver' => $request->mandatory_silver,
-                'mandatory_gold' => $request->mandatory_gold,
-                'mandatory_platinum' => $request->mandatory_platinum,
-                'upload_file' => $request->upload_file
+            ChecklistJaringan::where('id', $id)->update([
+                'status' => '0',
+                'start_date' => Carbon::now(),
             ]);
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Create New Checklist';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
-
+            $this->auditLogsShort('Start Checklist :', $id);
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Create New Checklist']);
+            return redirect()->back()->with(['success' => 'Success Start Checklist']);
         } catch (\Exception $e) {
             dd($e);
-            return redirect()->back()->with(['fail' => 'Failed to Create New Checklist!']);
+            return redirect()->back()->with(['fail' => 'Failed to Start Checklist!']);
         }
+        
+    }
+    public function checklistform($id)
+    {
+        $id = decrypt($id);
+        $type = ChecklistJaringan::where('id', $id)->first();
+        $datas = MstAssignChecklists::select(
+            'mst_assign_checklists.*', 
+            'mst_checklists.*', 
+            'mst_parent_checklists.path_guide_premises', 
+            'mst_checklists.id as id_checklist', 
+            'checklist_jaringan.type_checklist',
+        )
+        ->Join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+        ->Join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+        ->Join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+        ->Join('checklist_jaringan', 'mst_periode_checklists.id', 'checklist_jaringan.id_periode')
+        ->where('checklist_jaringan.id', $id)
+        ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
+        ->get();
+        $id_period = $type->id_periode;
+        
+        foreach ($datas as $data) {
+            $checklistDetails = MstChecklistDetails::where('id_checklist', $data->id_checklist)->get()->toArray();
+            $data->mark = $checklistDetails;
+        }
+        //Auditlog
+        // dd($datas);
+        $this->auditLogsShort('View Checklist Form:', $id);
+
+        return view('formchecklist.checklistform',compact('datas', 'id_period', 'id'));
+
+        
+    }
+    public function store($id, Request $request)
+    {
+        // $id = decrypt($id);
+        // dd($request->all());
+        DB::beginTransaction();
+        try{
+            $count = 0;
+            foreach($request->except('_token', 'id_checklist_jaringan') as $key=>$value){
+                $id_assign = (int)substr($key,strlen('question'));
+
+                if($value != null){
+                    $count++;
+                    ChecklistResponse::create([
+                        'id_assign_checklist' => $id_assign,
+                        'response' => $value
+                    ]);
+                }   
+                
+            }
+            //ngurangin data
+            $get_total = ChecklistJaringan::where('id', $request->id_checklist_jaringan)->first();
+            $remaining = $get_total->total_checklist - $count;
+            if($remaining == 0){
+                $status = 1;
+            }else{
+                $status = $get_total->status;
+            }
+            ChecklistJaringan::where('id', $request->id_checklist_jaringan)->update([
+                'checklist_remaining' => $remaining,
+                'status' => $status,
+            ]);
+
+
+
+            DB::commit();
+            return redirect()->route('formchecklist.typechecklist', $id)->with(['success' => 'Success Update Checklist']);
+
+
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            dd($e);
+        }
+
+
+
     }
     public function update(Request $request, $id)
     {

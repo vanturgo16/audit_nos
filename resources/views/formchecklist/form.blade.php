@@ -40,12 +40,13 @@
                                         <div class="col-9">
                                             <label for="question1">1. Sesuai dengan gambar tampak depan yang sudah diapprove bersama</label>
                                             <div class="form-check">
+                                                <!-- ini nanti checknya dari detail mst_checklist_details checklist -->
                                                 <input class="form-check-input" type="radio" name="question1" id="question1_1" value="option1">
-                                                <label class="form-check-label" for="question1_1">Gold</label>
+                                                <label class="form-check-label" for="question1_1">Exist Good</label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="question1" id="question1_2" value="option2">
-                                                <label class="form-check-label" for="question1_2">Platinum</label>
+                                                <label class="form-check-label" for="question1_2">No Exist Good</label>
                                             </div>
                                         </div>
                                         <div class="col-3">

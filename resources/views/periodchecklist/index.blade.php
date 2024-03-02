@@ -42,7 +42,7 @@
                                                     <input class="form-control" name="period" type="text" value="" placeholder="Input Period Checklist.." required>
                                                 </div>
                                                 <div class="col-lg-6 mb-3">
-                                                    <label class="form-label">Branch Name</label><label style="color: darkred">*</label>
+                                                    <label class="form-label">Jaringan Name</label><label style="color: darkred">*</label>
                                                     <select class="form-select" name="id_branch" required>
                                                         <option value="" selected>--Select Branch Name--</option>
                                                         @foreach($branchs as $item)
@@ -89,7 +89,7 @@
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Period Checklist</th>
-                                    <th class="align-middle text-center">Branch</th>
+                                    <th class="align-middle text-center">Jaringan</th>
                                     <th class="align-middle text-center">Date</th>
                                     <th class="align-middle text-center">Status</th>
                                     <th class="align-middle text-center">Action</th>
@@ -145,7 +145,7 @@
                     render: function(data, type, row) {
                         var startDate = new Date(row.start_date);
                         var endDate = new Date(row.end_date);
-                        return startDate.toLocaleDateString('id-ID').replace(/\//g, '-') + '<b> Until </b>' + endDate.toLocaleDateString('id-ID').replace(/\//g, '-');
+                        return startDate.toLocaleDateString('es-CL').replace(/\//g, '-') + '<b> Until </b>' + endDate.toLocaleDateString('es-CL').replace(/\//g, '-');
                     },
 
                 },
