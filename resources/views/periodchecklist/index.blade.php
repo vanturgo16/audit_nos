@@ -37,14 +37,21 @@
                                         @csrf
                                         <div class="modal-body">
                                             <div class="row">
-                                                <div class="col-lg-6 mb-3">
+                                                <div class="col-lg-12 mb-3">
                                                     <label class="form-label">Period Checklist</label><label style="color: darkred">*</label>
-                                                    <input class="form-control" name="period" type="text" value="" placeholder="Input Period Checklist.." required>
+                                                    <select class="form-select js-example-basic-single" name="period" style="width: 100%" required>
+                                                        <option value="" selected>-- Select Period --</option>
+                                                        @foreach($period_name as $item)
+                                                            <option value="{{ $item->name_value }}">
+                                                                {{ $item->name_value }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
-                                                <div class="col-lg-6 mb-3">
-                                                    <label class="form-label">Jaringan Name</label><label style="color: darkred">*</label>
-                                                    <select class="form-select" name="id_branch" required>
-                                                        <option value="" selected>--Select Branch Name--</option>
+                                                <div class="col-lg-12 mb-3">
+                                                    <label class="form-label"><i>Jaringan</i> Name (Designated for this)</label><label style="color: darkred">*</label>
+                                                    <select class="form-select js-example-basic-single" name="id_branch" style="width: 100%" required>
+                                                        <option value="" selected>-- Select Jaringan --</option>
                                                         @foreach($branchs as $item)
                                                             <option value="{{ $item->id }}">{{ $item->dealer_name }}</option>
                                                         @endforeach
@@ -124,7 +131,7 @@
                     name: 'period',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle text-center text-bold'
+                    className: 'align-middle text-bold'
                 },
                 {
                     data: 'dealer_name',
@@ -139,9 +146,6 @@
                     orderable: true,
                     searchable: true,
                     className: 'align-middle text-center',
-                    // render: function(data, type, row) {
-                    //     return row.start_date + '<b> Until </b>' + row.end_date;
-                    // },
                     render: function(data, type, row) {
                         var startDate = new Date(row.start_date);
                         var endDate = new Date(row.end_date);

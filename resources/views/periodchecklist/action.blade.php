@@ -102,29 +102,34 @@
                     @csrf
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-6 mb-3">
+                            <div class="col-lg-12 mb-3">
                                 <label class="form-label">Period Checklist</label><label style="color: darkred">*</label>
-                                <input class="form-control" name="period" type="text" value="{{ $data->period }}" placeholder="Input Department Name.." required>
+                                <select class="form-select js-example-basic-single" name="period" style="width: 100%" required>
+                                    <option value="" selected>-- Select Period --</option>
+                                    @foreach($period_name as $item)
+                                        <option value="{{ $item->name_value }}" @if($data->period == $item->name_value) selected="selected" @endif>
+                                            {{ $item->name_value }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Branch Name</label><label style="color: darkred">*</label>
-                                <select class="form-select" name="id_branch" required>
-                                    <option value="" selected>--Select Department--</option>
+                            <div class="col-lg-12 mb-3">
+                                <label class="form-label"><i>Jaringan</i> Name</label><label style="color: darkred">*</label>
+                                <select class="form-select js-example-basic-single" name="id_branch" style="width: 100%" required>
+                                    <option value="" selected>-- Select Jaringan --</option>
                                     @foreach($branchs as $item)
                                         <option value="{{ $item->id }}" @if($data->id_branch == $item->id) selected="selected" @endif>{{ $item->dealer_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             
-                            <div class="row">
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">Start Date</label><label style="color: darkred">*</label>
-                                    <input class="form-control" name="start_date" type="date" value="{{ $data->start_date }}" required>
-                                </div>
-                                <div class="col-6 mb-3">
-                                    <label class="form-label">End Date</label><label style="color: darkred">*</label>
-                                    <input class="form-control" name="end_date" type="date" value="{{ $data->end_date }}" required>
-                                </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Start Date</label><label style="color: darkred">*</label>
+                                <input class="form-control" name="start_date" type="date" value="{{ $data->start_date }}" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">End Date</label><label style="color: darkred">*</label>
+                                <input class="form-control" name="end_date" type="date" value="{{ $data->end_date }}" required>
                             </div>
                         </div>
                     </div>

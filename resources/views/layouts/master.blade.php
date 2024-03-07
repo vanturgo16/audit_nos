@@ -21,6 +21,8 @@
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <!-- choices css -->
+    <link href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}" rel="stylesheet" type="text/css" />
     {{-- Custom --}}
     <link href="{{ asset('assets/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/custom2.css') }}" id="app-style" rel="stylesheet" type="text/css" />
@@ -439,6 +441,10 @@
     <!-- dashboard init -->
     <script src="{{ asset('assets/js/pages/dashboard.init.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <!-- choices js -->
+    <script src="assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- init js -->
+    <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
     <!-- Custom -->
     <script src="{{ asset('assets/js/custom.js') }}"></script>
 

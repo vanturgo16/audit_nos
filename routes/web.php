@@ -97,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('assignchecklist/delete/{id}', [MstAssignChecklistController::class, 'delete'])->name('assignchecklist.delete');
     Route::get('/searchchecklist/{id}', [MstAssignChecklistController::class, 'searchchecklist'])->name('searchchecklist');
     Route::post('/assignchecklist/submit/{id}', [MstAssignChecklistController::class, 'submit'])->name('assignchecklist.submit');
+    Route::get('/assignchecklist/type/{id}/{type}', [MstAssignChecklistController::class, 'type'])->name('assignchecklist.type');
 
     //Form Checklist 
     Route::get('/form', [MstFormChecklistController::class, 'form'])->name('formchecklist.form');

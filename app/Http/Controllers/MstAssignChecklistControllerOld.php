@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Validator;
 // Model
 use App\Models\MstAssignChecklists;
 use App\Models\MstChecklists;
-use App\Models\MstDropdowns;
 use App\Models\MstJaringan;
 use App\Models\MstParentChecklists;
 use App\Models\MstPeriodeChecklists;
@@ -21,88 +20,52 @@ class MstAssignChecklistController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index(Request $request, $id)
-    {
-        $id = decrypt($id);
+    // public function index(Request $request, $id)
+    // {
+    //     $id = decrypt($id);
 
-        $period = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
-            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            ->where('mst_periode_checklists.id', $id)
-            ->first();
+    //     $period=MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
+    //         ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+    //         ->where('mst_periode_checklists.id', $id)
+    //         ->first();
 
-        $assign = MstAssignChecklists::where('id_periode_checklist', $id)->first();
-        $check = ($assign == null) ? 0 : 1;
+    //     $checklists=MstChecklists::select('mst_checklists.id as id_checklist', 'mst_checklists.*', 'mst_parent_checklists.*')
+    //         ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+    //         ->get();
 
-        if ($request->ajax()) {
-            $data = $this->getData($period);
-            return $data;
-        }
+    //     $assign = MstAssignChecklists::where('id_periode_checklist', $id)->first();
+    //     $check = ($assign == null) ? 0 : 1;
 
-        //Audit Log
-        $this->auditLogsShort('View List Mst Assign Checklist ('. $period->period . ')');
+    //     if ($request->ajax()) {
+    //         $data = $this->getData($period, $checklists);
+    //         return $data;
+    //     }
+
+    //     //Audit Log
+    //     $this->auditLogsShort('View List Mst Assign Checklist ('. $period->period . ')');
         
-        return view('assignchecklist.index',compact('period', 'check'));
-    }
+    //     return view('assignchecklist.index',compact('period', 'checklists', 'check'));
+    // }
 
-    private function getData($period)
-    {
-        $typechecklist = MstDropdowns::select('name_value')->where('category', 'Type Checklist')->get();
-        foreach($typechecklist as $type){
-            $count = MstAssignChecklists::leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            ->where('mst_periode_checklists.id', $period->id)
-            ->where('mst_parent_checklists.type_checklist', $type->name_value)
-            ->count();
+    // private function getData($period, $checklists)
+    // {
+    //     $query = MstAssignChecklists::select('mst_assign_checklists.id as id_assign_checklist', 'mst_assign_checklists.*', 'mst_periode_checklists.period', 'mst_checklists.*', 'mst_parent_checklists.*')
+    //         ->leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+    //         ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+    //         ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+    //         ->where('mst_periode_checklists.id', $period->id)
+    //         ->orderBy('mst_assign_checklists.created_at')
+    //         ->get();
+            
 
-            $type->count = $count;
-        }
+    //     $data = DataTables::of($query)
+    //         ->addColumn('action', function ($data) use ($period, $checklists){
+    //             return view('assignchecklist.action', compact('data', 'period', 'checklists'));
+    //         })
+    //         ->toJson();
 
-        $data = DataTables::of($typechecklist)
-            ->addColumn('action', function ($data) use ($period){
-                return view('assignchecklist.action', compact('data', 'period'));
-            })
-            ->toJson();
-
-        return $data;
-    }
-
-    public function type(Request $request, $id, $type)
-    {
-        $id = decrypt($id);
-        // dd($id, $type);
-
-        $period=MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
-            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            ->where('mst_periode_checklists.id', $id)
-            ->first();
-        $checklists=MstChecklists::select('mst_checklists.id as id_checklist', 'mst_checklists.*', 'mst_parent_checklists.*')
-            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            ->where('mst_parent_checklists.type_checklist', $type)
-            ->get();
-        $query = MstAssignChecklists::select('mst_assign_checklists.id as id_assign_checklist', 'mst_assign_checklists.*', 'mst_periode_checklists.period', 'mst_checklists.*', 'mst_parent_checklists.*')
-            ->leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            ->where('mst_periode_checklists.id', $id)
-            ->where('mst_parent_checklists.type_checklist', $type)
-            ->orderBy('mst_assign_checklists.created_at')
-            ->get();
-
-        if ($request->ajax()) {
-            $data = DataTables::of($query)
-            ->addColumn('action', function ($data) use ($period, $checklists){
-                return view('assignchecklist.type.action', compact('data', 'period', 'checklists'));
-            })
-            ->toJson();
-            return $data;
-        }
-
-        //Audit Log
-        $this->auditLogsShort('View List Mst Assign Checklist ('. $period->period . ') type: '. $type);
-
-        return view('assignchecklist.type.index',compact('period', 'checklists', 'type'));
-    }
+    //     return $data;
+    // }
 
     public function store(Request $request, $id)
     {

@@ -41,7 +41,7 @@
                                                     <label class="form-label">Category</label><label style="color: darkred">*</label>
                                                 </div>
                                                 <div class="col-lg-6 mb-3">
-                                                    <select class="form-select" name="category" required>
+                                                    <select class="form-select js-example-basic-single" name="category" required>
                                                         <option value="" selected>-- Select Category --</option>
                                                         <option disabled>──────────</option>
                                                         @foreach( $category as $item)
@@ -144,7 +144,7 @@
                     orderable: true,
                     data: 'category',
                     name: 'category',
-                    className: 'align-middle text-center text-bold',
+                    className: 'align-middle text-bold',
                 },
                 {
                     orderable: true,

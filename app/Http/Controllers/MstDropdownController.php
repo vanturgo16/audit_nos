@@ -33,7 +33,7 @@ class MstDropdownController extends Controller
 
     private function getData($category)
     {
-        $query=MstDropdowns::orderBy('created_at')->get();
+        $query=MstDropdowns::orderBy('category')->get();
 
         $data = DataTables::of($query)
             ->addColumn('action', function ($data) use ($category){

@@ -41,7 +41,7 @@
                                                     <label class="form-label">Group Checklist</label><label style="color: darkred">*</label>
                                                 </div>
                                                 <div class="col-lg-12 mb-3">
-                                                    <select class="form-select" name="type_checklist" required>
+                                                    <select class="form-select js-example-basic-single" name="type_checklist" required>
                                                         <option value="" selected>-- Select Type --</option>
                                                         <option disabled>──────────</option>
                                                         @foreach($type_checklist as $item)
@@ -51,7 +51,7 @@
                                                 </div>
                                                 <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Point</label><label style="color: darkred">*</label>
-                                                    <select class="form-select" name="parent_point_checklist" id="parentPoint" required>
+                                                    <select class="form-select js-example-basic-single" name="parent_point_checklist" id="parentPoint" required>
                                                         <option value="" disabled selected>-- Select Parent --</option>
                                                         <option disabled>──────────</option>
                                                         @foreach( $type_parent as $item)
@@ -395,7 +395,7 @@
                                                         <div class="modal-body">
                                                         <div class="row">
                                                             <div class="col-lg-12 mb-3">
-                                                                <select class="form-select" name="type_checklist" required>
+                                                                <select class="form-select js-example-basic-single" name="type_checklist" required>
                                                                     <option value="" selected>-- Select Type --</option>
                                                                     <option disabled>──────────</option>
                                                                     @foreach($type_checklist as $item)

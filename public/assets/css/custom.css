@@ -38,3 +38,16 @@
 .select2-selection__arrow {
     height: 35px !important;
 }
+.modal-header {
+    background-color: #5156be;
+    color: white;
+    border-bottom: none;
+}
+
+.modal-header .modal-title {
+    color: inherit;
+}
+
+.modal-header button.btn-close {
+    background-color: #ffffff;
+}

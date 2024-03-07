@@ -85,7 +85,7 @@
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Department</label><label style="color: darkred">*</label>
-                                <select class="form-select" name="id_department" required>
+                                <select class="form-select js-example-basic-single" name="id_department" required>
                                     <option value="" selected>--Select Department--</option>
                                     <option value="{{ $data->id_department }}" selected>{{ $data->department }}</option>
                                     <option disabled>-----------</option>

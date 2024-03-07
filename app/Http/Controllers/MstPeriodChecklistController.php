@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MstDropdowns;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,19 +20,20 @@ class MstPeriodChecklistController extends Controller
     public function index(Request $request)
     {
         $branchs = MstJaringan::get();
+        $period_name = MstDropdowns::where('category', 'Period Name')->get();
 
         if ($request->ajax()) {
-            $data = $this->getData($branchs);
+            $data = $this->getData($branchs, $period_name);
             return $data;
         }
 
         //Audit Log
         $this->auditLogsShort('View List Mst Period Checklist');
         
-        return view('periodchecklist.index', compact('branchs'));
+        return view('periodchecklist.index', compact('branchs', 'period_name'));
     }
 
-    private function getData($branchs)
+    private function getData($branchs, $period_name)
     {
         $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
             ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
@@ -39,8 +41,8 @@ class MstPeriodChecklistController extends Controller
             ->get();
 
         $data = DataTables::of($query)
-            ->addColumn('action', function ($data) use ($branchs) {
-                return view('periodchecklist.action', compact('data', 'branchs'));
+            ->addColumn('action', function ($data) use ($branchs, $period_name) {
+                return view('periodchecklist.action', compact('data', 'branchs', 'period_name'));
             })
             ->toJson();
         return $data;
