@@ -163,10 +163,17 @@
                                 <span>Master Dropdown</span>
                             </a>
                         </li>
+                        
                         <li>
                             <a href="{{ route('checklist.index') }}">
                                 <i class="mdi mdi-check-network"></i>
                                 <span>Master Checklist</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('grading.index') }}">
+                                <i class="mdi mdi-percent-outline"></i>
+                                <span>Master Grading</span>
                             </a>
                         </li>
 
@@ -442,7 +449,7 @@
     <script src="{{ asset('assets/js/pages/dashboard.init.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <!-- choices js -->
-    <script src="assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- <script src="assets/libs/choices.js/public/assets/scripts/choices.min.js"></script> -->
     <!-- init js -->
     <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
     <!-- Custom -->

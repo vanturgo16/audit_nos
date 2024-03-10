@@ -62,7 +62,7 @@
                                         <div class="col-9">
                                             <label for="question2">2. Gambar eksterior yang sudah diapproved, dicetak, ditempel di ruang Kacab</label>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="question2" id="question2_1" value="option1">
+                                                <input class="form-check-input" type="radio" name="question2" id="question2_1" value="option1" checked>
                                                 <label class="form-check-label" for="question2_1">Gold</label>
                                             </div>
                                             <div class="form-check">
@@ -178,6 +178,7 @@
 
         function setActiveButton(index) {
             buttons.forEach((button, i) => {
+                console.log('each active button');
                 if (i === index) {
                     button.classList.add('active');
                 } else {

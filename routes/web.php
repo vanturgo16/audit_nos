@@ -11,6 +11,7 @@ use App\Http\Controllers\MstDepartmentController;
 use App\Http\Controllers\MstDropdownController;
 use App\Http\Controllers\MstEmployeeController;
 use App\Http\Controllers\MstFormChecklistController;
+use App\Http\Controllers\MstGradingController;
 use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
@@ -83,6 +84,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checklist/mark/{id}', [MstChecklistController::class, 'mark'])->name('checklist.mark');
     Route::post('checklist/createmark/{id}', [MstChecklistController::class, 'markstore'])->name('checklist.markstore');
     Route::get('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete');
+
+    //Grading
+    Route::get('/grading', [MstGradingController::class, 'index'])->name('grading.index');
+
     
     //Period Checklist
     Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index');
