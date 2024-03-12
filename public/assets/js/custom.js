@@ -35,3 +35,29 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 2000);
         });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    var loadButtonElements = document.getElementsByClassName("loadButton");
+
+    for (var i = 0; i < loadButtonElements.length; i++) {
+        loadButtonElements[i].addEventListener("click", function () {
+            var button = this;
+            button.disabled = true;
+            button.classList.remove("waves-effect", "btn-label", "waves-light");
+            button.innerHTML =
+                '<i class="mdi mdi-loading mdi-spin"></i> Please wait...';
+
+            var name = button.getAttribute("name");
+            var value = button.getAttribute("value");
+
+            // Create a hidden input element to store the button's name and value
+            var hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = name;
+            hiddenInput.value = value;
+            button.closest("form").appendChild(hiddenInput);
+
+            button.closest("form").submit();
+        });
+    }
+});

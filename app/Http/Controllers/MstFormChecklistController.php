@@ -135,6 +135,7 @@ class MstFormChecklistController extends Controller
         ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
         ->groupBy('mst_parent_checklists.parent_point_checklist')
         ->get();
+        // dd($point);
 
         $period = MstPeriodeChecklists::where('id', $id_period)->first()->period;
 
@@ -162,21 +163,22 @@ class MstFormChecklistController extends Controller
         ->where('mst_periode_checklists.id', $id_period)
         ->get();
         // tab
+        $lastindex = 0;
         if($request->session()->has('tabo')){
-            
             $tabo = intval($request->session()->get('tabo')) + 1;
-            
+            if($request->session()->has('additionalVariable')){
+                $lastindex = 1;
+            }
         }else{
             $tabo = 1;
         }
-        
-
+        // dd($tabo);
 
         //Auditlog
         // dd($point);
         $this->auditLogsShort('View Checklist Form:', $id);
 
-        return view('formchecklist.checklistform',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo'));
+        return view('formchecklist.checklistform',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex'));
 
         
     }
@@ -237,7 +239,7 @@ class MstFormChecklistController extends Controller
 
 
             $count = 0;
-            foreach($request->except('_token', 'id_checklist_jaringan', 'parent_point', 'tabo', 'id_jaringan', 'sum_point') as $key=>$value){
+            foreach($request->except('_token', 'id_checklist_jaringan', 'parent_point', 'tabo', 'id_jaringan', 'sum_point', 'back') as $key=>$value){
                 $id_assign = (int)substr($key,strlen('question'));
 
                 $pos = strpos($key, 'question'); // Cari posisi awal kata 'question'
@@ -299,11 +301,18 @@ class MstFormChecklistController extends Controller
 
 
             DB::commit();
-            // dd($request->sum_point);
-            if($request->tabo == $request->sum_point){
+            
+
+            if($request->tabo == $request->sum_point && $request->back == null){
                 return redirect()->route('formchecklist.typechecklist', encrypt($id))->with(['success' => 'Success Update Checklist']);
             }
-            $request->session()->flash('tabo', $request->tabo);
+            if($request->back){
+                $request->session()->flash('tabo', ($request->tabo - 2));
+                $additionalVariable = "1";
+                $request->session()->flash('additionalVariable', $additionalVariable);
+            } else {
+                $request->session()->flash('tabo', $request->tabo);
+            }
             return redirect()->route('formchecklist.checklistform', encrypt($request->id_jaringan));
 
 

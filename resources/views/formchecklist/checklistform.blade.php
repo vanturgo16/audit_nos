@@ -9,9 +9,11 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0 font-size-18">Form Checklist {{$type->type_checklist}} ( {{$period}} )</h4>
                     <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Approval Layout New VinCi > Exterior</a></li>
-                        </ol>
+                        <a id="backButton" type="button" href="{{ route('formchecklist.typechecklist', encrypt($id_period)) }}"
+                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                            Back
+                        </a>
                     </div>
                 </div>
             </div>
@@ -22,10 +24,6 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="card">
-                    <div class="card-header">
-
-                    </div><!-- end card header -->
-                
                     <div class="card-body">
                         <!-- Nav tabs -->
                         <ul class="nav nav-tabs" role="tablist">
@@ -33,15 +31,9 @@
                             @foreach ($point as $poin)
                             <?php $tab++ ;?>
                             <li class="nav-item">
-                                <a class="nav-link 
-                                @if($tab === $tabo ? 'active' : '')
-                                    active
-                                @endif
-                                " data-bs-toggle="tab" href="#point{{$tab}}" role="tab">
-
-                                    <span class="d-block d-sm-none">{{$poin->parent_point}}</span>
-                                    <!-- <span class="d-block d-sm-none"><i class="fas fa-home"></i></span> -->
-                                    <span class="d-none d-sm-block">{{$poin->parent_point}}</span>    
+                                <a class="nav-link  @if($tab === $tabo ? 'active' : '') active @endif" data-bs-toggle="tab" href="#point{{$tab}}" role="tab">
+                                    <span class="d-block d-sm-none lmt">{{$poin->parent_point}}</span>
+                                    <span class="d-none d-sm-block lmt">{{$poin->parent_point}}</span>    
                                 </a>
                             </li>
                             @endforeach
@@ -49,67 +41,83 @@
 
                         <!-- Tab panes -->
                         <div class="tab-content p-3 text-muted">
-                            <?php $tab = 0;?> 
-                            @foreach ($point as $poin)
-                            <?php $tab++ ;?>
-                                <div class="tab-pane 
-                                    @if($tab === $tabo ? 'active' : '')
-                                        active
-                                    @endif" id="point{{$tab}}" role="tabpanel">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <form action="{{ route('formchecklist.store', encrypt($id_period)) }}" method="post" enctype="multipart/form-data">
-                                            
-                                            @php
-                                                $file = "";
-                                                foreach($file_point as $file){
-                                                    if($poin->parent_point == $file->parent_point){
-                                                        $file = $file->path_url;
-                                                        break;
-                                                    }else{
-                                                        $file= "";
-                                                        break;
-                                                    }
-                                                }
-                                            @endphp
-                                                <h5 class="font-size-14 mb-4"><i class="mdi mdi-arrow-right text-primary me-1"></i> File {{$poin->parent_point}}</h5>
-                                                <div class="hstack gap-3">
-                                                    <input class="form-control me-auto" type="file" name="file_parent" placeholder="input File">
-                                                    <input type="hidden" name="parent_point" value="{{$poin->parent_point}}">
-                                                    <input type="hidden" name="tabo" value="{{$tab}}">
-                                                    <input type="hidden" name="id_jaringan" value="{{$id}}">
-                                                    <input type="hidden" name="sum_point" value="{{count($point)}}">
-                                                    @if($file != "")
-                                                        <div class="vr"></div>
-                                                        <a href="{{url($file)}}" class="btn btn-outline-success" download="File {{$type->type_checklist}}_{{$poin->parent_point}}">Download</a>
-                                                    @endif
-                                                </div>
-                                        </div>
-                                    </div>
-                                    <!-- <div class="card"> -->
-                                        <div class="card-header">
-                                            <!-- <h5>Form Checklist {{$poin->parent_point}}</h5> -->
-                                            <div class="mt-3">
-                                                <?php $no = 0;?> 
-                                                @foreach ($datas as $data)
 
-                                                @if ($poin->parent_point == $data->parent_point)
-                                                <?php $no++ ;?>
-                                                    <a href="#{{$tab}}question{{$data->id_assign}}" class="btn btn{{$tab}} pt-1 pb-1 mb-1 btn-outline-primary" id="btn{{$tab}}">{{$no}}</a>
-                                                @endif
-                                                @endforeach
+                            <?php $tab = 0;?>
+                            @foreach ($point as $poin)
+                                <?php $tab++ ;?>
+
+                                <div class="tab-pane @if($tab === $tabo ? 'active' : '') active @endif" id="point{{$tab}}" role="tabpanel">
+                                    <form action="{{ route('formchecklist.store', encrypt($id_period)) }}" method="post" enctype="multipart/form-data">
+                                        @csrf
+
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <input type="hidden" name="parent_point" value="{{$poin->parent_point}}">
+                                                <input type="hidden" name="tabo" value="{{$tab}}">
+                                                <input type="hidden" name="id_jaringan" value="{{$id}}">
+                                                <input type="hidden" name="sum_point" value="{{count($point)}}">
+
+                                                @php
+                                                    $file = "";
+                                                    foreach($file_point as $file){
+                                                        if($poin->parent_point == $file->parent_point){
+                                                            $file = $file->path_url;
+                                                            break;
+                                                        }else{
+                                                            $file= "";
+                                                            break;
+                                                        }
+                                                    }
+                                                @endphp
+
+                                                <h4 class="mb-3">
+                                                    <i class="mdi mdi-arrow-right text-primary me-1"></i>
+                                                    <span class="badge bg-primary"> {{$poin->parent_point}}</span>
+                                                </h4>
+                                                <div class="card px-2 py-2 mb-0">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            @if($file != "")
+                                                                <label for="">Update File</label>
+                                                            @else
+                                                                <label for="">Upload File</label>
+                                                            @endif
+                                                            <input class="form-control me-auto" type="file" name="file_parent" placeholder="input File">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            @if($file != "")
+                                                                <label for="">File Before</label>
+                                                                <br>
+                                                                <a href="{{ url($file) }}"
+                                                                    type="button" class="btn btn-info waves-effect btn-label waves-light" download="File {{$type->type_checklist}}_{{$poin->parent_point}}">
+                                                                    <i class="mdi mdi-download label-icon"></i> Download
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <div class="card-header">
+                                            <?php $no = 0;?> 
+                                            @foreach ($datas as $data)
+                                                @if ($poin->parent_point == $data->parent_point)
+                                                    <?php $no++ ;?>
+                                                    <a href="#{{$tab}}question{{$data->id_assign}}" class="btn btn{{$tab}} pt-1 pb-1 mb-1 btn-outline-primary" id="btn{{$tab}}" data-ind="{{ $data->id_assign }}">{{$no}}</a>
+                                                @endif
+                                            @endforeach
+                                        </div>
+
                                         <div class="card-body">
                                             <table class="table dt-responsive nowrap w-100">
                                                 <tbody>
-                                                    <!-- <form action="{{ route('formchecklist.store', encrypt($id_period)) }}" method="post" enctype="multipart/form-data"> -->
-                                                    @csrf
                                                     <input type="hidden" name="id_checklist_jaringan" value="{{$id}}">
                                                     <?php $no = 0;?> 
                                                     @foreach ($datas as $data)
-                                                    @if ($poin->parent_point == $data->parent_point)
-                                                    <?php $no++ ;?>
+                                                        @if ($poin->parent_point == $data->parent_point)
+                                                        <?php $no++ ;?>
+
                                                         <tr class="soal{{$tab}}">
                                                             <td>{{ $no }}</td>
                                                             <td>
@@ -135,150 +143,222 @@
                                                                     </div>
 
                                                                 @endforeach
-                                                                
                                                             </td>
-                                                            <td>
+
+                                                            @if($data->path_guide_premises != null)
+                                                            <td style="text-align: right;">
                                                                 <img src="{{url($data->path_guide_premises)}}" class="img-thumbnail" width="200" alt="Thumbnail 1">
                                                             </td>
+                                                            @endif
                                                         </tr>
-                                                    @endif
+                                                        
+                                                        @endif
                                                     @endforeach
+
                                                 </tbody>
                                             </table>
+                                            
+                                            @php
+                                                $totalCount = 0;
+                                            @endphp
+                                            @foreach ($datas as $data)
+                                                @if ($poin->parent_point == $data->parent_point)
+                                                    @php
+                                                        $totalCount++;
+                                                    @endphp
+                                                    <input type="hidden" id="bpoin{{ $tab }}[]" value="{{ $data->id_assign }}">
+                                                @endif
+                                            @endforeach
+                                            <input type="hidden" id="totalCount{{$tab}}" value="{{ $totalCount }}">
+                                            
                                             <div class="col-12">
                                                 <div class="btn-group mt-2" role="group" aria-label="Navigasi Quiz">
-                                                    <button type="button" class="btn btn-info mx-1" id="backBtn{{$tab}}" style="display: none;">Kembali</button>
-                                                    <button type="button" class="btn btn-primary mx-1" id="nextBtn{{$tab}}">Selanjutnya</button>
-                                                    <button type="submit" class="btn btn-primary mx-1" id="submitBtn{{$tab}}" style="display: none;">Kirim</button>
+                                                    <button id="backBtnback{{$tab}}"
+                                                        type="submit" name="back" value="1" class="btn btn-secondary waves-effect waves-light loadButton"
+                                                        style="border-top-left-radius: 20px; border-bottom-left-radius: 20px; display: none;">
+                                                        <i class="mdi mdi-arrow-left-circle label-icon"></i> | Back
+                                                    </button>
+                                                    <button id="backBtn{{$tab}}"
+                                                        type="button" class="btn btn-secondary waves-effect waves-light"
+                                                        style="border-top-left-radius: 20px; border-bottom-left-radius: 20px; display: none;">
+                                                        <i class="mdi mdi-arrow-left-circle label-icon"></i> | Back
+                                                    </button>
+                                                    <span style="margin-right: 10px;"></span>
+                                                    <button id="nextBtn{{$tab}}"
+                                                        type="button" class="btn btn-primary waves-effect waves-light"
+                                                        style="border-top-right-radius: 20px; border-bottom-right-radius: 20px; display: none;">
+                                                        Next | <i class="mdi mdi-arrow-right-circle label-icon"></i>
+                                                    </button>
 
+                                                    @if(count($point) == $tab)
+                                                        <button id="submitBtn{{$tab}}"
+                                                            type="submit" class="btn btn-success waves-effect waves-light loadButton"
+                                                            style="border-top-right-radius: 5px; border-bottom-right-radius: 5px; display: none;">
+                                                            Finish | <i class="mdi mdi-check-circle label-icon"></i>
+                                                        </button>
+                                                    @else
+                                                        <button id="submitBtn{{$tab}}"
+                                                            type="submit" class="btn btn-primary waves-effect waves-light loadButton"
+                                                            style="border-top-right-radius: 20px; border-bottom-right-radius: 20px; display: none;">
+                                                            Next | <i class="mdi mdi-arrow-right-circle label-icon"></i>
+                                                        </button>
+                                                    @endif
                                                 </div>
                                             </div>
-                                            </form>
                                         </div>
-                                    <!-- </div> -->
-                                    
+                                
+                                    </form>
                                 </div>
+
                             @endforeach
                         </div>
-                    </div><!-- end card-body -->
-                </div><!-- end card -->
-            </div><!-- end col -->
-        </div><!-- end row -->
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
     </div>
 </div>
+
+
 @php
-$j = 0;
+    $j = 0;
 @endphp
 
 @foreach($point as $point)
     @php
-    $j++;
+        $j++;
     @endphp
-    <?php foreach($datas as $data){ 
-        if($point->parent_point == $data->parent_point){
-        ?>
-    <script>
-        // Mendefinisikan variabel JavaScript menggunakan nilai $j
-        const questions{{$j}} = document.querySelectorAll('.soal{{$j}}');
-        const buttons{{$j}} = document.querySelectorAll('.btn{{$j}}');
-        const nextBtn{{$j}} = document.getElementById('nextBtn{{$j}}');
-        const backBtn{{$j}} = document.getElementById('backBtn{{$j}}');
-        const submitBtn{{$j}} = document.getElementById('submitBtn{{$j}}');
-        let currentQuestionIndex{{$j}} = 0;
+    @foreach($datas as $data)
+        @if($point->parent_point == $data->parent_point)
+            <script>
+                var indx{{$j}} = document.getElementById('totalCount'+{{ $j }}).value;
+                const questions{{$j}} = document.querySelectorAll('.soal{{$j}}');
+                const buttons{{$j}} = document.querySelectorAll('.btn{{$j}}');
+                const nextBtn{{$j}} = document.getElementById('nextBtn{{$j}}');
+                const backBtn{{$j}} = document.getElementById('backBtn{{$j}}');
+                const submitBtn{{$j}} = document.getElementById('submitBtn{{$j}}');
 
-        // Fungsi untuk menampilkan pertanyaan berdasarkan indeks
-        function showQuestion{{$j}}(index) {
-            questions{{$j}}.forEach((question, i) => {
-                question.style.display = i === index ? 'block' : 'none';
-            });
-        }
+                // var indx = document.getElementById('totalCount').value;
+                console.log(indx{{$j}});
 
-        // Fungsi untuk mengatur tampilan tombol navigasi
-        function toggleButtons{{$j}}() {
-            nextBtn{{$j}}.style.display = currentQuestionIndex{{$j}} < questions{{$j}}.length - 1 ? 'block' : 'none';
-            backBtn{{$j}}.style.display = currentQuestionIndex{{$j}} > 0 ? 'block' : 'none';
-            submitBtn{{$j}}.style.display = currentQuestionIndex{{$j}} === questions{{$j}}.length - 1 ? 'block' : 'none';
-        }
-
-        // Fungsi untuk menandai tombol yang aktif
-        function setActiveButton{{$j}}(index) {
-            buttons{{$j}}.forEach((button, i) => {
-                if (i === index) {
-                    button.classList.add('active');
+                let currentQuestionIndex{{$j}};
+                if({{ $lastindex }} === 0){
+                    currentQuestionIndex{{$j}} = 0;
                 } else {
-                    button.classList.remove('active');
+                    currentQuestionIndex{{$j}} = indx{{$j}}-1;
                 }
-            });
-        }
 
-        // Fungsi untuk mengatur warna tombol berdasarkan jawaban yang dipilih
-        function setButtonColor{{$j}}() {
-            buttons{{$j}}.forEach((button, index) => {
-                if (index <= currentQuestionIndex{{$j}} || index === currentQuestionIndex{{$j}}) {
-                    //  document.querySelectorAll('input[name^='{{$j}}question']:checked');
-                    // const selectedOption = document.querySelector('input[name={{$j}}question' + (index + 1)+']:checked');
-                    
-                    const selectedOption = document.querySelector("input[name='1question<?= $data->id_assign ?>']:checked");
 
-                    // const selectedOption = document.querySelectorAll('input[name^='{{$j}}question']:checked');
-                    // eror get question
-                    console.log('button color cek');
+                let ind{{ $j }} = 0;
 
-                    // selectedOption.foreach((input)=>{
-                    //     if(input.)
-                    // })
+                function showQuestion{{$j}}(index) {
+                    questions{{$j}}.forEach((question, i) => {
+                        question.style.display = i === index ? 'block' : 'none';
+                    });
+                }
 
-                    if (selectedOption) {
-                        button.classList.add('btn-success');
+                function toggleButtons{{$j}}() {
+                    nextBtn{{$j}}.style.display = currentQuestionIndex{{$j}} < questions{{$j}}.length - 1 ? 'block' : 'none';
+
+                    if (currentQuestionIndex{{$j}} <= 0) {
+                        document.getElementById('backBtnback1').disabled = true;
                     } else {
-                        button.classList.remove('btn-success');
-                        // button.classList.add('btn-success');
+                        document.getElementById('backBtnback1').disabled = false;
                     }
-                } else {
-                    // button.classList.remove('btn-success');
-                    // button.classList.add('btn-success');
-
+                    backBtn{{$j}}.style.display = currentQuestionIndex{{$j}} > 0 ? 'block' : 'none';
+                    backBtnback{{$j}}.style.display = currentQuestionIndex{{$j}} > 0 ? 'none' : 'block';
+                    submitBtn{{$j}}.style.display = currentQuestionIndex{{$j}} === questions{{$j}}.length - 1 ? 'block' : 'none';
                 }
-            });
-        }
 
-        // Menampilkan pertanyaan pertama dan mengatur tampilan tombol
-        showQuestion{{$j}}(currentQuestionIndex{{$j}});
-        toggleButtons{{$j}}();
-        setActiveButton{{$j}}(currentQuestionIndex{{$j}});
-        setButtonColor{{$j}}();
+                function setActiveButton{{$j}}(index) {
+                    buttons{{$j}}.forEach((button, i) => {
+                        const dataInd = button.getAttribute('data-ind');
 
-        // Menambahkan event listener untuk tombol navigasi
-        buttons{{$j}}.forEach((button, index) => {
-            button.addEventListener('click', () => {
-                currentQuestionIndex{{$j}} = index;
+                        if($('input[name="{{$j}}question'+dataInd+'"]').is(':checked')) {
+                            var element = $('a[data-ind="'+dataInd+'"]');
+                            if (element.length > 0) {
+                                element.addClass('btn-success');
+                            } else {
+                                element.removeClass('btn-success');
+                            }
+                        } else {
+                            var element = $('a[data-ind="'+dataInd+'"]');
+                            if (element.length > 0) {
+                                element.removeClass('btn-success');
+                            } else {
+                                element.removeClass('btn-success');
+                            }
+                        }
+
+                        if (i === index) {
+                            button.classList.add('active');
+                        } else {
+                            button.classList.remove('active');
+                        }
+                    });
+                }
+
+                function setButtonColor{{$j}}(idAssgn) {
+                    if($('input[name="{{$j}}question'+idAssgn+'"]').is(':checked')) {
+                        var element = $('a[data-ind="'+idAssgn+'"]');
+                        if (element.length > 0) {
+                            element.addClass('btn-success');
+                        } else {
+                            element.removeClass('btn-success');
+                        }
+                    } else {
+                        var element = $('a[data-ind="'+idAssgn+'"]');
+                        if (element.length > 0) {
+                            element.removeClass('btn-success');
+                        } else {
+                            element.removeClass('btn-success');
+                        }
+                    }
+                }
+
                 showQuestion{{$j}}(currentQuestionIndex{{$j}});
                 toggleButtons{{$j}}();
                 setActiveButton{{$j}}(currentQuestionIndex{{$j}});
                 setButtonColor{{$j}}();
-            });
-        });
 
-        nextBtn{{$j}}.addEventListener('click', () => {
-            currentQuestionIndex{{$j}}++;
-            showQuestion{{$j}}(currentQuestionIndex{{$j}});
-            toggleButtons{{$j}}();
-            setActiveButton{{$j}}(currentQuestionIndex{{$j}});
-            setButtonColor{{$j}}();
-        });
+                buttons{{$j}}.forEach((button, index) => {
+                    button.addEventListener('click', () => {
+                        currentQuestionIndex{{$j}} = index;
+                        showQuestion{{$j}}(currentQuestionIndex{{$j}});
+                        toggleButtons{{$j}}();
+                        setActiveButton{{$j}}(currentQuestionIndex{{$j}});
+                        setButtonColor{{$j}}();
+                    });
+                });
 
-        backBtn{{$j}}.addEventListener('click', () => {
-            currentQuestionIndex{{$j}}--;
-            showQuestion{{$j}}(currentQuestionIndex{{$j}});
-            toggleButtons{{$j}}();
-            setActiveButton{{$j}}(currentQuestionIndex{{$j}});
-            setButtonColor{{$j}}();
-        });
-    </script>
-    <?php }} ?>
+                nextBtn{{$j}}.addEventListener('click', () => {
+                    currentQuestionIndex{{$j}}++;
+                    showQuestion{{$j}}(currentQuestionIndex{{$j}});
+                    toggleButtons{{$j}}();
+                    setActiveButton{{$j}}(currentQuestionIndex{{$j}});
+
+                    const currentInputs = document.querySelectorAll(`input[id="bpoin{{ $j }}[]"]`);
+                    idAssgn = currentInputs[ind{{$j}}].value;
+                    setButtonColor{{$j}}(idAssgn);
+                    ind{{$j}}++;
+                });
+
+                backBtn{{$j}}.addEventListener('click', () => {
+                    currentQuestionIndex{{$j}}--;
+                    showQuestion{{$j}}(currentQuestionIndex{{$j}});
+                    toggleButtons{{$j}}();
+                    setActiveButton{{$j}}(currentQuestionIndex{{$j}});
+                    
+                    const currentInputs = document.querySelectorAll(`input[id="bpoin{{ $j }}[]"]`);
+                    idAssgn = currentInputs[ind{{$j}}].value;
+                    setButtonColor{{$j}}(idAssgn);
+                    ind{{$j}}--;
+                });
+            </script>
+        @endif
+    @endforeach
 @endforeach
-
 
 @endsection
