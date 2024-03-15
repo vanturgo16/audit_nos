@@ -99,7 +99,7 @@
                                     <th class="align-middle text-center">Jaringan</th>
                                     <th class="align-middle text-center">Date</th>
                                     <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Active</th>
+                                    <!-- <th class="align-middle text-center">Active</th> -->
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -176,20 +176,20 @@
                         return html;
                     },
                 },
-                {
-                    data: 'is_active',
-                    orderable: true,
-                    className: 'align-middle text-center',
-                    render: function(data, type, row) {
-                        var html
-                        if(row.is_active == 1){
-                            html = '<span class="badge bg-success text-white">Active</span>';
-                        } else {
-                            html = '<span class="badge bg-danger text-white">Inactive</span>';
-                        }
-                        return html;
-                    },
-                },
+                // {
+                //     data: 'is_active',
+                //     orderable: true,
+                //     className: 'align-middle text-center',
+                //     render: function(data, type, row) {
+                //         var html
+                //         if(row.is_active == 1){
+                //             html = '<span class="badge bg-success text-white">Active</span>';
+                //         } else {
+                //             html = '<span class="badge bg-danger text-white">Inactive</span>';
+                //         }
+                //         return html;
+                //     },
+                // },
                 {
                     data: 'action',
                     name: 'action',

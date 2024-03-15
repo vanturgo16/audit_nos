@@ -35,7 +35,7 @@
                                     <th class="align-middle text-center">Period Checklist</th>
                                     <th class="align-middle text-center">Date</th>
                                     <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Active</th>
+                                    <!-- <th class="align-middle text-center">Active</th> -->
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -60,13 +60,13 @@
                                             <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                         @endif
                                         </td>
-                                        <td class="align-middle text-center">
+                                        <!-- <td class="align-middle text-center">
                                             @if($data->is_active == 1)
                                                 <span class="badge bg-success text-white">Active</span>
                                             @else
                                                 <span class="badge bg-danger text-white">Inactive</span>
                                             @endif
-                                        </td>
+                                        </td> -->
                                         <td class="align-middle text-center">
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('formchecklist.typechecklist', encrypt($data->id)) }}" type="button" class="btn btn-sm btn-primary"
