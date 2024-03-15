@@ -83,7 +83,7 @@ class MstFormChecklistController extends Controller
             ->groupBy('checklist_response.response')
             ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
             ->get()->toArray();
-            $data->total_point = $responsCounts;
+            $data->point = $responsCounts;
 
         }
 
@@ -91,7 +91,7 @@ class MstFormChecklistController extends Controller
         $status = $datas->every(function ($item, $key) {
             return $item['status'] == 1;
         });
-        
+        // dd($datas);
         // Audit Log
         $this->auditLogsShort('View Data Checklist, Period: ', $id);
 
@@ -420,7 +420,7 @@ class MstFormChecklistController extends Controller
         //     'total_point' => 'required',
         //     'result_audit' => 'required'
         // ]);
-        dd($request);
+        // dd($request);
         //belum bisaa
         $datas = ChecklistJaringan::all()->where('id_periode', $id);
 
@@ -437,10 +437,12 @@ class MstFormChecklistController extends Controller
             ->groupBy('checklist_response.response')
             ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
             ->get()->toArray();
-            $data->total_point = $responsCounts;
+            $data->point = $responsCounts;
 
         }
+        // dd($datas);
         $grading = MstGrading::all();
+
 
         DB::beginTransaction();
         try{
@@ -449,7 +451,8 @@ class MstFormChecklistController extends Controller
             foreach($datas as $data_point):
                 $totalPoint = 0;
 
-                foreach($data->total_point as $point):
+                foreach($data_point->point as $point):
+                    // echo $point['type_response'].': '.$point['count'].'<br>';
                     if($point['type_response'] == 'Exist, Good'){
 
                         $totalPoint += $point['count'] * 1;
@@ -459,10 +462,13 @@ class MstFormChecklistController extends Controller
                         $totalPoint += $point['count'] * -1;
 
                     }elseif($point['type_response'] == 'Not Exist'){
-
                         $totalPoint += $point['count'] * 0;
                     }
                 endforeach;
+
+                // $totalPoint = 0;
+
+
                 if($totalPoint != 0){
                     $result = ($totalPoint / ($data_point->total_checklist - $data_point->checklist_remaining)) * 100;
                     $formattedResult = number_format((float)$result, 2, '.', '');
@@ -478,20 +484,23 @@ class MstFormChecklistController extends Controller
                         
                     }
                 endforeach;
-
                 // echo $totalPoint; //total Point
                 // echo $formattedResult;// ini % result
                 // echo $result_audit; //result Audit
 
-                MstJaringan::where('id', $data->id)->update([
+                ChecklistJaringan::where('id', $data_point->id)->update([
                     'status' => 2,
                     'total_point' => $totalPoint,
                     'result_percentage' => $formattedResult,
                     'audit_result' => $result_audit
                 ]);
 
+                DB::commit();
+
+
             endforeach;
             //setelah selesai update, update status Period nya
+            // echo "status periode : 3";
             MstPeriodeChecklists::where('id', $id)->update([
                 'status' => '3'
             ]);
@@ -502,7 +511,7 @@ class MstFormChecklistController extends Controller
 
             $this->auditLogsShort('Submit answer Checklist Period ('. $id . ')');
             
-            return redirect()->route('formchecklist.typechecklist', encrypt($request->id_jaringan))->with(['success' => 'Success Submit Your answer Checklist']);
+            return redirect()->route('formchecklist.typechecklist', encrypt($id))->with(['success' => 'Success Submit Your answer Checklist']);
 
 
 

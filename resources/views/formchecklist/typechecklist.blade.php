@@ -55,44 +55,53 @@
                                         <td class="align-middle text-center">{{ $data->total_checklist - $data->checklist_remaining}} of {{ $data->total_checklist}}</td>
                                         <td class="align-middle text-center">{{ $data->checklist_remaining}}</td>
                                         <td class="align-middle text-center">
-                                            @foreach($data->total_point as $point)
-                                                <span class="badge bg-info text-white">{{$point['type_response']}} : {{$point['count']}}</span>
-                                                <br>
-                                            @endforeach
+                                            @if($data->total_point == "")
+                                                @foreach($data->point as $point)
+                                                    <span class="badge bg-info text-white">{{$point['type_response']}} : {{$point['count']}}</span>
+                                                    <br>
+                                                @endforeach
+                                            @else
+                                                {{$data->total_point}}
+                                            @endif
                                         </td>
                                         <td class="align-middle text-center">
-                                        @php
-                                            $totalPoint = 0;
-                                        @endphp
+                                        @if($data->result_percentage == "")
 
-                                        @foreach($data->total_point as $point)
-                                            @if($point['type_response'] == 'Exist, Good')
+                                            @php
+                                                $totalPoint = 0;
+                                            @endphp
+
+                                            @foreach($data->point as $point)
+                                                @if($point['type_response'] == 'Exist, Good')
+                                                    @php
+                                                        $totalPoint += $point['count'] * 1;
+                                                    @endphp
+                                                @elseif($point['type_response'] == 'Exist Not Good')
+                                                    @php
+                                                        $totalPoint += $point['count'] * -1;
+                                                    @endphp
+                                                @elseif($point['type_response'] == 'Not Exist')
+                                                    @php
+                                                        $totalPoint += $point['count'] * 0;
+                                                    @endphp
+                                                @endif
+                                            @endforeach
+                                            @if($totalPoint != 0)
                                                 @php
-                                                    $totalPoint += $point['count'] * 1;
+                                                    $result = ($totalPoint / ($data->total_checklist - $data->checklist_remaining)) * 100;
+                                                    $formattedResult = number_format((float)$result, 2, '.', '');
                                                 @endphp
-                                            @elseif($point['type_response'] == 'Exist Not Good')
+                                            @else
                                                 @php
-                                                    $totalPoint += $point['count'] * -1;
-                                                @endphp
-                                            @elseif($point['type_response'] == 'Not Exist')
-                                                @php
-                                                    $totalPoint += $point['count'] * 0;
+                                                    $formattedResult = 0;
                                                 @endphp
                                             @endif
-                                        @endforeach
-                                        @if($totalPoint != 0)
-                                            @php
-                                                $result = ($totalPoint / ($data->total_checklist - $data->checklist_remaining)) * 100;
-                                                $formattedResult = number_format((float)$result, 2, '.', '');
-                                            @endphp
+                                            <!-- Total Point: {{ $totalPoint }} -->
+                                            <!-- Result:  -->
+                                            {{ $formattedResult }} %
                                         @else
-                                            @php
-                                                $formattedResult = 0;
-                                            @endphp
+                                            {{$data->result_percentage}} %
                                         @endif
-                                        <!-- Total Point: {{ $totalPoint }} -->
-                                        <!-- Result:  -->
-                                        {{ $formattedResult }} %
 
                                         </td>
                                         <td class="align-middle text-center">
@@ -103,14 +112,16 @@
                                             @elseif($data->status == 1)
                                                 <span class="badge bg-info text-white">Complete</span>
                                             @elseif($data->status == 2)
-                                                <span class="badge bg-danger text-white">Reviewed</span>
+                                                <span class="badge bg-warning text-white">Reviewed</span>
                                             @elseif($data->status == 3)
-                                                <span class="badge bg-success text-white">Not Approve</span>
+                                                <span class="badge bg-danger text-white">Not Approve</span>
                                             @elseif($data->status == 4)
                                                 <span class="badge bg-success text-white">Approve</span>
                                             @endif
                                         </td>
                                         <td class="align-middle text-center">
+                                        @if($data->audit_result == "")
+
                                             @php
                                                 $result_audit = "";
                                             @endphp
@@ -122,7 +133,10 @@
                                                 @endif
                                             @endforeach
                                             {{$result_audit}}
-                                        </td>
+                                        @else
+                                            {{$data->audit_result}}
+                                        @endif
+                                    </td>
                                         <td class="align-middle text-center">
                                             @if($data->start_date == null)
                                                 <span class="badge bg-secondary text-white">Not Started</span>

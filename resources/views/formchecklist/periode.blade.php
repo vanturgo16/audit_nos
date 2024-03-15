@@ -53,11 +53,11 @@
                                         @elseif($data->status == 2)
                                             <span class="badge bg-success text-white">Active</span>
                                         @elseif($data->status == 3)
-                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Reviewed</span>
+                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-warning text-white">Reviewed</span>
                                         @elseif($data->status == 4)
                                             <span class="badge bg-danger text-white">Closed Approved</span>
                                         @elseif($data->status == 5)
-                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-warning text-white">Rejected</span>
+                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                         @endif
                                         </td>
                                         <td class="align-middle text-center">
