@@ -56,7 +56,7 @@
                                 @endif
                             </td>
                         </tr>
-                        <tr>
+                        <!-- <tr>
                             <td class="align-middle"><b>Active</b></td>
                             <td class="align-middle">: 
                                 @if ($period->is_active == 1)
@@ -65,7 +65,7 @@
                                     <span class="badge bg-danger text-white">Inactive</span>
                                 @endif
                             </td>
-                        </tr>
+                        </tr> -->
                     </tbody>
                 </table>
             </div>

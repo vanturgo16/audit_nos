@@ -35,7 +35,7 @@
                                     <th class="align-middle text-center">Period Checklist</th>
                                     <th class="align-middle text-center">Date</th>
                                     <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Active</th>
+                                    <!-- <th class="align-middle text-center">Active</th> -->
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -53,20 +53,20 @@
                                         @elseif($data->status == 2)
                                             <span class="badge bg-success text-white">Active</span>
                                         @elseif($data->status == 3)
-                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Reviewed</span>
+                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-warning text-white">Reviewed</span>
                                         @elseif($data->status == 4)
                                             <span class="badge bg-danger text-white">Closed Approved</span>
                                         @elseif($data->status == 5)
-                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-warning text-white">Rejected</span>
+                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                         @endif
                                         </td>
-                                        <td class="align-middle text-center">
+                                        <!-- <td class="align-middle text-center">
                                             @if($data->is_active == 1)
                                                 <span class="badge bg-success text-white">Active</span>
                                             @else
                                                 <span class="badge bg-danger text-white">Inactive</span>
                                             @endif
-                                        </td>
+                                        </td> -->
                                         <td class="align-middle text-center">
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('formchecklist.typechecklist', encrypt($data->id)) }}" type="button" class="btn btn-sm btn-primary"
