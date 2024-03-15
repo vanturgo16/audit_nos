@@ -4,6 +4,7 @@ use App\Http\Controllers\AjaxMappingRegional;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MstAssessorChecklistController;
 use App\Http\Controllers\MstAssignChecklistController;
 use App\Http\Controllers\MstJaringanController;
 use App\Http\Controllers\MstChecklistController;
@@ -115,6 +116,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/formchecklist/periode/typechecklist/submitchecklist/{id}', [MstFormChecklistController::class, 'submitchecklist'])->name('formchecklist.submitchecklist');
 
     
+    
+    // Checklist Assessor
+    Route::get('/assessor/jaringan', [MstAssessorChecklistController::class, 'listjaringan'])->name('assessor.listjaringan');
+    Route::get('assessor/period/{id}', [MstAssessorChecklistController::class, 'listperiod'])->name('assessor.listperiod');
+    Route::get('assessor/typechecklist/{id}', [MstAssessorChecklistController::class, 'typechecklist'])->name('assessor.typechecklist');
+    Route::post('periodchecklist/update/{id}', [MstAssessorChecklistController::class, 'update'])->name('periodchecklist.update');
+    Route::post('periodchecklist/activate/{id}', [MstAssessorChecklistController::class, 'activate'])->name('periodchecklist.activate');
+    Route::post('periodchecklist/deactivate/{id}', [MstAssessorChecklistController::class, 'deactivate'])->name('periodchecklist.deactivate');
 
 
     //Audit Log

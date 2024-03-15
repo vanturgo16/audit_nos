@@ -184,16 +184,24 @@
                                 <span>Period Checklist</span>
                             </a>
                         </li>
-                        <li>
+                        {{-- <li>
                             <a href="{{ route('formchecklist.form') }}">
                                 <i class="mdi mdi-check-underline-circle"></i>
                                 <span>Contoh Form Checklist</span>
                             </a>
-                        </li>
+                        </li> --}}
                         <li>
                             <a href="{{ route('formchecklist.index') }}">
                                 <i class="mdi mdi-check-underline-circle"></i>
                                 <span>Form Checklist</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title" data-key="t-menu">Assessor Menu</li>
+                        <li>
+                            <a href="{{ route('assessor.listjaringan') }}">
+                                <i class="mdi mdi-check-underline-circle"></i>
+                                <span>Checklist</span>
                             </a>
                         </li>
 
