@@ -41,6 +41,24 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">: 
+                                @if($period->status == 0)
+                                    <span class="badge bg-danger text-white">Inactive</span>
+                                @elseif($period->status == 1)
+                                    <span class="badge bg-success text-white">Active</span>
+                                @elseif($period->status == 2)
+                                    <span class="badge bg-success text-white">Active</span>
+                                @elseif($period->status == 3)
+                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>
+                                @elseif($period->status == 4)
+                                    <span class="badge bg-danger text-white">Closed Approved</span>
+                                @elseif($period->status == 5)
+                                    <span class="badge bg-success text-white">Active</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle"><b>Active</b></td>
+                            <td class="align-middle">: 
                                 @if ($period->is_active == 1)
                                     <span class="badge bg-success text-white">Active</span>
                                 @else

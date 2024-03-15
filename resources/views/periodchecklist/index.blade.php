@@ -99,6 +99,7 @@
                                     <th class="align-middle text-center">Jaringan</th>
                                     <th class="align-middle text-center">Date</th>
                                     <th class="align-middle text-center">Status</th>
+                                    <th class="align-middle text-center">Active</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -152,6 +153,28 @@
                         return startDate.toLocaleDateString('es-CL').replace(/\//g, '-') + '<b> Until </b>' + endDate.toLocaleDateString('es-CL').replace(/\//g, '-');
                     },
 
+                },
+                {
+                    data: 'status',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html
+                        if(row.status == 0){
+                            html = '<span class="badge bg-danger text-white">Inactive</span>';
+                        } else if(row.status == 1){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } else if(row.status == 2){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } else if(row.status == 3){
+                            html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>';
+                        } else if(row.status == 4){
+                            html = '<span class="badge bg-danger text-white">Closed Approved</span>';
+                        } else if(row.status == 5){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } 
+                        return html;
+                    },
                 },
                 {
                     data: 'is_active',

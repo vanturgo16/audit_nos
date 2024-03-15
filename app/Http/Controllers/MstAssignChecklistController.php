@@ -189,7 +189,8 @@ class MstAssignChecklistController extends Controller
         try{
 
             MstPeriodeChecklists::where('id', $id)->update([
-                'is_active' => '1'
+                'is_active' => '1',
+                'status' => '1'
             ]);
 
             foreach($datas as $data){

@@ -69,7 +69,8 @@ class MstPeriodChecklistController extends Controller
                 'id_branch' => $request->id_branch,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
-                'is_active' => '0'
+                'is_active' => '0',
+                'status' => '0'
             ]);
 
             //Audit Log
