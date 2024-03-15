@@ -46,7 +46,7 @@
                                     <tr>
                                         <td class="align-middle text-center">{{ $no }}</td>
                                         <td class="align-middle text-center"><b>{{ $data->period }}</b></td>
-                                        <td class="align-middle text-center">{{ Carbon\Carbon::parse($data->start_date)->format('d-m-Y') }}</td>
+                                        <td class="align-middle text-center">{{ Carbon\Carbon::parse($data->start_date)->format('d-m-Y') }} until {{ Carbon\Carbon::parse($data->end_date)->format('d-m-Y') }}</td>
                                         <td class="align-middle text-center">
                                         @if($data->status == 1)
                                             <span class="badge bg-success text-white">Active</span>
