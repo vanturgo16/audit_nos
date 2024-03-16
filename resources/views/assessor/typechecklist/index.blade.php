@@ -9,7 +9,7 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0 font-size-18">List Type Checklist ( {{$period->period}} )</h4>
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('assessor.listperiod', encrypt($period->id)) }}"
+                        <a id="backButton" type="button" href="{{ route('assessor.listperiod', encrypt($period->id_branch)) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
                             Back
@@ -57,8 +57,9 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-end">
+                        @if($check == 0)
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Finish Review</button>
-                        {{-- Modal Submit --}}
+                        {{-- Modal Finish --}}
                         <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-top" role="document">
                                 <div class="modal-content">
@@ -95,19 +96,20 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
+                        <table class="table table-bordered dt-responsive w-100" id="server-side-table" style="font-size: small">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Type Checklist</th>
                                     <th class="align-middle text-center">Total Checklist</th>
                                     <th class="align-middle text-center">Checklist Remain</th>
-                                    {{-- <th class="align-middle text-center">Total Point</th> --}}
-                                    {{-- <th class="align-middle text-center">% Result</th> --}}
+                                    <th class="align-middle text-center">Total Point</th>
+                                    <th class="align-middle text-center">% Result</th>
+                                    <th class="align-middle text-center">Result Audit</th>
                                     <th class="align-middle text-center">Status</th>
-                                    {{-- <th class="align-middle text-center">Result Audit</th> --}}
                                     <th class="align-middle text-center">Start Date</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -156,6 +158,30 @@
                 {
                     data: 'checklist_remaining',
                     name: 'checklist_remaining',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center'
+                },
+                {
+                    data: 'total_point',
+                    name: 'total_point',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center'
+                },
+                {
+                    data: 'result_percentage',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html
+                        html = row.result_percentage + ' %';
+                        return html;
+                    },
+                },
+                {
+                    data: 'audit_result',
+                    name: 'audit_result',
                     orderable: true,
                     searchable: true,
                     className: 'align-middle text-center'

@@ -121,9 +121,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/assessor/jaringan', [MstAssessorChecklistController::class, 'listjaringan'])->name('assessor.listjaringan');
     Route::get('assessor/period/{id}', [MstAssessorChecklistController::class, 'listperiod'])->name('assessor.listperiod');
     Route::get('assessor/typechecklist/{id}', [MstAssessorChecklistController::class, 'typechecklist'])->name('assessor.typechecklist');
-    Route::post('periodchecklist/update/{id}', [MstAssessorChecklistController::class, 'update'])->name('periodchecklist.update');
-    Route::post('periodchecklist/activate/{id}', [MstAssessorChecklistController::class, 'activate'])->name('periodchecklist.activate');
-    Route::post('periodchecklist/deactivate/{id}', [MstAssessorChecklistController::class, 'deactivate'])->name('periodchecklist.deactivate');
+    Route::get('assessor/review/{id}', [MstAssessorChecklistController::class, 'review'])->name('assessor.review');
+    Route::post('assessor/submitreview/{id}', [MstAssessorChecklistController::class, 'submitreview'])->name('assessor.submitreview');
 
 
     //Audit Log

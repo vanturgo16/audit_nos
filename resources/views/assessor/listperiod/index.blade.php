@@ -8,13 +8,18 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0 font-size-18">List Period</h4>
-                    <div class="page-title-right">
+                    {{-- <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Assessor</a></li>
                             <li class="breadcrumb-item"><a href="javascript: void(0);">List Jaringan</a></li>
                             <li class="breadcrumb-item active">List Period</li>
                         </ol>
-                    </div>
+                    </div> --}}
+                    <a id="backButton" type="button" href="{{ route('assessor.listjaringan') }}"
+                        class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                        <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                        Back
+                    </a>
                 </div>
             </div>
         </div>
