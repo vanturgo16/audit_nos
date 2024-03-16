@@ -66,7 +66,6 @@
                                         </td>
                                         <td class="align-middle text-center">
                                         @if($data->result_percentage == "")
-
                                             @php
                                                 $totalPoint = 0;
                                             @endphp
