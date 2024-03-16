@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('assessor/typechecklist/{id}', [MstAssessorChecklistController::class, 'typechecklist'])->name('assessor.typechecklist');
     Route::get('assessor/review/{id}', [MstAssessorChecklistController::class, 'review'])->name('assessor.review');
     Route::post('assessor/submitreview/{id}', [MstAssessorChecklistController::class, 'submitreview'])->name('assessor.submitreview');
+    Route::post('assessor/finishreview/{id}', [MstAssessorChecklistController::class, 'finishreview'])->name('assessor.finishreview');
 
 
     //Audit Log
