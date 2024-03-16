@@ -50,6 +50,15 @@
                                 @endif    
                             </td>
                         </tr>
+                        <tr>
+                            <td class="align-middle"><b>History Decision</b></td>
+                            <td class="align-middle">: 
+                                <a href="#"
+                                    type="button" class="btn btn-sm btn-info">
+                                    <i class="mdi mdi-information label-icon"></i> | Detail
+                                </a>    
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -67,7 +76,7 @@
                                         <h5 class="modal-title" id="staticBackdropLabel">Finish Review</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <form action="#" id="formsubmit" method="POST">
+                                    <form action="{{ route('assessor.finishreview', encrypt($period->id)) }}" id="formsubmit" method="POST">
                                         @csrf
                                         <div class="modal-body">
                                             <div class="row">

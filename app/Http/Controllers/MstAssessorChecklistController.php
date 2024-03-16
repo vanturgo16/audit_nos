@@ -81,7 +81,7 @@ class MstAssessorChecklistController extends Controller
         $check = 0;
 
         foreach ($checks as $checkItem) {
-            if ($checkItem->status == 2) {
+            if ($checkItem->status == 2 || $period->status == 5) {
                 $check = 1;
                 break;
             }
@@ -132,29 +132,6 @@ class MstAssessorChecklistController extends Controller
         $id = decrypt($id);
         
         $type = ChecklistJaringan::where('id', $id)->first();
-
-        // $query = MstAssignChecklists::select(
-        //     'mst_assign_checklists.id as id_assign', 
-        //     'mst_assign_checklists.id_periode_checklist as id_periode_checklist', 
-        //     'mst_checklists.*',
-        //     'mst_parent_checklists.path_guide_premises', 
-        //     'mst_parent_checklists.parent_point_checklist as parent_point', 
-        //     'mst_checklists.id as id_checklist', 
-        //     'checklist_jaringan.type_checklist',
-        // )
-        // ->Join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-        // ->Join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-        // ->Join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-        // ->Join('checklist_jaringan', 'mst_periode_checklists.id', 'checklist_jaringan.id_periode')
-        // ->where('checklist_jaringan.id', $id)
-        // ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
-        // ->get();
-
-        // foreach ($query as $q) {
-        //     $response = ChecklistResponse::where('id_assign_checklist', $q->id_assign)->first()->response;
-        //     $q->response = $response;
-        // }
-        // dd($query);
 
         //file point
         $file_point = FileInputResponse::select(
@@ -217,10 +194,52 @@ class MstAssessorChecklistController extends Controller
             $status = 3;
         }
 
-        $update = ChecklistJaringan::where('id', $id)->where('type_checklist', $request->typechecklist)->update([
-            'status' => $status
-        ]);
+        DB::beginTransaction();
+        try{
+            
+            $update = ChecklistJaringan::where('id', $id)->where('type_checklist', $request->typechecklist)->update([
+                'status' => $status
+            ]);
 
-        return redirect()->route('assessor.typechecklist', encrypt($request->idperiod))->with(['success' => 'Success Submit Decission']);
+            //Audit Log
+            $this->auditLogsShort('Submit Review Checklist');
+
+            DB::commit();
+            return redirect()->route('assessor.typechecklist', encrypt($request->idperiod))->with(['success' => 'Success Submit Decission']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Failed to Submit Checklist!']);
+        }
+    }
+
+    public function finishreview(Request $request, $id)
+    {
+        $id = decrypt($id);
+
+        $statuscheklist = ChecklistJaringan::select('status')->where('id_periode', $id)->get();
+        $status = 4;
+        foreach ($statuscheklist as $checkItem) {
+            if ($checkItem->status == 3) {
+                $status = 5;
+                break;
+            }
+        }
+
+        DB::beginTransaction();
+        try{
+            
+            $update = MstPeriodeChecklists::where('id', $id)->update([
+                'status' => $status
+            ]);
+
+            //Audit Log
+            $this->auditLogsShort('Finish Review Checklist');
+
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Success Finish Review']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Failed to Finish Checklist!']);
+        }
     }
 }
