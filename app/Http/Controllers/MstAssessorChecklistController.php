@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChecklistJaringan;
 use App\Models\ChecklistResponse;
 use App\Models\FileInputResponse;
+use App\Models\FinishReviewLog;
 use App\Models\MstAssignChecklists;
 use App\Models\MstDropdowns;
 use App\Models\MstGrading;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 // Model
 use App\Models\MstPeriodeChecklists;
 use App\Models\MstJaringan;
+use App\Models\SubmitReviewLog;
 
 class MstAssessorChecklistController extends Controller
 {
@@ -66,7 +68,7 @@ class MstAssessorChecklistController extends Controller
         }
 
         //Audit Log
-        $this->auditLogsShort('View List Period in Assessor Checklist');
+        $this->auditLogsShort('View List Period Jaringan '.$jaringan->dealer_name.' in Assessor Checklist');
         
         return view('assessor.listperiod.index', compact('jaringan'));
     }
@@ -75,11 +77,15 @@ class MstAssessorChecklistController extends Controller
     {
         $id = decrypt($id);
 
+        // Check Has History or not
+        $historydecision = FinishReviewLog::where('id_period', $id)->first();
+
+        // Get Period
         $period = MstPeriodeChecklists::where('id', $id)->first();
         
+        // Check The Checklist Has Full Review or no
         $checks = ChecklistJaringan::select('status')->where('id_periode', $id)->get();
         $check = 0;
-
         foreach ($checks as $checkItem) {
             if ($checkItem->status == 2 || $period->status == 5) {
                 $check = 1;
@@ -91,7 +97,6 @@ class MstAssessorChecklistController extends Controller
             $datas = ChecklistJaringan::all()->where('id_periode', $id);
 
             foreach($datas as $data){
-
                 $responsCounts = ChecklistResponse::select('checklist_response.response as response')
                 ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
                 ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
@@ -104,7 +109,6 @@ class MstAssessorChecklistController extends Controller
                 ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
                 ->get()->toArray();
                 $data->total_point_arr = $responsCounts;
-
             }
 
             $grading = MstGrading::all();
@@ -122,9 +126,9 @@ class MstAssessorChecklistController extends Controller
         }
 
         //Audit Log
-        $this->auditLogsShort('View List Type Checklist in Assessor Checklist');
+        $this->auditLogsShort('View List Type Checklist Period: '.$period->periode.' in Assessor Checklist');
         
-        return view('assessor.typechecklist.index', compact('period', 'check'));
+        return view('assessor.typechecklist.index', compact('period', 'check', 'historydecision'));
     }
 
     public function review(Request $request, $id)
@@ -187,22 +191,27 @@ class MstAssessorChecklistController extends Controller
     public function submitreview(Request $request, $id)
     {
         $id = decrypt($id);
+        // dd($request->all(), $id);
 
-        if($request->decission == 'approved'){
+        if($request->decision == 'Approved'){
             $status = 4;
+            $reason = null;
         } else {
             $status = 3;
+            $reason = $request->reason;
         }
 
         DB::beginTransaction();
         try{
             
             $update = ChecklistJaringan::where('id', $id)->where('type_checklist', $request->typechecklist)->update([
-                'status' => $status
+                'status' => $status,
+                'last_decision' => $request->decision,
+                'last_reason' => $reason,
             ]);
 
             //Audit Log
-            $this->auditLogsShort('Submit Review Checklist');
+            $this->auditLogsShort('Submit Review Checklist - id : '.$id.', Type: '.$request->typechecklist);
 
             DB::commit();
             return redirect()->route('assessor.typechecklist', encrypt($request->idperiod))->with(['success' => 'Success Submit Decission']);
@@ -215,10 +224,12 @@ class MstAssessorChecklistController extends Controller
     public function finishreview(Request $request, $id)
     {
         $id = decrypt($id);
+        $userEmail = auth()->user()->email;
 
-        $statuscheklist = ChecklistJaringan::select('status')->where('id_periode', $id)->get();
+        //Get Status For Period, (Check IF Inside Period Checklist, The Checklist Contain Not Approved)
+        $statuschecklist = ChecklistJaringan::select('status')->where('id_periode', $id)->get();
         $status = 4;
-        foreach ($statuscheklist as $checkItem) {
+        foreach ($statuschecklist as $checkItem) {
             if ($checkItem->status == 3) {
                 $status = 5;
                 break;
@@ -227,13 +238,36 @@ class MstAssessorChecklistController extends Controller
 
         DB::beginTransaction();
         try{
-            
+            // Create Finish Review Log
+            $log_finish = FinishReviewLog::create([
+                'id_period' => $id,
+                'date' => now(),
+                'status' => $status,
+                'note' => $request->note,
+                'finish_by' => $userEmail,
+            ]);
+
+            // Get Data Checklist
+            $listchecklist = ChecklistJaringan::where('id_periode', $id)->get();
+
+            // Create Submit Log From Finish Review
+            foreach($listchecklist as $check){
+                SubmitReviewLog::create([
+                    'id_finish_review' => $log_finish->id,
+                    'type_checklist' => $check->type_checklist,
+                    'date' => $log_finish->updated_at,
+                    'decision' => $check->last_decision,
+                    'reason' => $check->last_reason,
+                ]);
+            }
+
+            // Update Period Status
             $update = MstPeriodeChecklists::where('id', $id)->update([
                 'status' => $status
             ]);
 
             //Audit Log
-            $this->auditLogsShort('Finish Review Checklist');
+            $this->auditLogsShort('Finish Review Checklist Id Period: '.$id);
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Finish Review']);
@@ -241,5 +275,35 @@ class MstAssessorChecklistController extends Controller
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Finish Checklist!']);
         }
+    }
+
+    public function history(Request $request, $id)
+    {
+        $id = decrypt($id);
+        // dd($id);
+
+        $period = MstPeriodeChecklists::where('id', $id)->first();
+        $datas = FinishReviewLog::where('id_period', $id)->get();
+        foreach($datas as $data){
+            $submitlog = SubmitReviewLog::where('id_finish_review', $data->id)->get();
+            $data->submitlog = $submitlog;
+        }
+
+        if ($request->ajax()) {
+            $query = FinishReviewLog::where('id_period', $id)->get();
+
+            $data = DataTables::of($query)
+            ->addColumn('action', function ($data) {
+                return view('assessor.history.action', compact('data'));
+            })
+            ->toJson();
+
+            return $data;
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List History Decision Period '.$period->period.' in Assessor Checklist');
+        
+        return view('assessor.history.index', compact('period', 'datas'));
     }
 }
