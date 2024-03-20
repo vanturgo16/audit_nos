@@ -53,8 +53,8 @@
 
             <div class="col-12">
                 <div class="card">
+                    @if($type->status == 2)
                     <div class="card-header d-flex justify-content-end">
-                        @if($type->status == 2)
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Decission</button>
                         {{-- Modal Finish --}}
                         <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -74,19 +74,16 @@
                                                     Your Decission For This Response Checklist?
                                                 </p>
                                             </div>
-                                            <div class="form-check mb-3">
-                                                <input class="form-check-input" type="radio" name="decission"
-                                                    id="formRadios1" value="approved" checked>
-                                                <label class="form-check-label" for="formRadios1">
-                                                    Approved
-                                                </label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="decision" id="approved" value="Approved" checked>
+                                                <label class="form-check-label" for="approved">Approved</label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="decission"
-                                                    id="formRadios2" value="notapproved">
-                                                <label class="form-check-label" for="formRadios2">
-                                                    Not Approved
-                                                </label>
+                                                <input class="form-check-input" type="radio" name="decission" id="notapproved" value="Not Approved">
+                                                <label class="form-check-label" for="notapproved">Not Approved</label>
+                                            </div>
+                                            <div class="mt-2" id="reasonBox" style="display:none;">
+                                                <textarea class="form-control" name="reason" id="reason" placeholder="Reason Why Not Approved..." rows="3"></textarea>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -95,6 +92,23 @@
                                         </div>
                                     </form>
                                     <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            var approvedRadio = document.getElementById('approved');
+                                            var notApprovedRadio = document.getElementById('notapproved');
+                                            var reasonBox = document.getElementById('reasonBox');
+                                            var reasonInput = document.getElementById('reason');
+
+                                            approvedRadio.addEventListener('change', function () {
+                                                reasonBox.style.display = 'none';
+                                                reasonInput.removeAttribute('required');
+                                            });
+
+                                            notApprovedRadio.addEventListener('change', function () {
+                                                reasonBox.style.display = 'block';
+                                                reasonInput.setAttribute('required', 'required');
+                                            });
+                                        });
+
                                         document.getElementById('formsubmit').addEventListener('submit', function(event) {
                                             if (!this.checkValidity()) {
                                                 event.preventDefault(); // Prevent form submission if it's not valid
@@ -109,8 +123,8 @@
                                 </div>
                             </div>
                         </div>
-                        @endif
                     </div>
+                    @endif
                     <div class="card-body">
                         <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
@@ -119,7 +133,6 @@
                                     <th class="align-middle text-center">Parent Point</th>
                                     <th class="align-middle text-center">Child Point</th>
                                     <th class="align-middle text-center">Sub Point</th>
-                                    {{-- <th class="align-middle text-center">Indikator</th> --}}
                                     <th class="align-middle text-center">Response</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -177,16 +190,6 @@
                     searchable: true,
                     className: 'align-middle text-center',
                 },
-                // {
-                //     data: 'indikator',
-                //     name: 'indikator',
-                //     orderable: true,
-                //     searchable: true,
-                //     render: function(data, type, row) {
-                //         var truncatedData = data.length > 30 ? data.substr(0, 30) + '...' : data;
-                //         return truncatedData;
-                //     },
-                // },
                 {
                     data: 'response',
                     name: 'response',

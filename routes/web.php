@@ -124,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('assessor/review/{id}', [MstAssessorChecklistController::class, 'review'])->name('assessor.review');
     Route::post('assessor/submitreview/{id}', [MstAssessorChecklistController::class, 'submitreview'])->name('assessor.submitreview');
     Route::post('assessor/finishreview/{id}', [MstAssessorChecklistController::class, 'finishreview'])->name('assessor.finishreview');
+    Route::get('assessor/history/{id}', [MstAssessorChecklistController::class, 'history'])->name('assessor.history');
 
 
     //Audit Log

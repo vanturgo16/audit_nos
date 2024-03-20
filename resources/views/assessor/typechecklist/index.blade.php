@@ -50,23 +50,24 @@
                                 @endif    
                             </td>
                         </tr>
+                        @if($historydecision != null)
                         <tr>
-                            <td class="align-middle"><b>History Decision</b></td>
+                            <td class="align-middle"><b>History Log Decision</b></td>
                             <td class="align-middle">: 
-                                <a href="#"
-                                    type="button" class="btn btn-sm btn-info">
-                                    <i class="mdi mdi-information label-icon"></i> | Detail
+                                <a href="{{ route('assessor.history', encrypt($period->id)) }}" type="button" class="btn btn-sm btn-info">
+                                    <i class="mdi mdi mdi-history label-icon"></i> |  History
                                 </a>    
                             </td>
                         </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
 
             <div class="col-12">
                 <div class="card">
+                    @if($check == 0)
                     <div class="card-header d-flex justify-content-end">
-                        @if($check == 0)
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Finish Review</button>
                         {{-- Modal Finish --}}
                         <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -79,10 +80,11 @@
                                     <form action="{{ route('assessor.finishreview', encrypt($period->id)) }}" id="formsubmit" method="POST">
                                         @csrf
                                         <div class="modal-body">
-                                            <div class="row">
-                                                <p>
-                                                    Are You Sure To Finish This Review?
-                                                </p>
+                                            <div class="row mt-2 mb-2">
+                                                <h5 class="text-center">
+                                                    <b>Are You Sure To Finish This Review?</b>
+                                                    <textarea class="form-control mt-4" name="note" placeholder="Note (Optional)..." rows="3"></textarea>
+                                                </h5>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -105,8 +107,8 @@
                                 </div>
                             </div>
                         </div>
-                        @endif
                     </div>
+                    @endif
                     <div class="card-body">
                         <table class="table table-bordered dt-responsive w-100" id="server-side-table" style="font-size: small">
                             <thead>
@@ -210,7 +212,7 @@
                         } else if(row.status == 2){
                             html = '<span class="badge bg-warning text-white">Review</span>';
                         } else if(row.status == 3){
-                            html = '<span class="badge bg-success text-white">Not Approve</span>';
+                            html = '<span class="badge bg-danger text-white">Not Approve</span>';
                         } else if(row.status == 4){
                             html = '<span class="badge bg-success text-white">Approve</span>';
                         }
