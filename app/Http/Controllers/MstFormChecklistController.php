@@ -140,6 +140,8 @@ class MstFormChecklistController extends Controller
         ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
         ->get();
 
+        
+
         $id_period = $type->id_periode;
         
         foreach ($datas as $data) {
@@ -163,7 +165,7 @@ class MstFormChecklistController extends Controller
         $period = MstPeriodeChecklists::where('id', $id_period)->first()->period;
 
         //Respons cheklist
-        $respons = ChecklistResponse::select('checklist_response.*')
+        $respons = ChecklistResponse::select('checklist_response.*', 'mst_parent_checklists.parent_point_checklist as parent_point')
         ->Join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
         ->Join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
         ->Join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
@@ -173,7 +175,6 @@ class MstFormChecklistController extends Controller
         ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
         ->where('mst_periode_checklists.id', $id_period)
         ->get();
-        
 
         //file point
         $file_point = FileInputResponse::select(
@@ -186,6 +187,18 @@ class MstFormChecklistController extends Controller
         ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
         ->where('mst_periode_checklists.id', $id_period)
         ->get();
+
+        //kita dapatkan parent_pointnya dengan kita count juga
+        $parentCountsSoal = $datas->pluck('parent_point')->countBy();
+        $parentCountsRespons = $respons->pluck('parent_point')->countBy();
+
+        // Kita Coba Filter hanya parent yang ada dan nilai yang sama
+        $ansfull = $parentCountsSoal->intersectAssoc($parentCountsRespons)->keys()->all();
+        // dd($ansfull);
+        // foreach ($ansfull as $key) {
+        //     echo $key . ": " . $parentCountsSoal[$key] . "<br>";
+        // }
+
         // tab
         $lastindex = 0;
         if($request->session()->has('tabo')){
@@ -196,13 +209,12 @@ class MstFormChecklistController extends Controller
         }else{
             $tabo = 1;
         }
-        // dd($tabo);
 
         //Auditlog
         // dd($point);
         $this->auditLogsShort('View Checklist Form:', $id);
 
-        return view('formchecklist.checklistform',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex'));
+        return view('formchecklist.checklistform',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
 
         
     }

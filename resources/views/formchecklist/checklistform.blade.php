@@ -2,6 +2,17 @@
 
 @section('konten')
 
+<style>
+    /* Untuk nav-link yang jawaban udah full */
+    .nav-link.complete {
+        color: black;
+        background-color: lightgreen; 
+    }
+    /* .nav-tabs .nav-item .nav-link.active {
+        color: lightblue;
+        /* background-color: lightblue;  
+    } */
+</style>
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -20,7 +31,7 @@
         </div>
 
         @include('layouts.alert')
-
+        
         <div class="row">
             <div class="col-xl-12">
                 <div class="card">
@@ -31,9 +42,10 @@
                             @foreach ($point as $poin)
                             <?php $tab++ ;?>
                             <li class="nav-item">
-                                <a class="nav-link  @if($tab === $tabo ? 'active' : '') active @endif" data-bs-toggle="tab" href="#point{{$tab}}" role="tab">
+                                <a class="nav-link @if(in_array($poin->parent_point, $ansfull)) complete @endif @if($tab === $tabo ? 'active' : '') active @endif" data-bs-toggle="tab" href="#point{{$tab}}" role="tab">
                                     <span class="d-block d-sm-none lmt">{{$poin->parent_point}}</span>
                                     <span class="d-none d-sm-block lmt">{{$poin->parent_point}}</span>    
+                                    <!-- ini tempat tab -->
                                 </a>
                             </li>
                             @endforeach
