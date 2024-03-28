@@ -29,12 +29,7 @@ class MstChecklistController extends Controller
         $type_parent = MstParentChecklists ::get();
 
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Checklist';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst Checklist');
         
         return view('checklist.index',compact('datas', 'type_checklist', 'type_parent'));
         // dd($datas);

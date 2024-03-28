@@ -13,6 +13,7 @@ use App\Http\Controllers\MstDropdownController;
 use App\Http\Controllers\MstEmployeeController;
 use App\Http\Controllers\MstFormChecklistController;
 use App\Http\Controllers\MstGradingController;
+use App\Http\Controllers\MstMapChecklistController;
 use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
@@ -85,6 +86,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checklist/mark/{id}', [MstChecklistController::class, 'mark'])->name('checklist.mark');
     Route::post('checklist/createmark/{id}', [MstChecklistController::class, 'markstore'])->name('checklist.markstore');
     Route::get('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete');
+
+    //Checklist
+    Route::get('/mapchecklist', [MstMapChecklistController::class, 'index'])->name('mapchecklist.index');
+    Route::get('/mapchecklist/type/{type}', [MstMapChecklistController::class, 'type'])->name('mapchecklist.type');
+    Route::post('/mapchecklist/add/{type}', [MstMapChecklistController::class, 'addtype'])->name('mapchecklist.addtype');
+    Route::post('/mapchecklist/delete/{type}', [MstMapChecklistController::class, 'deletetype'])->name('mapchecklist.deletetype');
+    Route::get('/mapchecklist/detail/{type}/{typecheck}', [MstMapChecklistController::class, 'detail'])->name('mapchecklist.detail');
+    Route::post('/mapchecklist/deleteparent/{id}', [MstMapChecklistController::class, 'deleteparent'])->name('mapchecklist.deleteparent');
+    Route::post('/mapchecklist/addparent/{type}', [MstMapChecklistController::class, 'addparent'])->name('mapchecklist.addparent');
+
 
     //Grading
     Route::get('/grading', [MstGradingController::class, 'index'])->name('grading.index');

@@ -171,6 +171,12 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('mapchecklist.index') }}">
+                                <i class="mdi mdi-checkbox-multiple-outline"></i>
+                                <span>Master Mapping Checklist</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('grading.index') }}">
                                 <i class="mdi mdi-percent-outline"></i>
                                 <span>Master Grading</span>
@@ -457,9 +463,11 @@
     <script src="{{ asset('assets/js/pages/dashboard.init.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <!-- choices js -->
-    <!-- <script src="assets/libs/choices.js/public/assets/scripts/choices.min.js"></script> -->
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
+
     <!-- init js -->
     <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
+
     <!-- Custom -->
     <script src="{{ asset('assets/js/custom.js') }}"></script>
 
