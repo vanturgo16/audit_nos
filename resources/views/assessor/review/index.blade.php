@@ -79,7 +79,7 @@
                                                 <label class="form-check-label" for="approved">Approved</label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="decission" id="notapproved" value="Not Approved">
+                                                <input class="form-check-input" type="radio" name="decision" id="notapproved" value="Not Approved">
                                                 <label class="form-check-label" for="notapproved">Not Approved</label>
                                             </div>
                                             <div class="mt-2" id="reasonBox" style="display:none;">
