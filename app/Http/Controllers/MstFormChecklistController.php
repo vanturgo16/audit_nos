@@ -93,7 +93,7 @@ class MstFormChecklistController extends Controller
             $data->point = $responsCounts;
 
         }
-        dd($datas);
+        // dd($datas);
 
         $grading = MstGrading::all();
         // $status = $datas->every(function ($item, $key) {
