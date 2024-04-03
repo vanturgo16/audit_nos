@@ -214,6 +214,10 @@
                         } else if(row.status == 3){
                             html = '<span class="badge bg-danger text-white">Not Approve</span>';
                         } else if(row.status == 4){
+                            html = '<span class="badge bg-danger text-white">Not Approve</span>';
+                        } else if(row.status == 5){
+                            html = '<span class="badge bg-success text-white">Approve</span>';
+                        } else if(row.status == 6){
                             html = '<span class="badge bg-success text-white">Approve</span>';
                         }
                         return html;

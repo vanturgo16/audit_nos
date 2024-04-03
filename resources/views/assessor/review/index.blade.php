@@ -41,7 +41,7 @@
                                 @elseif($type->status == 2)
                                     <span class="badge bg-warning text-white">Review</span>
                                 @elseif($type->status == 3)
-                                    <span class="badge bg-success text-white">Not Approve</span>
+                                    <span class="badge bg-danger text-white">Not Approve</span>
                                 @elseif($type->status == 4)
                                     <span class="badge bg-success text-white">Approve</span>
                                 @endif  

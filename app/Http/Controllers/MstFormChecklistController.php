@@ -55,20 +55,27 @@ class MstFormChecklistController extends Controller
         ->where('mst_periode_checklists.is_active', '1')
         ->get();
 
-        // dd($datas);
+        $jaringan = MstJaringan::where('id', $id)->first()->dealer_name;
+
 
         //Audit Log
         $this->auditLogsShort('View Periode Form Checklist');
 
-        return view('formchecklist.periode',compact('datas'));
+        return view('formchecklist.periode',compact('datas', 'id', 'jaringan'));
 
     }
     public function typechecklist($id)
     {
         $id = decrypt($id);//id Period
 
+        // dd($id);
+
         $datas = ChecklistJaringan::all()->where('id_periode', $id);
-        $period = MstPeriodeChecklists::where('id', $id)->first()->period;
+
+        $period = MstPeriodeChecklists::where('id', $id)->first();
+        
+        $id_jaringan = MstPeriodeChecklists::where('id', $id)->first()->id_branch;
+        // dd($datas);
 
         foreach($datas as $data){
 
@@ -86,16 +93,21 @@ class MstFormChecklistController extends Controller
             $data->point = $responsCounts;
 
         }
+        dd($datas);
 
         $grading = MstGrading::all();
-        $status = $datas->every(function ($item, $key) {
-            return $item['status'] == 1;
-        });
-        // dd($datas);
+        // $status = $datas->every(function ($item, $key) {
+
+        //     return $item['status'] == 1;
+        // });
+        //kita cek apakah ada disalah satu angka 4, kalau ya true, 
+        //kalau gak masuk ke kondisi kedua kalau ada satu dan tidak ada selain 1,4
+        $status = $datas->contains('status', 4) || ($datas->contains('status', 1) && !$datas->contains(fn($item) => !in_array($item['status'], [1, 4]) && $item['status'] >= 0 && $item['status'] <= 9));
+        // dd($status);
         // Audit Log
         $this->auditLogsShort('View Data Checklist, Period: ', $id);
 
-        return view('formchecklist.typechecklist',compact('datas', 'period', 'grading', 'status', 'id'));
+        return view('formchecklist.typechecklist',compact('datas', 'period', 'grading', 'status', 'id', 'id_jaringan'));
     }
     public function startchecklist($id)
     {

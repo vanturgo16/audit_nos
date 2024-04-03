@@ -194,7 +194,7 @@ class MstAssessorChecklistController extends Controller
         // dd($request->all(), $id);
 
         if($request->decision == 'Approved'){
-            $status = 4;
+            $status = 5;
             $reason = null;
         } else {
             $status = 3;
@@ -227,7 +227,7 @@ class MstAssessorChecklistController extends Controller
         $userEmail = auth()->user()->email;
 
         //Get Status For Period, (Check IF Inside Period Checklist, The Checklist Contain Not Approved)
-        $statuschecklist = ChecklistJaringan::select('status')->where('id_periode', $id)->get();
+        $statuschecklist = ChecklistJaringan::select('status', 'id')->where('id_periode', $id)->get();
         $status = 4;
         foreach ($statuschecklist as $checkItem) {
             if ($checkItem->status == 3) {
@@ -236,8 +236,26 @@ class MstAssessorChecklistController extends Controller
             }
         }
 
+        // dd($statuschecklist);
+
+        
+
         DB::beginTransaction();
         try{
+
+            //disini harus update status checklist jaringan kalau statusnya masih 3
+            foreach($statuschecklist as $updatecheck){
+                if ($updatecheck->status == 3) {
+                    ChecklistJaringan::where('id', $updatecheck->id)->update([
+                        'status' => '4'
+                    ]);
+                }
+                if ($updatecheck->status == 5) {
+                    ChecklistJaringan::where('id', $updatecheck->id)->update([
+                        'status' => '6'
+                    ]);
+                }
+            }
             // Create Finish Review Log
             $log_finish = FinishReviewLog::create([
                 'id_period' => $id,

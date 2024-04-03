@@ -7,12 +7,13 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Tabel Type Checklist ( {{$period}} )</h4>
+                    <h4 class="mb-sm-0 font-size-18">Tabel Type Checklist ( {{ $period->period }} )</h4>
                     <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item active">Tabel Type Checklist</li>
-                        </ol>
+                        <a id="backButton" type="button" href="{{ route('formchecklist.periode', encrypt($id_jaringan)) }}"
+                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                            Back
+                        </a>
                     </div>
                 </div>
             </div>
@@ -21,6 +22,37 @@
         @include('layouts.alert')
 
         <div class="row">
+            <div class="col-12">
+                <table class="table table-bordered dt-responsive nowrap w-100">
+                    <tbody>
+                        <tr>
+                            <td class="align-middle"><b>Period Name</b></td>
+                            <td class="align-middle">: {{ $period->period }}</td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle"><b>Date</b></td>
+                            <td class="align-middle">: {{ Carbon\Carbon::parse($period->start_date)->format('d-m-Y') }} <b> Until </b>{{ Carbon\Carbon::parse($period->end_date)->format('d-m-Y') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle"><b>Status</b></td>
+                            <td class="align-middle">: 
+                                @if($period->status == 1)
+                                    <span class="badge bg-success text-white">Active</span>
+                                @elseif($period->status == 2)
+                                    <span class="badge bg-success text-white">Active</span>
+                                @elseif($period->status == 3)
+                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
+                                @elseif($period->status == 4)
+                                    <span class="badge bg-danger text-white">Closed Approved</span>
+                                @elseif($period->status == 5)
+                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
+                                @endif    
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
@@ -113,8 +145,12 @@
                                             @elseif($data->status == 2)
                                                 <span class="badge bg-warning text-white">Reviewed</span>
                                             @elseif($data->status == 3)
-                                                <span class="badge bg-danger text-white">Not Approve</span>
+                                                <span class="badge bg-warning text-white">Reviewed</span>
                                             @elseif($data->status == 4)
+                                                <span class="badge bg-danger text-white">Not Approve</span>
+                                            @elseif($data->status == 5)
+                                                <span class="badge bg-warning text-white">Reviewed</span>
+                                            @elseif($data->status == 6)
                                                 <span class="badge bg-success text-white">Approve</span>
                                             @endif
                                         </td>
@@ -160,11 +196,15 @@
                                                         <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
                                                     @elseif($data->status == 1)
                                                         <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
-                                                   @elseif($data->status == 2)
+                                                    @elseif($data->status == 2)
                                                         <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 3)
-                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 4)
+                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
+                                                    @elseif($data->status == 5)
+                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                    @elseif($data->status == 6)
                                                         <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @endif
                                                 </ul>
@@ -216,9 +256,6 @@
                                                 You Want to Submit answer this checklist {{$period}}? 
                                                 (You are not longer to edit this checklist!)
                                             </p>
-                                            <!-- <input type="hidded" name="percen_result" value="{{ $formattedResult }}">
-                                            <input type="hidded" name="total_point" value="{{ $totalPoint }}">
-                                            <input type="hidded" name="result_audit" value="{{$result_audit}}"> -->
                                         </div>
                                     </div>
                                     <div class="modal-footer">
