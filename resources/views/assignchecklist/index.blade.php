@@ -121,7 +121,7 @@
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Type Checklist</th>
-                                    <th class="align-middle text-center">Total Assign Checklist</th>
+                                    <th class="align-middle text-center">Total Parent Checklist</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -140,7 +140,15 @@
             processing: true,
             serverSide: true,
             ajax: '{!! route('assignchecklist.index', encrypt($period->id)) !!}',
+            // ajax: {
+            //     url: '{!! route('assignchecklist.index', encrypt($period->id)) !!}',
+            //     success: function(data) {
+            //         console.log(data);
+            //         return data;
+            //     }
+            // },
             columns: [{
+                
                 data: null,
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;

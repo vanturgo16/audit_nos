@@ -46,7 +46,7 @@
                                 @elseif($period->status == 4)
                                     <span class="badge bg-danger text-white">Closed Approved</span>
                                 @elseif($period->status == 5)
-                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-warning text-white">Rejected</span>
+                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                 @endif    
                             </td>
                         </tr>
@@ -212,12 +212,14 @@
                         } else if(row.status == 2){
                             html = '<span class="badge bg-warning text-white">Review</span>';
                         } else if(row.status == 3){
-                            html = '<span class="badge bg-danger text-white">Not Approve</span>';
+                            html = '<span class="badge bg-warning text-white">Review</span>';
                         } else if(row.status == 4){
                             html = '<span class="badge bg-danger text-white">Not Approve</span>';
                         } else if(row.status == 5){
-                            html = '<span class="badge bg-success text-white">Approve</span>';
+                            html = '<span class="badge bg-danger text-white">Not Approve</span>';
                         } else if(row.status == 6){
+                            html = '<span class="badge bg-success text-white">Approve</span>';
+                        } else if(row.status == 7){
                             html = '<span class="badge bg-success text-white">Approve</span>';
                         }
                         return html;

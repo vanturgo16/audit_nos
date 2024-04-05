@@ -43,7 +43,7 @@
                                 @elseif($period->status == 3)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
                                 @elseif($period->status == 4)
-                                    <span class="badge bg-danger text-white">Closed Approved</span>
+                                    <span class="badge bg-success text-white">Closed Approved</span>
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                 @endif    
@@ -147,12 +147,40 @@
                                             @elseif($data->status == 3)
                                                 <span class="badge bg-warning text-white">Reviewed</span>
                                             @elseif($data->status == 4)
-                                                <span class="badge bg-danger text-white">Not Approve</span>
-                                            @elseif($data->status == 5)
                                                 <span class="badge bg-warning text-white">Reviewed</span>
+                                            @elseif($data->status == 5)
+                                                <button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#notapprove{{$data->id}}"><i class="mdi mdi-sim-alert label-icon"></i>Not Approve</button>
+                                                <div class="modal fade" id="notapprove{{$data->id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-top" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="staticBackdropLabel">Info Not Approve</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="row">
+                                                                    <div class="col-lg-12">
+                                                                        <div class="form-group">
+                                                                            <div><span class="fw-bold">Reson :</span></div>
+                                                                            <span>
+                                                                                <span>{{ $data->last_reason }}</span>
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @elseif($data->status == 6)
+                                                <span class="badge bg-warning text-white">Reviewed</span>
+                                            @elseif($data->status == 7)
                                                 <span class="badge bg-success text-white">Approve</span>
                                             @endif
+
                                         </td>
                                         <td class="align-middle text-center">
                                         @if($data->audit_result == "")
@@ -201,10 +229,12 @@
                                                     @elseif($data->status == 3)
                                                         <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 4)
-                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
-                                                    @elseif($data->status == 5)
                                                         <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                    @elseif($data->status == 5)
+                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
                                                     @elseif($data->status == 6)
+                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                    @elseif($data->status == 7)
                                                         <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @endif
                                                 </ul>
@@ -253,7 +283,7 @@
                                     <div class="modal-body">
                                         <div class="row">
                                             <p>
-                                                You Want to Submit answer this checklist {{$period}}? 
+                                                You Want to Submit answer this checklist {{$period->period}}? 
                                                 (You are not longer to edit this checklist!)
                                             </p>
                                         </div>

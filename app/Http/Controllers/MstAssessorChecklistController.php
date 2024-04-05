@@ -194,10 +194,10 @@ class MstAssessorChecklistController extends Controller
         // dd($request->all(), $id);
 
         if($request->decision == 'Approved'){
-            $status = 5;
+            $status = 6;
             $reason = null;
         } else {
-            $status = 3;
+            $status = 4;
             $reason = $request->reason;
         }
 
@@ -230,7 +230,7 @@ class MstAssessorChecklistController extends Controller
         $statuschecklist = ChecklistJaringan::select('status', 'id')->where('id_periode', $id)->get();
         $status = 4;
         foreach ($statuschecklist as $checkItem) {
-            if ($checkItem->status == 3) {
+            if ($checkItem->status == 4) {
                 $status = 5;
                 break;
             }
@@ -245,14 +245,14 @@ class MstAssessorChecklistController extends Controller
 
             //disini harus update status checklist jaringan kalau statusnya masih 3
             foreach($statuschecklist as $updatecheck){
-                if ($updatecheck->status == 3) {
+                if ($updatecheck->status == 4) {
                     ChecklistJaringan::where('id', $updatecheck->id)->update([
-                        'status' => '4'
+                        'status' => '5'
                     ]);
                 }
-                if ($updatecheck->status == 5) {
+                if ($updatecheck->status == 6) {
                     ChecklistJaringan::where('id', $updatecheck->id)->update([
-                        'status' => '6'
+                        'status' => '7'
                     ]);
                 }
             }

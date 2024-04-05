@@ -117,7 +117,7 @@
                         } else if(row.status == 4){
                             html = '<span class="badge bg-danger text-white">Closed Approved</span>';
                         } else if(row.status == 5){
-                            html = '<span class="badge bg-success text-white">Active</span>';
+                            html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>';
                         } 
                         return html;
                     },

@@ -122,9 +122,9 @@ class MstFormChecklistController extends Controller
 
         //     return $item['status'] == 1;
         // });
-        //kita cek apakah ada disalah satu angka 4, kalau ya true, 
-        //kalau gak masuk ke kondisi kedua kalau ada satu dan tidak ada selain 1,4
-        $status = $datas->contains('status', 4) || ($datas->contains('status', 1) && !$datas->contains(fn($item) => !in_array($item['status'], [1, 4]) && $item['status'] >= 0 && $item['status'] <= 9));
+        //kita cek apakah ada disalah satu angka 5, kalau ya true, 
+        //kalau gak masuk ke kondisi kedua kalau ada satu dan tidak ada selain 1,5
+        $status = $datas->contains('status', 5) || ($datas->contains('status', 1) && !$datas->contains(fn($item) => !in_array($item['status'], [1, 5]) && $item['status'] >= 0 && $item['status'] <= 9));
         // dd($status);
         // Audit Log
         $this->auditLogsShort('View Data Checklist, Period: ', $id);

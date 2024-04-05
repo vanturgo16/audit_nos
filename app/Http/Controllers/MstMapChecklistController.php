@@ -52,7 +52,7 @@ class MstMapChecklistController extends Controller
 
 
         // $type = decrypt($type);
-        // dd($datas);
+        // dd($type_checklist);
 
         //Audit Log
         $this->auditLogsShort('View List Type Checklist Mst MapChecklist');
@@ -75,10 +75,17 @@ class MstMapChecklistController extends Controller
                 $parent = MstParentChecklists::where('type_checklist', $type_checklist)->get();
                 // dd($parent);
                 foreach($parent as $par){
-                    MstMapChecklists::create([
-                        'id_parent_checklist' => $par->id,
-                        'type_jaringan' => $type
-                    ]);
+                    $check = MstMapChecklists::where('id_parent_checklist', $par->id)
+                    ->where('type_jaringan', $type)->first();
+                    
+                    if(!$check){
+
+                        MstMapChecklists::create([
+                            'id_parent_checklist' => $par->id,
+                            'type_jaringan' => $type
+                        ]);
+
+                    }
                 }
             }
 
