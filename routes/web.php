@@ -119,6 +119,7 @@ Route::middleware(['auth'])->group(function () {
     //Form Checklist 
     Route::get('/form', [MstFormChecklistController::class, 'form'])->name('formchecklist.form');
     Route::get('/formchecklist', [MstFormChecklistController::class, 'index'])->name('formchecklist.index');
+    Route::get('/formchecklist/auditor', [MstFormChecklistController::class, 'auditor'])->name('formchecklist.auditor');
     Route::get('/formchecklist/periode/{id}', [MstFormChecklistController::class, 'periode_jaringan'])->name('formchecklist.periode');
     Route::get('/formchecklist/periode/typechecklist/{id}', [MstFormChecklistController::class, 'typechecklist'])->name('formchecklist.typechecklist');
     Route::get('/formchecklist/periode/typechecklist/start/{id}', [MstFormChecklistController::class, 'startchecklist'])->name('formchecklist.start');

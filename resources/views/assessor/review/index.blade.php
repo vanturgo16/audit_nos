@@ -53,7 +53,7 @@
 
             <div class="col-12">
                 <div class="card">
-                    @if($type->status == 2)
+                    @if($type->status == 2 && in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer']))
                     <div class="card-header d-flex justify-content-end">
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Decission</button>
                         {{-- Modal Finish --}}

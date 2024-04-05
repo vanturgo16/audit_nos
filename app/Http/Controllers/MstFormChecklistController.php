@@ -16,6 +16,7 @@ use Browser;
 //model
 use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
+use App\Models\MstEmployees;
 use App\Models\MstGrading;
 use App\Models\MstJaringan;
 use App\Models\MstParentChecklists;
@@ -43,6 +44,27 @@ class MstFormChecklistController extends Controller
         $this->auditLogsShort('View Jaringan Checklist');
         
         return view('formchecklist.index',compact('datas'));
+    }
+
+    public function auditor(Request $request)
+    {
+        $email_user = auth()->user()->email;
+        $id = MstEmployees::where('email', $email_user)->first()->id_dealer;
+        
+        $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
+        ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+        ->orderBy('mst_periode_checklists.created_at')
+        ->where('mst_dealers.id', $id)
+        ->where('mst_periode_checklists.is_active', '1')
+        ->get();
+
+        $jaringan = MstJaringan::where('id', $id)->first()->dealer_name;
+
+
+        //Audit Log
+        $this->auditLogsShort('View Periode Form Checklist');
+
+        return view('formchecklist.periode',compact('datas', 'id', 'jaringan'));
     }
 
     public function periode_jaringan($id)

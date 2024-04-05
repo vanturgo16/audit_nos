@@ -21,57 +21,92 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Info Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Info</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-12 mb-2">
-                            <div class="form-group">
-                                <div><span class="fw-bold">Status :</span></div>
-                                <span>
-                                    @if($data->is_active == 1)
-                                        <span class="badge bg-success text-white">Active</span>
-                                    @else
-                                        <span class="badge bg-danger text-white">Inactive</span>
-                                    @endif
-                                </span>
+                @if(in_array(auth()->user()->role, ['Super Admin', 'Admin']))
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12 mb-2">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Status :</span></div>
+                                    <span>
+                                        @if($data->is_active == 1)
+                                            <span class="badge bg-success text-white">Active</span>
+                                        @else
+                                            <span class="badge bg-danger text-white">Inactive</span>
+                                        @endif
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 mb-2">
-                            <div class="form-group">
-                                <div><span class="fw-bold">Category :</span></div>
-                                <span>
-                                    <span>{{ $data->category }}</span>
-                                </span>
+                            <div class="col-lg-6 mb-2">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Category :</span></div>
+                                    <span>
+                                        <span>{{ $data->category }}</span>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <div><span class="fw-bold">Name Value :</span></div>
-                                <span>
-                                    <span>{{ $data->name_value }}</span>
-                                </span>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Name Value :</span></div>
+                                    <span>
+                                        <span>{{ $data->name_value }}</span>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <div><span class="fw-bold">Code Format :</span></div>
-                                <span>
-                                    <span>{{ $data->code_format }}</span>
-                                </span>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Code Format :</span></div>
+                                    <span>
+                                        <span>{{ $data->code_format }}</span>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <div><span class="fw-bold">Created At :</span></div>
-                                <span>
-                                    <span>{{ $data->created_at }}</span>
-                                </span>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Created At :</span></div>
+                                    <span>
+                                        <span>{{ $data->created_at }}</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @else
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12 mb-2">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Status :</span></div>
+                                    <span>
+                                        @if($data->is_active == 1)
+                                            <span class="badge bg-success text-white">Active</span>
+                                        @else
+                                            <span class="badge bg-danger text-white">Inactive</span>
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Period Name :</span></div>
+                                    <span>
+                                        <span>{{ $data->name_value }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Created At :</span></div>
+                                    <span>
+                                        <span>{{ $data->created_at }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -84,42 +119,55 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Edit Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('dropdown.update', encrypt($data->id)) }}" id="formedit{{ $data->id }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <label class="form-label">Category</label><label style="color: darkred">*</label>
+                    @if(in_array(auth()->user()->role, ['Super Admin', 'Admin']))
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label class="form-label">Category</label><label style="color: darkred">*</label>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <select class="form-select js-example-basic-single" name="category" id="category{{ $data->id }}" required>
+                                        <option value="" selected>-- Select Category --</option>
+                                        <option disabled>──────────</option>
+                                        @foreach( $category as $item)
+                                            <option value="{{ $item->category }}" @if($data->category == $item->category) selected="selected" @endif> {{ $item->category }} </option>
+                                        @endforeach
+                                        <option disabled>──────────</option>
+                                        <option class="font-weight-bold" value="NewCat">Add New Category</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <input type="text" name="addcategory" id="addcategory{{ $data->id }}" class="form-control" placeholder="Input New Category">
+                                </div>
                             </div>
-                            <div class="col-lg-6 mb-3">
-                                <select class="form-select js-example-basic-single" name="category" id="category{{ $data->id }}" required>
-                                    <option value="" selected>-- Select Category --</option>
-                                    <option disabled>──────────</option>
-                                    @foreach( $category as $item)
-                                        <option value="{{ $item->category }}" @if($data->category == $item->category) selected="selected" @endif> {{ $item->category }} </option>
-                                    @endforeach
-                                    <option disabled>──────────</option>
-                                    <option class="font-weight-bold" value="NewCat">Add New Category</option>
-                                </select>
-                            </div>
-                            <div class="col-lg-6 mb-3">
-                                <input type="text" name="addcategory" id="addcategory{{ $data->id }}" class="form-control" placeholder="Input New Category">
+                            <div class="row">
+                                <div class="col-lg-6 mb-3">
+                                    <label class="form-label">Name Value</label><label style="color: darkred">*</label>
+                                    <input class="form-control" name="name_value" type="text" value="{{ $data->name_value }}" placeholder="Input Name Value.." required>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <label class="form-label">Code Format</label><label style="color: darkred">*</label>
+                                    <input class="form-control" name="code_format" type="text" value="{{ $data->code_format }}" placeholder="Input Code Format.." required>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-6 mb-3">
-                                <label class="form-label">Name Value</label><label style="color: darkred">*</label>
-                                <input class="form-control" name="name_value" type="text" value="{{ $data->name_value }}" placeholder="Input Name Value.." required>
-                            </div>
-                            <div class="col-lg-6 mb-3">
-                                <label class="form-label">Code Format</label><label style="color: darkred">*</label>
-                                <input class="form-control" name="code_format" type="text" value="{{ $data->code_format }}" placeholder="Input Code Format.." required>
+                    @else
+                        <div class="modal-body">
+                            <div class="row">
+                                <input class="form-control" name="category" type="hidden" value="Period Name">
+                                <input class="form-control" name="code_format" type="hidden" value="PN">
+                                <div class="col-lg-6 mb-3">
+                                    <label class="form-label">Period Name</label><label style="color: darkred">*</label>
+                                    <input class="form-control" name="name_value" type="text" value="{{ $data->name_value }}" placeholder="Input Name Period.." required>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-update{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Update</button>
@@ -134,14 +182,14 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Activate Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Activate</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('dropdown.activate', encrypt($data->id)) }}" id="formactivate{{ $data->id }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="text-center">
-                            Are You Sure to <b>Activate</b> This Dropdown?
+                            Are You Sure to <b>Activate</b> This?
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -158,14 +206,14 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Deactivate Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Deactivate</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('dropdown.deactivate', encrypt($data->id)) }}" id="formdeactivate{{ $data->id }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="text-center">
-                            Are You Sure to <b>Deactivate</b> This Dropdown?
+                            Are You Sure to <b>Deactivate</b> This?
                         </div>
                     </div>
                     <div class="modal-footer">
