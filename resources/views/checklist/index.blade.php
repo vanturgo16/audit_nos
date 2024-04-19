@@ -139,27 +139,22 @@
                                                 </div>
                                                 <div class="col-lg-12 mb-3">
                                                     <label class="form-label">Indikator</label><label style="color: darkred">*</label>
-                                                    <table align="center" cellpadding = "5">
-                                                        <tr>
-                                                            <td><textarea name="indikator"></textarea>
-                                                                <script>
-                                                                CKEDITOR.replace( 'indikator', {
-                                                                toolbar: [
-                                                                { name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo' ] },
-                                                                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Find', 'Replace' ] },
-                                                                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold' , 'Italic', 'Underline', '-', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ]},
-                                                                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-'] },
-                                                                // { name: 'links', items: [ 'Link', 'Unlink' ] },
-                                                                // { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar' ] },
-                                                                { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
-                                                                // { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-                                                                { name: 'others', items: [ '-' ] },
-                                                                ]
-                                                                });
-                                                                </script>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
+                                                    <textarea name="indikator" id="indikator"></textarea>
+                                                    <script>
+                                                    CKEDITOR.replace( 'indikator', {
+                                                    toolbar: [
+                                                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo' ] },
+                                                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Find', 'Replace' ] },
+                                                    { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold' , 'Italic', 'Underline', '-', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ]},
+                                                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-'] },
+                                                    // { name: 'links', items: [ 'Link', 'Unlink' ] },
+                                                    // { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar' ] },
+                                                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                                                    // { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                                                    { name: 'others', items: [ '-' ] },
+                                                    ]
+                                                    });
+                                                    </script>
                                                 </div>
                                                 <div class="col-lg-4 mb-3">
                                                     <label class="form-label d-block">Mandatory Silver<label style="color: darkred">*</label></label>
@@ -414,7 +409,22 @@
                                                             
                                                             <div class="col-lg-12 mb-3">
                                                                 <label class="form-label">Indikator</label><label style="color: darkred">*</label>
-                                                                <textarea class="form-control" rows="2" type="text" class="form-control" name="indikator" placeholder="(Input your Question)" required>{{ $data->indikator }}</textarea>
+                                                                <textarea class="form-control" rows="2" type="text" class="form-control" id="indikator{{ $data->id }}" name="indikator" placeholder="(Input your Question)" required>{{ $data->indikator }}</textarea>
+                                                                <script>
+                                                                    CKEDITOR.replace( 'indikator{{ $data->id }}', {
+                                                                    toolbar: [
+                                                                    { name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo' ] },
+                                                                    { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Find', 'Replace' ] },
+                                                                    { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold' , 'Italic', 'Underline', '-', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ]},
+                                                                    { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-'] },
+                                                                    // { name: 'links', items: [ 'Link', 'Unlink' ] },
+                                                                    // { name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar' ] },
+                                                                    { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                                                                    // { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
+                                                                    { name: 'others', items: [ '-' ] },
+                                                                    ]
+                                                                    });
+                                                                </script>
                                                             </div>
                                                             <div class="col-lg-6 mb-3">
                                                                 <label class="form-label d-block">Mandatory Silver<label style="color: darkred">*</label></label>
