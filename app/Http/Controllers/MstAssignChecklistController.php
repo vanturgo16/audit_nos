@@ -25,7 +25,7 @@ class MstAssignChecklistController extends Controller
     {
         $id = decrypt($id);
 
-        $period = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
+        $period = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name','mst_dealers.type')
             ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
             ->where('mst_periode_checklists.id', $id)
             ->first();
@@ -48,11 +48,21 @@ class MstAssignChecklistController extends Controller
     {
         $typechecklist = MstDropdowns::select('name_value')->where('category', 'Type Checklist')->get();
         foreach($typechecklist as $type){
-            $count = MstAssignChecklists::leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            // $count = MstAssignChecklists::leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            // ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            // ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            // ->where('mst_periode_checklists.id', $period->id)
+            // ->where('mst_parent_checklists.type_checklist', $type->name_value)
+            // ->count();
+
+            $count = MstAssignChecklists::leftJoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->leftJoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
             ->where('mst_periode_checklists.id', $period->id)
             ->where('mst_parent_checklists.type_checklist', $type->name_value)
+            ->groupBy('mst_checklists.id_parent_checklist')
+            ->select('mst_checklists.id_parent_checklist', \DB::raw('COUNT(*) as count'))
+            ->get()
             ->count();
 
             $type->count = $count;

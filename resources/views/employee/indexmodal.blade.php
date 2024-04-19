@@ -112,7 +112,7 @@
 @foreach ($datas as $data)
     {{-- Modal Info --}}
     <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-top" role="document">
+        <div class="modal-dialog modal-dialog-top modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Info employee</h5>
@@ -120,7 +120,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-4 mb-3">
                             <div class="form-group">
                                 <div><span class="fw-bold">Employee Name :</span></div>
                                 <span>
@@ -128,11 +128,43 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Employee Nik :</span></div>
+                                <span>
+                                    <span>{{ $data->employee_nik }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-3">
                             <div class="form-group">
                                 <div><span class="fw-bold">Created At :</span></div>
                                 <span>
                                     <span>{{ $data->created_at }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Department :</span></div>
+                                <span>
+                                    <span>{{ $data->department_name }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Potition :</span></div>
+                                <span>
+                                    <span>{{ $data->position_name }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Address :</span></div>
+                                <span>
+                                    <span>{{ $data->employee_address }}</span>
                                 </span>
                             </div>
                         </div>
