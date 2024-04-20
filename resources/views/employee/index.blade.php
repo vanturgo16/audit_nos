@@ -163,7 +163,6 @@
 @endforeach
 
 {{-- Script Regional --}}
-<script src="{{ asset('assets/js/regional.js') }}"></script>
 @foreach ($datas as $data)
     <script type="text/javascript">
         $(document).ready(function() {

@@ -84,6 +84,102 @@
         </div>
     </div>
 </div>
+<script>
+    // getCitybyProvince
+    $('select[id="province"]').on('change', function() {
+        var idProv = $(this).find('option:selected').attr('data-idProv');
+        var url = '{{ route("mappingCity", ":id") }}';
+        url = url.replace(':id', idProv);
+        console.log(url);
+        if (idProv) {
+            $.ajax({
+                url: url,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    $('select[id="city"]').empty();
+                    $('select[id="city"]').append(
+                        '<option value="" selected>- Choose City-</option>'
+                    );
+
+                    $.each(data, function(div, value) {
+                        $('select[id="city"]').append(
+                            '<option value="' +
+                            value.nama + '" data-idCity="' + value.id +
+                            '">' + value.nama + '</option>');
+                    });
+                }
+            });
+        } else {
+            $('select[id="city"]').empty();
+        }
+    });
+
+    // getDistrictbyCity
+    $('select[id="city"]').on('change', function() {
+        var idCity = $(this).find('option:selected').attr('data-idCity');
+        var url = '{{ route("mappingDistrict", ":id") }}';
+        url = url.replace(':id', idCity);
+        if (idCity) {
+            $.ajax({
+                url: url,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    $('select[id="district"]').empty();
+                    $('select[id="district"]').append(
+                        '<option value="" selected>- Choose District-</option>'
+                    );
+
+                    $.each(data, function(div, value) {
+                        $('select[id="district"]').append(
+                            '<option value="' +
+                            value.nama + '" data-idDistrict="' + value.id +
+                            '">' + value.nama + '</option>');
+                    });
+                }
+            });
+        } else {
+            $('select[id="district"]').empty();
+        }
+    });
+
+    // getSubDistrictbyDistrict
+    $('select[id="district"]').on('change', function() {
+        var idDistrict = $(this).find('option:selected').attr('data-idDistrict');
+        var url = '{{ route("mappingSubDistrict", ":id") }}';
+        url = url.replace(':id', idDistrict);
+        if (idDistrict) {
+            $.ajax({
+                url: url,
+                type: "GET",
+                dataType: "json",
+                success: function(data) {
+                    $('select[id="subdistrict"]').empty();
+                    $('select[id="subdistrict"]').append(
+                        '<option value="" selected>- Choose District-</option>'
+                    );
+
+                    $.each(data, function(div, value) {
+                        $('select[id="subdistrict"]').append(
+                            '<option value="' +
+                            value.nama + '" data-zipcode="' + value
+                            .kodepos + '">' + value.nama + '</option>');
+                    });
+                }
+            });
+        } else {
+            $('select[id="subdistrict"]').empty();
+        }
+    });
+
+    // zipcode
+    $('select[id="subdistrict"]').on('change', function() {
+        var zipcode = $(this).find('option:selected').attr('data-zipcode');
+        console.log(zipcode);
+        $('input[id="zipcode"]').val(zipcode);
+    });
+</script>
 
 @foreach ($datas as $data)
     {{-- Modal Info --}}
@@ -96,7 +192,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-6 mb-3">
                             <div class="form-group">
                                 <div><span class="fw-bold">Jaringan Name :</span></div>
                                 <span>
@@ -104,11 +200,19 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-6 mb-3">
                             <div class="form-group">
                                 <div><span class="fw-bold">Created At :</span></div>
                                 <span>
                                     <span>{{ $data->created_at }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Address :</span></div>
+                                <span>
+                                    <span>{{ $data->dealer_address }}, {{$data->subdistrict}}, {{$data->district}}, {{$data->city}}, {{$data->province}}, {{$data->postal_code}}</span>
                                 </span>
                             </div>
                         </div>
