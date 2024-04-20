@@ -48,12 +48,12 @@ class MstAssignChecklistController extends Controller
     {
         $typechecklist = MstDropdowns::select('name_value')->where('category', 'Type Checklist')->get();
         foreach($typechecklist as $type){
-            // $count = MstAssignChecklists::leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            // ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            // ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            // ->where('mst_periode_checklists.id', $period->id)
-            // ->where('mst_parent_checklists.type_checklist', $type->name_value)
-            // ->count();
+            $count_check = MstAssignChecklists::leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_periode_checklists.id', $period->id)
+            ->where('mst_parent_checklists.type_checklist', $type->name_value)
+            ->count();
 
             $count = MstAssignChecklists::leftJoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
             ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
@@ -65,6 +65,7 @@ class MstAssignChecklistController extends Controller
             ->get()
             ->count();
 
+            $type->count_check = $count_check;
             $type->count = $count;
         }
 
