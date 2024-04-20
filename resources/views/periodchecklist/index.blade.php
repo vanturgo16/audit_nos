@@ -37,14 +37,21 @@
                                         @csrf
                                         <div class="modal-body">
                                             <div class="row">
-                                                <div class="col-lg-6 mb-3">
+                                                <div class="col-lg-12 mb-3">
                                                     <label class="form-label">Period Checklist</label><label style="color: darkred">*</label>
-                                                    <input class="form-control" name="period" type="text" value="" placeholder="Input Period Checklist.." required>
+                                                    <select class="form-select js-example-basic-single" name="period" style="width: 100%" required>
+                                                        <option value="" selected>-- Select Period --</option>
+                                                        @foreach($period_name as $item)
+                                                            <option value="{{ $item->name_value }}">
+                                                                {{ $item->name_value }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
                                                 </div>
-                                                <div class="col-lg-6 mb-3">
-                                                    <label class="form-label">Branch Name</label><label style="color: darkred">*</label>
-                                                    <select class="form-select" name="id_branch" required>
-                                                        <option value="" selected>--Select Branch Name--</option>
+                                                <div class="col-lg-12 mb-3">
+                                                    <label class="form-label"><i>Jaringan</i> Name (Designated for this)</label><label style="color: darkred">*</label>
+                                                    <select class="form-select js-example-basic-single" name="id_branch" style="width: 100%" required>
+                                                        <option value="" selected>-- Select Jaringan --</option>
                                                         @foreach($branchs as $item)
                                                             <option value="{{ $item->id }}">{{ $item->dealer_name }}</option>
                                                         @endforeach
@@ -89,9 +96,10 @@
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Period Checklist</th>
-                                    <th class="align-middle text-center">Branch</th>
+                                    <th class="align-middle text-center">Jaringan</th>
                                     <th class="align-middle text-center">Date</th>
                                     <th class="align-middle text-center">Status</th>
+                                    <!-- <th class="align-middle text-center">Active</th> -->
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -124,7 +132,7 @@
                     name: 'period',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle text-center text-bold'
+                    className: 'align-middle text-bold'
                 },
                 {
                     data: 'dealer_name',
@@ -140,23 +148,48 @@
                     searchable: true,
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
-                        return row.start_date + '<b> Until </b>' + row.end_date;
+                        var startDate = new Date(row.start_date);
+                        var endDate = new Date(row.end_date);
+                        return startDate.toLocaleDateString('es-CL').replace(/\//g, '-') + '<b> Until </b>' + endDate.toLocaleDateString('es-CL').replace(/\//g, '-');
                     },
+
                 },
                 {
-                    data: 'is_active',
+                    data: 'status',
                     orderable: true,
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
                         var html
-                        if(row.is_active == 1){
-                            html = '<span class="badge bg-success text-white">Active</span>';
-                        } else {
+                        if(row.status == 0){
                             html = '<span class="badge bg-danger text-white">Inactive</span>';
-                        }
+                        } else if(row.status == 1){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } else if(row.status == 2){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } else if(row.status == 3){
+                            html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>';
+                        } else if(row.status == 4){
+                            html = '<span class="badge bg-danger text-white">Closed Approved</span>';
+                        } else if(row.status == 5){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } 
                         return html;
                     },
                 },
+                // {
+                //     data: 'is_active',
+                //     orderable: true,
+                //     className: 'align-middle text-center',
+                //     render: function(data, type, row) {
+                //         var html
+                //         if(row.is_active == 1){
+                //             html = '<span class="badge bg-success text-white">Active</span>';
+                //         } else {
+                //             html = '<span class="badge bg-danger text-white">Inactive</span>';
+                //         }
+                //         return html;
+                //     },
+                // },
                 {
                     data: 'action',
                     name: 'action',

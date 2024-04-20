@@ -4,15 +4,15 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Add New Branch</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Add New Jaringan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('branch.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('jaringan.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12 mb-3">
-                            <select class="form-select" name="type" required>
+                            <select class="form-select js-example-basic-single" name="type" required>
                                 <option value="" selected>-- Select Type --</option>
                                 <option disabled>──────────</option>
                                 @foreach($type_dealer as $item)
@@ -21,20 +21,20 @@
                             </select>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <label class="form-label">Branch Name</label><label style="color: darkred">*</label>
-                            <input class="form-control" name="dealer_name" type="text" value="" placeholder="Input Branch Name.." required>
+                            <label class="form-label">Jaringan Name</label><label style="color: darkred">*</label>
+                            <input class="form-control" name="dealer_name" type="text" value="" placeholder="Input Jaringan Name.." required>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <label class="form-label">Branch Code</label><label style="color: darkred">*</label>
-                            <input class="form-control" name="dealer_code" type="text" value="" placeholder="Input Branch Code.." required>
+                            <label class="form-label">Jaringan Code</label><label style="color: darkred">*</label>
+                            <input class="form-control" name="dealer_code" type="text" value="" placeholder="Input Jaringan Code.." required>
                         </div>
                         <div class="row">
                             <div class="col-lg-12 mb-3">
-                                <label class="form-label">Branch address</label><label style="color: darkred">*</label>
-                                <textarea class="form-control" rows="3" type="text" class="form-control" name="dealer_address" placeholder="(Input Branch Address, Ex. Street/Unit/Floor/No)" value="{{ old('dealer_address') }}" required></textarea>
+                                <label class="form-label">Jaringan address</label><label style="color: darkred">*</label>
+                                <textarea class="form-control" rows="3" type="text" class="form-control" name="dealer_address" placeholder="(Input Jaringan Address, Ex. Street/Unit/Floor/No)" value="{{ old('dealer_address') }}" required></textarea>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <select class="form-select" name="province" id="province" class="form-control" required>
+                                <select class="form-select js-example-basic-single" name="province" id="province" class="form-control" required>
                                     <option value="" selected>-- Select Province --</option>
                                     @foreach ($provinces as $province)
                                         <option value="{{ $province['nama'] }}"
@@ -44,17 +44,17 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <select class="form-select" name="city" id="city" class="form-control" required>
+                                <select class="form-select js-example-basic-single" name="city" id="city" class="form-control" required>
                                     <option value="" selected>- Select City -</option>
                                 </select>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <select class="form-select" name="district" id="district" class="form-control" required>
+                                <select class="form-select js-example-basic-single" name="district" id="district" class="form-control" required>
                                     <option value="" selected>- Select District -</option>
                                 </select>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <select class="form-select" name="subdistrict" id="subdistrict" class="form-control" required>
+                                <select class="form-select js-example-basic-single" name="subdistrict" id="subdistrict" class="form-control" required>
                                     <option value="" selected>- Select Subdistrict -</option>
                                 </select>
                             </div>
@@ -91,14 +91,14 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Info Branch</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Info Jaringan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <div><span class="fw-bold">Branch Name :</span></div>
+                                <div><span class="fw-bold">Jaringan Name :</span></div>
                                 <span>
                                     <span>{{ $data->dealer_name }}</span>
                                 </span>
@@ -126,15 +126,15 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Edit Branch</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Edit Jaringan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('branch.update', encrypt($data->id)) }}" id="formedit{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('jaringan.update', encrypt($data->id)) }}" id="formedit{{ $data->id }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-lg-12 mb-3">
-                                <select class="form-select" name="type" required>
+                                <select class="form-select js-example-basic-single" name="type" required>
                                     <option value="" selected>-- Select Type --</option>
                                     <option disabled>──────────</option>
                                     @foreach($type_dealer as $item)
@@ -143,20 +143,20 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <label class="form-label">Branch Name</label><label style="color: darkred">*</label>
-                                <input class="form-control" name="dealer_name" type="text" value="{{ $data->dealer_name }}" placeholder="Input Branch Name.." required>
+                                <label class="form-label">Jaringan Name</label><label style="color: darkred">*</label>
+                                <input class="form-control" name="dealer_name" type="text" value="{{ $data->dealer_name }}" placeholder="Input Jaringan Name.." required>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <label class="form-label">Branch Code</label><label style="color: darkred">*</label>
-                                <input class="form-control" name="dealer_code" type="text" value="{{ $data->dealer_code }}" placeholder="Input Branch Code.." required>
+                                <label class="form-label">Jaringan Code</label><label style="color: darkred">*</label>
+                                <input class="form-control" name="dealer_code" type="text" value="{{ $data->dealer_code }}" placeholder="Input Jaringan Code.." required>
                             </div>
                             <div class="row">
                                 <div class="col-lg-12 mb-3">
-                                    <label class="form-label">Branch Address</label><label style="color: darkred">*</label>
-                                    <input class="form-control" name="dealer_address" type="text" value="{{ $data->dealer_address }}" placeholder="Input Branch Address.." required>
+                                    <label class="form-label">Jaringan Address</label><label style="color: darkred">*</label>
+                                    <input class="form-control" name="dealer_address" type="text" value="{{ $data->dealer_address }}" placeholder="Input Jaringan Address.." required>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="province" id="province{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="province" id="province{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>-- Select Province --</option>
                                         @foreach ($provinces as $province)
                                             <option value="{{ $province['nama'] }}"
@@ -166,19 +166,19 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="city" id="city{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="city" id="city{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>- Select City -</option>
                                         <option value="{{ $data->city }}" selected>{{ $data->city }}</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="district" id="district{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="district" id="district{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>- Select District -</option>
                                         <option value="{{ $data->district }}" selected>{{ $data->district }}</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="subdistrict" id="subdistrict{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="subdistrict" id="subdistrict{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>- Select Subdistrict -</option>
                                         <option value="{{ $data->subdistrict }}" selected>{{ $data->subdistrict }}</option>
                                     </select>

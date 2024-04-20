@@ -4,12 +4,16 @@ use App\Http\Controllers\AjaxMappingRegional;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MstAssessorChecklistController;
 use App\Http\Controllers\MstAssignChecklistController;
-use App\Http\Controllers\MstBranchController;
+use App\Http\Controllers\MstJaringanController;
 use App\Http\Controllers\MstChecklistController;
 use App\Http\Controllers\MstDepartmentController;
 use App\Http\Controllers\MstDropdownController;
 use App\Http\Controllers\MstEmployeeController;
+use App\Http\Controllers\MstFormChecklistController;
+use App\Http\Controllers\MstGradingController;
+use App\Http\Controllers\MstMapChecklistController;
 use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
@@ -65,16 +69,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('position/activate/{id}', [MstPositionController::class, 'activate'])->name('position.activate');
     Route::post('position/deactivate/{id}', [MstPositionController::class, 'deactivate'])->name('position.deactivate');
 
-    //Branch
-    Route::get('/branch', [MstBranchController::class, 'index'])->name('branch.index');
-    Route::post('branch/create', [MstBranchController::class, 'store'])->name('branch.store');
-    Route::post('branch/update/{id}', [MstBranchController::class, 'update'])->name('branch.update');
+    //Jaringan
+    Route::get('/jaringan', [MstJaringanController::class, 'index'])->name('jaringan.index');
+    Route::post('jaringan/create', [MstJaringanController::class, 'store'])->name('jaringan.store');
+    Route::post('jaringan/update/{id}', [MstJaringanController::class, 'update'])->name('jaringan.update');
 
     //Employee
     Route::get('/employee', [MstEmployeeController::class, 'index'])->name('employee.index');
     Route::post('employee/create', [MstEmployeeController::class, 'store'])->name('employee.store');
     Route::post('employee/update/{id}', [MstEmployeeController::class, 'update'])->name('employee.update');
-
+    
     //Checklist
     Route::get('/checklist', [MstChecklistController::class, 'index'])->name('checklist.index');
     Route::post('checklist/create', [MstChecklistController::class, 'store'])->name('checklist.store');
@@ -82,9 +86,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checklist/mark/{id}', [MstChecklistController::class, 'mark'])->name('checklist.mark');
     Route::post('checklist/createmark/{id}', [MstChecklistController::class, 'markstore'])->name('checklist.markstore');
     Route::get('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete');
+
+    //Checklist
+    Route::get('/mapchecklist', [MstMapChecklistController::class, 'index'])->name('mapchecklist.index');
+    Route::get('/mapchecklist/type/{type}', [MstMapChecklistController::class, 'type'])->name('mapchecklist.type');
+    Route::post('/mapchecklist/add/{type}', [MstMapChecklistController::class, 'addtype'])->name('mapchecklist.addtype');
+    Route::post('/mapchecklist/delete/{type}', [MstMapChecklistController::class, 'deletetype'])->name('mapchecklist.deletetype');
+    Route::get('/mapchecklist/detail/{type}/{typecheck}', [MstMapChecklistController::class, 'detail'])->name('mapchecklist.detail');
+    Route::post('/mapchecklist/deleteparent/{id}', [MstMapChecklistController::class, 'deleteparent'])->name('mapchecklist.deleteparent');
+    Route::post('/mapchecklist/addparent/{type}', [MstMapChecklistController::class, 'addparent'])->name('mapchecklist.addparent');
+
+
+    //Grading
+    Route::get('/grading', [MstGradingController::class, 'index'])->name('grading.index');
+
     
     //Period Checklist
-    Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index');
+    Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index')->middleware('role:Super Admin');
     Route::post('periodchecklist/create', [MstPeriodChecklistController::class, 'store'])->name('periodchecklist.store');
     Route::post('periodchecklist/update/{id}', [MstPeriodChecklistController::class, 'update'])->name('periodchecklist.update');
     Route::post('periodchecklist/activate/{id}', [MstPeriodChecklistController::class, 'activate'])->name('periodchecklist.activate');
@@ -95,6 +113,30 @@ Route::middleware(['auth'])->group(function () {
     Route::post('assignchecklist/create/{id}', [MstAssignChecklistController::class, 'store'])->name('assignchecklist.store');
     Route::post('assignchecklist/delete/{id}', [MstAssignChecklistController::class, 'delete'])->name('assignchecklist.delete');
     Route::get('/searchchecklist/{id}', [MstAssignChecklistController::class, 'searchchecklist'])->name('searchchecklist');
+    Route::post('/assignchecklist/submit/{id}', [MstAssignChecklistController::class, 'submit'])->name('assignchecklist.submit');
+    Route::get('/assignchecklist/type/{id}/{type}', [MstAssignChecklistController::class, 'type'])->name('assignchecklist.type');
+
+    //Form Checklist 
+    Route::get('/form', [MstFormChecklistController::class, 'form'])->name('formchecklist.form');
+    Route::get('/formchecklist', [MstFormChecklistController::class, 'index'])->name('formchecklist.index');
+    Route::get('/formchecklist/auditor', [MstFormChecklistController::class, 'auditor'])->name('formchecklist.auditor');
+    Route::get('/formchecklist/periode/{id}', [MstFormChecklistController::class, 'periode_jaringan'])->name('formchecklist.periode');
+    Route::get('/formchecklist/periode/typechecklist/{id}', [MstFormChecklistController::class, 'typechecklist'])->name('formchecklist.typechecklist');
+    Route::get('/formchecklist/periode/typechecklist/start/{id}', [MstFormChecklistController::class, 'startchecklist'])->name('formchecklist.start');
+    Route::get('/formchecklist/periode/typechecklist/checklistform/{id}', [MstFormChecklistController::class, 'checklistform'])->name('formchecklist.checklistform');
+    Route::post('/formchecklist/periode/typechecklist/checklistform/store/{id}', [MstFormChecklistController::class, 'store'])->name('formchecklist.store');
+    Route::post('/formchecklist/periode/typechecklist/submitchecklist/{id}', [MstFormChecklistController::class, 'submitchecklist'])->name('formchecklist.submitchecklist');
+
+    
+    
+    // Checklist Assessor
+    Route::get('/assessor/jaringan', [MstAssessorChecklistController::class, 'listjaringan'])->name('assessor.listjaringan');
+    Route::get('assessor/period/{id}', [MstAssessorChecklistController::class, 'listperiod'])->name('assessor.listperiod');
+    Route::get('assessor/typechecklist/{id}', [MstAssessorChecklistController::class, 'typechecklist'])->name('assessor.typechecklist');
+    Route::get('assessor/review/{id}', [MstAssessorChecklistController::class, 'review'])->name('assessor.review');
+    Route::post('assessor/submitreview/{id}', [MstAssessorChecklistController::class, 'submitreview'])->name('assessor.submitreview');
+    Route::post('assessor/finishreview/{id}', [MstAssessorChecklistController::class, 'finishreview'])->name('assessor.finishreview');
+    Route::get('assessor/history/{id}', [MstAssessorChecklistController::class, 'history'])->name('assessor.history');
 
 
     //Audit Log

@@ -39,9 +39,7 @@
                                     <th class="align-middle text-center">Position</th>
                                     <th class="align-middle text-center">Employee Name</th>
                                     <th class="align-middle text-center">Employee Email</th>
-                                    <th class="align-middle text-center">Employee NIK</th>
                                     <th class="align-middle text-center">Employee Telephone</th>
-                                    <th class="align-middle text-center">Employee Address</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -56,9 +54,7 @@
                                         <td class="align-middle text-center"><b>{{ $data->position_name }}</b></td>
                                         <td class="align-middle text-center"><b>{{ $data->employee_name }}</b></td>
                                         <td class="align-middle text-center">{{ $data->email }}</td>
-                                        <td class="align-middle text-center">{{ $data->employee_nik }}</td>
                                         <td class="align-middle text-center">{{ $data->employee_telephone }}</td>
-                                        <td class="align-middle text-center">{{ $data->employee_address }}</td>
                                         <td class="align-middle text-center">
                                             <div class="btn-group" role="group">
                                                 <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"

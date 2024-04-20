@@ -11,7 +11,7 @@
                 <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                     <div class="row">
                         <div class="col-lg-12 mb-3">
-                            <select class="form-select" name="id_dealer" required>
+                            <select class="form-select js-example-basic-single" name="id_dealer" required>
                                 <option value="" selected>-- Select Dealer --</option>
                                 <option disabled>──────────</option>
                                 @foreach( $dealer as $item)
@@ -20,7 +20,7 @@
                             </select>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <select class="form-select" name="id_dept" id="selectdepartment" required>
+                            <select class="form-select js-example-basic-single" name="id_dept" id="selectdepartment" required>
                                 <option value="" selected>-- Select department --</option>
                                 <option disabled>──────────</option>
                                 @foreach( $department as $item)
@@ -29,7 +29,7 @@
                             </select>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <select class="form-select" name="id_position" id="selectPosition" required>
+                            <select class="form-select js-example-basic-single" name="id_position" id="selectPosition" required>
                                 <option value="" selected>-- Select Position --</option>
                                 <option disabled>──────────</option>
                                 <!-- ini isi dari ajax -->
@@ -59,7 +59,7 @@
                             <textarea class="form-control" rows="3" type="text" class="form-control" name="employee_address" placeholder="(Input Employee Address, Ex. Street/Unit/Floor/No)" value="{{ old('employee_address') }}" required></textarea>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <select class="form-select" name="province" id="province" class="form-control" required>
+                            <select class="form-select js-example-basic-single" name="province" id="province" class="form-control" required>
                                 <option value="" selected>-- Select Province --</option>
                                 @foreach ($provinces as $province)
                                     <option value="{{ $province['nama'] }}"
@@ -69,17 +69,17 @@
                             </select>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <select class="form-select" name="city" id="city" class="form-control" required>
+                            <select class="form-select js-example-basic-single" name="city" id="city" class="form-control" required>
                                 <option value="" selected>- Select City -</option>
                             </select>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <select class="form-select" name="district" id="district" class="form-control" required>
+                            <select class="form-select js-example-basic-single" name="district" id="district" class="form-control" required>
                                 <option value="" selected>- Select District -</option>
                             </select>
                         </div>
                         <div class="col-lg-6 mb-3">
-                            <select class="form-select" name="subdistrict" id="subdistrict" class="form-control" required>
+                            <select class="form-select js-example-basic-single" name="subdistrict" id="subdistrict" class="form-control" required>
                                 <option value="" selected>- Select Subdistrict -</option>
                             </select>
                         </div>
@@ -112,7 +112,7 @@
 @foreach ($datas as $data)
     {{-- Modal Info --}}
     <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-top" role="document">
+        <div class="modal-dialog modal-dialog-top modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Info employee</h5>
@@ -120,7 +120,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-4 mb-3">
                             <div class="form-group">
                                 <div><span class="fw-bold">Employee Name :</span></div>
                                 <span>
@@ -128,11 +128,43 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Employee Nik :</span></div>
+                                <span>
+                                    <span>{{ $data->employee_nik }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-3">
                             <div class="form-group">
                                 <div><span class="fw-bold">Created At :</span></div>
                                 <span>
                                     <span>{{ $data->created_at }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Department :</span></div>
+                                <span>
+                                    <span>{{ $data->department_name }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Potition :</span></div>
+                                <span>
+                                    <span>{{ $data->position_name }}</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 mb-3">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Address :</span></div>
+                                <span>
+                                    <span>{{ $data->employee_address }}</span>
                                 </span>
                             </div>
                         </div>
@@ -158,7 +190,7 @@
                     <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                         <div class="row">
                             <div class="col-lg-12 mb-3">
-                                <select class="form-select" name="id_dealer" required>
+                                <select class="form-select js-example-basic-single" name="id_dealer" required>
                                     <option value="" selected>-- Select Dealer --</option>
                                     <option disabled>──────────</option>
                                     @foreach( $dealer as $item)
@@ -167,7 +199,7 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <select class="form-select" name="id_dept" id="selecteditDepartment{{ $data->id }}" required>
+                                <select class="form-select js-example-basic-single" name="id_dept" id="selecteditDepartment{{ $data->id }}" required>
                                     <option value="" selected>-- Select Department --</option>
                                     <option disabled>──────────</option>
                                     @foreach( $department as $item)
@@ -176,7 +208,7 @@
                                 </select>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <select class="form-select" name="id_position" id="selecteditPosition{{ $data->id }}" required>
+                                <select class="form-select js-example-basic-single" name="id_position" id="selecteditPosition{{ $data->id }}" required>
                                     <option value="" selected>-- Select Position --</option>
                                     <option disabled>──────────</option>
                                 </select>
@@ -203,7 +235,7 @@
                                     <textarea class="form-control" rows="3" type="text" class="form-control" name="employee_address" placeholder="(Input Employee Address, Ex. Street/Unit/Floor/No)" required>{{ $data->employee_address }}</textarea>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="province" id="province{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="province" id="province{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>-- Select Province --</option>
                                         @foreach ($provinces as $province)
                                             <option value="{{ $province['nama'] }}"
@@ -213,19 +245,19 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="city" id="city{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="city" id="city{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>- Select City -</option>
                                         <option value="{{ $data->city }}" selected>{{ $data->city }}</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="district" id="district{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="district" id="district{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>- Select District -</option>
                                         <option value="{{ $data->district }}" selected>{{ $data->district }}</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <select class="form-select" name="subdistrict" id="subdistrict{{ $data->id }}" class="form-control" required>
+                                    <select class="form-select js-example-basic-single" name="subdistrict" id="subdistrict{{ $data->id }}" class="form-control" required>
                                         <option value="" selected>- Select Subdistrict -</option>
                                         <option value="{{ $data->subdistrict }}" selected>{{ $data->subdistrict }}</option>
                                     </select>

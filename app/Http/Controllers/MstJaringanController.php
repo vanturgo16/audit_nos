@@ -9,10 +9,10 @@ use App\Traits\ApiRegionalTrait;
 use Browser;
 
 // Model
-use App\Models\MstBranch;
+use App\Models\MstJaringan;
 use App\Models\MstDropdowns;
 
-class MstBranchController extends Controller
+class MstJaringanController extends Controller
 {
     use AuditLogsTrait;
     use ApiRegionalTrait;
@@ -23,7 +23,7 @@ class MstBranchController extends Controller
         $tokenregional = $this->getTokenRegional();
         $provinces = $this->getProvinceRegional($tokenregional);
 
-        $datas=MstBranch::get();
+        $datas=MstJaringan::get();
         $type_dealer = MstDropdowns ::where('category', 'Type Dealer')->get();
 
         //Audit Log
@@ -56,7 +56,7 @@ class MstBranchController extends Controller
         DB::beginTransaction();
         try{
             
-            MstBranch::create([
+            MstJaringan::create([
                 'type' => $request->type,
                 'dealer_name' => $request->dealer_name,
                 'dealer_code' => $request->dealer_code,
@@ -100,7 +100,7 @@ class MstBranchController extends Controller
             // 'zipcode' => 'required'
         ]);
 
-        $databefore = MstBranch::where('id', $id)->first();
+        $databefore = MstJaringan::where('id', $id)->first();
         $databefore->type = $request->type;
         $databefore->dealer_name = $request->dealer_name;
         $databefore->dealer_code = $request->dealer_code;
@@ -114,7 +114,7 @@ class MstBranchController extends Controller
         if($databefore->isDirty()){
             DB::beginTransaction();
             try{
-                MstBranch::where('id', $id)->update([
+                MstJaringan::where('id', $id)->update([
                     'type' => $request->type,
                     'dealer_name' => $request->dealer_name,
                     'dealer_code' => $request->dealer_code,

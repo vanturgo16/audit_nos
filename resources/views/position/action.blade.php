@@ -15,7 +15,7 @@
 </div>
 
 {{-- MODAL --}}
-<div class="left-align">
+<div class="left-align truncate-text">
     {{-- Modal Info --}}
     <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
@@ -85,7 +85,7 @@
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label class="form-label">Department</label><label style="color: darkred">*</label>
-                                <select class="form-select" name="id_department" required>
+                                <select class="form-select js-example-basic-single" name="id_department" required>
                                     <option value="" selected>--Select Department--</option>
                                     <option value="{{ $data->id_department }}" selected>{{ $data->department }}</option>
                                     <option disabled>-----------</option>

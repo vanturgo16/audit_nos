@@ -19,7 +19,7 @@ class MstDropdownController extends Controller
     {
         $category = MstDropdowns::select('category')->get();
         $category = $category->unique('category');
-
+        
         if ($request->ajax()) {
             $data = $this->getData($category);
             return $data;
@@ -33,7 +33,11 @@ class MstDropdownController extends Controller
 
     private function getData($category)
     {
-        $query=MstDropdowns::orderBy('created_at')->get();
+        if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
+            $query=MstDropdowns::orderBy('category')->get();
+        } else {
+            $query=MstDropdowns::where('category', 'Period Name')->get();
+        }
 
         $data = DataTables::of($query)
             ->addColumn('action', function ($data) use ($category){
@@ -77,10 +81,18 @@ class MstDropdownController extends Controller
             $this->auditLogsShort('Create New Dropdown');
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Create New Dropdown']);
+            if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
+                return redirect()->back()->with(['success' => 'Success Create New Dropdown']);
+            } else {
+                return redirect()->back()->with(['success' => 'Success Create New Period']);
+            }
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Create New Dropdown!']);
+            if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
+                return redirect()->back()->with(['fail' => 'Failed to Create New Dropdown!']);
+            } else {
+                return redirect()->back()->with(['fail' => 'Failed to Create New Period!']);
+            }
         }
     }
 
@@ -123,10 +135,22 @@ class MstDropdownController extends Controller
                 $this->auditLogsShort('Update Dropdown');
 
                 DB::commit();
-                return redirect()->back()->with(['success' => 'Success Update Dropdown']);
+                
+                if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
+                    return redirect()->back()->with(['success' => 'Success Update Dropdown']);
+                } else {
+                    return redirect()->back()->with(['fail' => 'Failed to Update Period!']);
+                }
+
             } catch (Exception $e) {
                 DB::rollback();
-                return redirect()->back()->with(['fail' => 'Failed to Update Dropdown!']);
+                
+                if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
+                    return redirect()->back()->with(['fail' => 'Failed to Update Dropdown!']);
+                } else {
+                    return redirect()->back()->with(['fail' => 'Failed to Update Period!']);
+                }
+                
             }
         } else {
             return redirect()->back()->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
@@ -149,10 +173,10 @@ class MstDropdownController extends Controller
             $this->auditLogsShort('Activate Dropdown ('. $name->name_value . ')');
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Activate Dropdown ' . $name->name_value]);
+            return redirect()->back()->with(['success' => 'Success Activate ' . $name->name_value]);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Activate Dropdown ' . $name->name_value .'!']);
+            return redirect()->back()->with(['fail' => 'Failed to Activate ' . $name->name_value .'!']);
         }
     }
 
@@ -172,10 +196,10 @@ class MstDropdownController extends Controller
             $this->auditLogsShort('Deactivate Dropdown ('. $name->name_value . ')');
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Deactivate Dropdown ' . $name->name_value]);
+            return redirect()->back()->with(['success' => 'Success Deactivate ' . $name->name_value]);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Deactivate Dropdown ' . $name->name_value .'!']);
+            return redirect()->back()->with(['fail' => 'Failed to Deactivate ' . $name->name_value .'!']);
         }
     }
 }

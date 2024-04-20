@@ -15,7 +15,7 @@
 </div>
 
 {{-- MODAL --}}
-<div class="left-align">
+<div class="left-align truncate-text">
     {{-- Modal Edit User --}}
     <div class="modal fade" id="edit-user{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
@@ -31,7 +31,7 @@
                             <div class="col-lg-12">
                                 <div class="mb-3">
                                     <label class="form-label">Role</label><label style="color: darkred">*</label>
-                                    <select class="form-select" name="role" required>
+                                    <select class="form-select js-example-basic-single" name="role" required>
                                         <option value="">--Select Role--</option>
                                         @foreach($role as $item)
                                             <option value="{{ $item->name_value }}" @if($data->role == $item->name_value) selected="selected" @endif>{{ $item->name_value }}</option>

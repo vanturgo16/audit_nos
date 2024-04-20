@@ -5,7 +5,7 @@
     <title>Dashboard NOS | AHASS BANTEN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/icon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
     <!-- plugin css -->
     <link href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
     <!-- DataTables -->
@@ -14,13 +14,15 @@
     <!-- Responsive datatable examples -->
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" /> 
     <!-- preloader css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" />
+    {{-- <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" /> --}}
     <!-- Bootstrap Css -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- App Css-->
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <!-- choices css -->
+    <link href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}" rel="stylesheet" type="text/css" />
     {{-- Custom --}}
     <link href="{{ asset('assets/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/custom2.css') }}" id="app-style" rel="stylesheet" type="text/css" />
@@ -47,19 +49,19 @@
                     <div class="navbar-brand-box">
                         <a href="index.html" class="logo logo-dark">
                             <span class="logo-sm">
-                                <img src="{{ asset('assets/images/icon.png') }}" alt="" height="24">
+                                <img src="{{ asset('assets/images/LOGO_MSK_PUTIH_VERTIKAL.jpg') }}" alt="" height="50">
                             </span>
                             <span class="logo-lg">
-                                <img src="{{ asset('assets/images/icon.png') }}" alt="" height="24"> <span class="logo-txt">AHASS Banten</span>
+                                <img src="{{ asset('assets/images/logosamping.png') }}" alt="" height="50">
                             </span>
                         </a>
 
                         <a href="index.html" class="logo logo-light">
                             <span class="logo-sm">
-                                <img src="{{ asset('assets/images/icon.png') }}" alt="" height="24">
+                                <img src="{{ asset('assets/images/LOGO_MSK_MERAH_VERTIKAL.jpg') }}" alt="" height="50">
                             </span>
                             <span class="logo-lg">
-                                <img src="{{ asset('assets/images/icon.png') }}" alt="" height="24"> <span class="logo-txt">AHASS Banten</span>
+                                <img src="{{ asset('assets/images/logosamping.png') }}" alt="" height="50">
                             </span>
                         </a>
                     </div>
@@ -67,37 +69,9 @@
                     <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
                         <i class="fa fa-fw fa-bars"></i>
                     </button>
-
-                    <!-- App Search-->
-                    {{-- <form class="app-search d-none d-lg-block">
-                        <div class="position-relative">
-                            <input type="text" class="form-control" placeholder="Search...">
-                            <button class="btn btn-primary" type="button"><i class="bx bx-search-alt align-middle"></i></button>
-                        </div>
-                    </form> --}}
                 </div>
 
                 <div class="d-flex">
-
-                    {{-- <div class="dropdown d-inline-block d-lg-none ms-2">
-                        <button type="button" class="btn header-item" id="page-header-search-dropdown"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i data-feather="search" class="icon-lg"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                            aria-labelledby="page-header-search-dropdown">
-    
-                            <form class="p-3">
-                                <div class="form-group m-0">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" placeholder="Search ..." aria-label="Search Result">
-
-                                        <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div> --}}
 
                     <div class="dropdown d-none d-sm-inline-block">
                         <button type="button" class="btn header-item" id="mode-setting-btn">
@@ -136,83 +110,219 @@
                 <!--- Sidemenu -->
                 <div id="sidebar-menu">
                     <!-- Left Menu Start -->
-                    <ul class="metismenu list-unstyled" id="side-menu">
-                        <li>
-                            <a href="{{ route('dashboard') }}">
-                                <i data-feather="home"></i>
-                                <span data-key="t-dashboard">Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="menu-title" data-key="t-menu">Configuration</li>
-                        <li>
-                            <a href="{{ route('user.index') }}">
-                                <i data-feather="users"></i>
-                                <span>Manage User</span>
-                            </a>
-                        </li>
 
-                        <li class="menu-title" data-key="t-menu">Master Data</li>
+                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin']))
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="menu-title" data-key="t-menu">Configuration</li>
+                            <li>
+                                <a href="{{ route('user.index') }}">
+                                    <i data-feather="users"></i>
+                                    <span>Manage User</span>
+                                </a>
+                            </li>
 
-                        <li>
-                            <a href="{{ route('employee.index') }}">
-                                <i class="mdi mdi-account-group"></i>
-                                <span>Master Employee</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('department.index') }}">
-                                <i class="mdi mdi-graph-outline"></i>
-                                <span>Master Dept</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('position.index') }}">
-                                <i class="mdi mdi-lan"></i>
-                                <span>Master Position</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('branch.index') }}">
-                                <i class="mdi mdi-office-building"></i>
-                                <span>Master Branch</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('rule.index') }}">
-                                <i class="mdi mdi-cog-box"></i>
-                                <span>Master Rule</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('dropdown.index') }}">
-                                <i class="mdi mdi-package-down"></i>
-                                <span>Master Dropdown</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('checklist.index') }}">
-                                <i class="mdi mdi-check-network"></i>
-                                <span>Master Checklist</span>
-                            </a>
-                        </li>
+                            <li class="menu-title" data-key="t-menu">Master Data</li>
 
-                        <li class="menu-title" data-key="t-menu">Checklist Audit</li>
-                        <li>
-                            <a href="{{ route('periodchecklist.index') }}">
-                                <i class="mdi mdi-check-underline-circle"></i>
-                                <span>Period Checklist</span>
-                            </a>
-                        </li>
+                            <li>
+                                <a href="{{ route('employee.index') }}">
+                                    <i class="mdi mdi-account-group"></i>
+                                    <span>Master Employee</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('department.index') }}">
+                                    <i class="mdi mdi-graph-outline"></i>
+                                    <span>Master Dept</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('position.index') }}">
+                                    <i class="mdi mdi-lan"></i>
+                                    <span>Master Position</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('jaringan.index') }}">
+                                    <i class="mdi mdi-office-building"></i>
+                                    <span>Master Jaringan</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('rule.index') }}">
+                                    <i class="mdi mdi-cog-box"></i>
+                                    <span>Master Rule</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('dropdown.index') }}">
+                                    <i class="mdi mdi-package-down"></i>
+                                    <span>Master Dropdown</span>
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a href="{{ route('checklist.index') }}">
+                                    <i class="mdi mdi-check-network"></i>
+                                    <span>Master Checklist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('mapchecklist.index') }}">
+                                    <i class="mdi mdi-checkbox-multiple-outline"></i>
+                                    <span>Master Mapping Checklist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('grading.index') }}">
+                                    <i class="mdi mdi-percent-outline"></i>
+                                    <span>Master Grading</span>
+                                </a>
+                            </li>
 
-                        <li class="menu-title" data-key="t-menu">Logs</li>
-                        <li>
-                            <a href="{{ route('auditlog') }}">
-                                <i class="mdi mdi-chart-donut"></i>
-                                <span>Audit Logs</span>
-                            </a>
-                        </li>
+                            <li class="menu-title" data-key="t-menu">Checklist Audit</li>
+                            <li>
+                                <a href="{{ route('periodchecklist.index') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Period Checklist</span>
+                                </a>
+                            </li>
+                            {{-- <li>
+                                <a href="{{ route('formchecklist.form') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Contoh Form Checklist</span>
+                                </a>
+                            </li> --}}
+                            <li>
+                                <a href="{{ route('formchecklist.index') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Form Checklist</span>
+                                </a>
+                            </li>
 
-                    </ul>
+                            <li class="menu-title" data-key="t-menu">Assessor Menu</li>
+                            <li>
+                                <a href="{{ route('assessor.listjaringan') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Checklist</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">Logs</li>
+                            <li>
+                                <a href="{{ route('auditlog') }}">
+                                    <i class="mdi mdi-chart-donut"></i>
+                                    <span>Audit Logs</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    @endif
+
+                    @if(Auth::user()->role == 'Assessor Main Dealer')
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">Master Data</li>
+                            <li>
+                                <a href="{{ route('jaringan.index') }}">
+                                    <i class="mdi mdi-office-building"></i>
+                                    <span>Master Jaringan</span>
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a href="{{ route('checklist.index') }}">
+                                    <i class="mdi mdi-check-network"></i>
+                                    <span>Master Checklist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('mapchecklist.index') }}">
+                                    <i class="mdi mdi-checkbox-multiple-outline"></i>
+                                    <span>Master Mapping Checklist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('grading.index') }}">
+                                    <i class="mdi mdi-percent-outline"></i>
+                                    <span>Master Grading</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('dropdown.index') }}">
+                                    <i class="mdi mdi-clipboard-text-clock"></i>
+                                    <span>Master Period</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">Assessor Menu</li>
+                            <li>
+                                <a href="{{ route('periodchecklist.index') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Assign Period Checklist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('assessor.listjaringan') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Result Checklist</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    @endif
+
+                    @if(Auth::user()->role == 'PIC NOS MD')
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">PIC MD Menu</li>
+                            <li>
+                                <a href="{{ route('assessor.listjaringan') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Result Checklist</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    @endif
+
+                    @if(Auth::user()->role == 'Internal Auditor Dealer')
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">Auditor Menu</li>
+                            <li>
+                                <a href="{{ route('formchecklist.auditor') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Form Checklist</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    @endif
                 </div>
                 <!-- Sidebar -->
             </div>
@@ -235,13 +345,9 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-sm-6">
-                            © Dashboard NOS Honda Banten 2024
+                            {{-- © Dashboard NOS Honda Banten 2024 --}}
+                            © Dashboard NOS PT Mitra Sendang Kemakmuran Banten 2024
                         </div>
-                        {{-- <div class="col-sm-6">
-                            <div class="text-sm-end d-none d-sm-block">
-                                Design & Develop by <a href="#!" class="text-decoration-underline">Themesbrand</a>
-                            </div>
-                        </div> --}}
                     </div>
                 </div>
             </footer>
@@ -308,9 +414,9 @@
                     <label class="form-check-label" for="layout-vertical">Vertical</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="layout"
+                    {{-- <input class="form-check-input" type="radio" name="layout"
                         id="layout-horizontal" value="horizontal">
-                    <label class="form-check-label" for="layout-horizontal">Horizontal</label>
+                    <label class="form-check-label" for="layout-horizontal">Horizontal</label> --}}
                 </div>
 
                 <h6 class="mt-4 mb-3 pt-2">Layout Mode</h6>
@@ -409,9 +515,9 @@
                     <label class="form-check-label" for="layout-direction-ltr">LTR</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="layout-direction"
+                    {{-- <input class="form-check-input" type="radio" name="layout-direction"
                         id="layout-direction-rtl" value="rtl">
-                    <label class="form-check-label" for="layout-direction-rtl">RTL</label>
+                    <label class="form-check-label" for="layout-direction-rtl">RTL</label> --}}
                 </div>
 
             </div>
@@ -459,6 +565,12 @@
     <!-- dashboard init -->
     <script src="{{ asset('assets/js/pages/dashboard.init.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <!-- choices js -->
+    <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
+
+    <!-- init js -->
+    <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
+
     <!-- Custom -->
     <script src="{{ asset('assets/js/custom.js') }}"></script>
 

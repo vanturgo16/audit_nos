@@ -18,7 +18,7 @@ class MstChecklistController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index()
+    public function index(Request $request)
     {
 
         // $datas=MstChecklists::get();
@@ -29,12 +29,7 @@ class MstChecklistController extends Controller
         $type_parent = MstParentChecklists ::get();
 
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Checklist';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst Checklist');
         
         return view('checklist.index',compact('datas', 'type_checklist', 'type_parent'));
         // dd($datas);
@@ -60,8 +55,18 @@ class MstChecklistController extends Controller
             $request->validate([
                 'thumbnail' => 'required|image|mimes:jpg,jpeg,png|max:3072'
             ]);
-            $imagePath = $request->file('thumbnail')->store('images/thumbnails', 'public');
-
+            // $imagePath = $request->file('thumbnail')->store('images');
+            // $url = asset('thumbnails/', $imagePath);
+            if($request->hasFile('thumbnail')){
+                $path_loc_thumb = $request->file('thumbnail');
+                $name = $path_loc_thumb ->hashName();
+                $path_loc_thumb->move(public_path('assets/images/thumbnails'), $name);
+                $url_thumb = 'assets/images/thumbnails/'.$name;
+            }else{
+                $url_thumb = null;
+                return redirect()->back()->with(['fail' => 'Failed to Save File!']); 
+            }
+// dd($url_thumb);
             // $image = Image::make($request->file('thumbnail')->getRealPath());
             // $extension = $request->file('thumbnail')->getClientOriginalExtension();
             // $image->stream($extension, 80);
@@ -74,7 +79,7 @@ class MstChecklistController extends Controller
                 $newParentChecklist =   MstParentChecklists::create([
                                             'type_checklist' => $request->type_checklist,
                                             'parent_point_checklist' => $add_parent,
-                                            'path_guide_premises' => $imagePath
+                                            'path_guide_premises' => $url_thumb
                                         ]);
 
 
@@ -193,36 +198,48 @@ class MstChecklistController extends Controller
 
         $datas = MstChecklistDetails ::where('id_checklist', $id)->get();
         $type_mark = MstDropdowns ::where('category', 'Type Mark Checklist')->get();
+        $checklist=MstChecklists::select('mst_checklists.*', 'mst_parent_checklists.type_checklist', 'mst_parent_checklists.parent_point_checklist', 'mst_parent_checklists.path_guide_premises')
+            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
+            ->where('mst_checklists.id', $id)
+            ->first();
 
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mark Checklist';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
-        
-        return view('checklist.markcheck',compact('datas', 'type_mark', 'id'));
+        $this->auditLogsShort('View List Mark Checklist ('. $checklist->parent_point_checklist . ')');
+
+        return view('checklist.markcheck',compact('datas', 'type_mark', 'id', 'checklist'));
         // dd($datas);
     }
-
+    
     public function markstore(Request $request, $id)
     {
         $id = decrypt($id);
+
         $request->validate([
-            'meta_name' => 'required',
-            'result' => 'required'
+            'meta_name' => 'required|array|min:1',
+            'meta_name.*' => 'exists:mst_dropdowns,id',
         ]);
 
+        
+        
         DB::beginTransaction();
         try{
             
-            MstChecklistDetails::create([
-                'id_checklist' => $id,
-                'meta_name' => $request->meta_name,
-                'result' => $request->result,
-                'meta_value' => '1'
-            ]);
+
+            foreach ($request->meta_name as $idmetaName) {
+
+                $mark = MstDropdowns::where('id', $idmetaName)->first();
+                $valueName = $mark->name_value;
+                $codeFormat = $mark->code_format;
+                
+        
+                MstChecklistDetails::firstOrCreate([
+                    'id_checklist' => $id,
+                    'meta_name' => $valueName,
+                ], [
+                    'result' => $codeFormat,
+                    'meta_value' => '1'
+                ]);
+            }
 
             //Audit Log
             $username= auth()->user()->email; 
@@ -234,11 +251,13 @@ class MstChecklistController extends Controller
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Create New Mark Checklist']);
-        } catch (\Exception $e) {
+        }catch (\Exception $e) {
+        
             dd($e);
             return redirect()->back()->with(['fail' => 'Failed to Create New Mark Checklist!']);
         }
     }
+
     public function markdelete($id)
     {
         $id = decrypt($id);
