@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+
+//Mail
+use App\Mail\SubmitChecklist;
 
 // Model
 use App\Models\User;
@@ -20,12 +24,21 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
+
         $role = MstDropdowns::where('category', 'Role User')->get();
 
         if ($request->ajax()) {
             $data = $this->getData($role);
             return $data;
         }
+
+        // Test Email
+        $test = User::orderBy('created_at')->get();
+        $emailsubmitter = auth()->user()->email;
+        $mailInstance = new SubmitChecklist($test, $emailsubmitter);
+        // Send Email
+        Mail::to("imam.syafa'at@napinfo.co.id")
+            ->send($mailInstance);
 
         //Audit Log
         $this->auditLogsShort('View List Mst User');
