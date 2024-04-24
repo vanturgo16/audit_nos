@@ -249,17 +249,34 @@
                                                     <h5 class="modal-title" id="staticBackdropLabel">Start</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <div class="row">
-                                                        <p class="text-center"> 
-                                                            Are You Sure To Start This Checklist?
-                                                        </p>
+                                                <form action="{{ route('formchecklist.start', encrypt($data->id)) }}" id="formstart{{ $data->id }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-12 text-center">
+                                                                <h1><span class="mdi mdi-play-circle" style="color: #FFA500;"></span></h1>
+                                                                <h5>Start This Checklist?</h5>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <a type="button" href="{{ route('formchecklist.start', encrypt($data->id)) }}" class="btn btn-primary">Yes</a>
-                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light" id="sb{{ $data->id }}"><i class="mdi mdi-play-circle label-icon"></i>Start</button>
+                                                    </div>
+                                                </form>
+                                                <script>
+                                                    $(document).ready(function() {
+                                                        let idList = "{{ $data->id }}";
+                                                        $('#formstart' + idList).submit(function(e) {
+                                                            if (!$('#formstart' + idList).valid()){
+                                                                e.preventDefault();
+                                                            } else {
+                                                                $('#sb' + idList).attr("disabled", "disabled");
+                                                                $('#sb' + idList).html('<i class="mdi mdi-loading mdi-spin"></i> Please wait...');
+                                                            }
+                                                        });
+                                                    });
+                                                </script>
                                             </div>
                                         </div>
                                     </div>
