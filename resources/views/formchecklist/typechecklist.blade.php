@@ -35,7 +35,7 @@
                         </tr>
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
-                            <td class="align-middle">: 
+                            <td class="align-middle">:
                                 @if($period->status == 1)
                                     <span class="badge bg-success text-white">Active</span>
                                 @elseif($period->status == 2)
@@ -46,7 +46,7 @@
                                     <span class="badge bg-success text-white">Closed Approved</span>
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
-                                @endif    
+                                @endif
                             </td>
                         </tr>
                     </tbody>
@@ -73,12 +73,13 @@
                                     <th class="align-middle text-center">% Result</th>
                                     <th class="align-middle text-center">Status</th>
                                     <th class="align-middle text-center">Result Audit</th>
+                                    <th class="align-middle text-center">Mandatory item</th>
                                     <th class="align-middle text-center">Start Date</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $no = 0;?> 
+                                <?php $no = 0;?>
                                 @foreach ($datas as $data)
                                 <?php $no++ ;?>
                                     <tr>
@@ -183,23 +184,44 @@
 
                                         </td>
                                         <td class="align-middle text-center">
-                                        @if($data->audit_result == "")
+                                            @if($data->audit_result == "")
 
-                                            @php
-                                                $result_audit = "";
-                                            @endphp
-                                            @foreach($grading as $item) 
-                                                @if($formattedResult >= $item->bottom && $formattedResult <= $item->top)
-                                                    @php
-                                                        $result_audit = $item->result;
-                                                    @endphp
-                                                @endif
-                                            @endforeach
-                                            {{$result_audit}}
-                                        @else
-                                            {{$data->audit_result}}
-                                        @endif
-                                    </td>
+                                                @php
+                                                    $result_audit = "";
+                                                @endphp
+                                                @foreach($grading as $item)
+                                                    @if($formattedResult >= $item->bottom && $formattedResult <= $item->top)
+                                                        @php
+                                                            $result_audit = $item->result;
+                                                        @endphp
+                                                    @endif
+                                                @endforeach
+                                                {{$result_audit}}
+                                            @else
+                                                {{$data->audit_result}}
+                                            @endif
+                                        </td>
+                                        <td class="align-middle text-center">
+                                            @if($data->mandatory_item == "")
+                                                @foreach($data->mandatory as $man)
+                                                    @if($man['sgp'] != null)
+                                                        Bronze
+                                                    @else
+                                                        @if($man['gp'] != null)
+                                                            Silver
+                                                        @else
+                                                            @if($man['p'] != null)
+                                                                Gold
+                                                            @else
+                                                                Platinum
+                                                            @endif
+                                                        @endif
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                            {{$data->mandatory_item}}
+                                            @endif
+                                        </td>
                                         <td class="align-middle text-center">
                                             @if($data->start_date == null)
                                                 <span class="badge bg-secondary text-white">Not Started</span>
@@ -208,6 +230,7 @@
                                             @endif
                                         </td>
 
+
                                         <td class="align-middle text-center">
                                             <div class="btn-group" role="group">
                                                 <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
@@ -215,7 +238,7 @@
                                                     Action <i class="mdi mdi-chevron-down"></i>
                                                 </button>
                                                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
-                                                
+
                                                     @if($data->status == "")
                                                         <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#start{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
                                                     @elseif($data->status == 0 && $data->checklist_remaining != 0)
@@ -251,7 +274,7 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="row">
-                                                        <p class="text-center"> 
+                                                        <p class="text-center">
                                                             Are You Sure To Start This Checklist?
                                                         </p>
                                                     </div>
@@ -283,7 +306,7 @@
                                     <div class="modal-body">
                                         <div class="row">
                                             <p>
-                                                You Want to Submit answer this checklist {{$period->period}}? 
+                                                You Want to Submit answer this checklist {{$period->period}}?
                                                 (You are not longer to edit this checklist!)
                                             </p>
                                         </div>
