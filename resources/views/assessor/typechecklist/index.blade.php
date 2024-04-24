@@ -119,8 +119,9 @@
                                     <th class="align-middle text-center">Checklist Remain</th>
                                     <th class="align-middle text-center">Total Point</th>
                                     <th class="align-middle text-center">% Result</th>
-                                    <th class="align-middle text-center">Result Audit</th>
                                     <th class="align-middle text-center">Status</th>
+                                    <th class="align-middle text-center">Result Audit</th>
+                                    <th class="align-middle text-center">Mandatory item</th>
                                     <th class="align-middle text-center">Start Date</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -191,13 +192,6 @@
                     },
                 },
                 {
-                    data: 'audit_result',
-                    name: 'audit_result',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle text-center'
-                },
-                {
                     data: 'status',
                     orderable: true,
                     className: 'align-middle text-center',
@@ -225,6 +219,20 @@
                         return html;
                     },
                 },
+                {
+                    data: 'audit_result',
+                    name: 'audit_result',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center'
+                },
+                {
+                    data: 'mandatory_item',
+                    name: 'mandatory_item',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center'
+                },                
                 {
                     data: 'start_date',
                     name: 'start_date',

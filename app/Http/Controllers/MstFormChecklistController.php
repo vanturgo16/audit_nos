@@ -97,7 +97,22 @@ class MstFormChecklistController extends Controller
         $period = MstPeriodeChecklists::where('id', $id)->first();
         
         $id_jaringan = MstPeriodeChecklists::where('id', $id)->first()->id_branch;
-        // dd($datas);
+
+        $mandatoryCounts = ChecklistResponse::selectRaw('
+            SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
+            SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
+            SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 0 AND mst_checklists.mandatory_platinum = 1) as p
+        ')
+        ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
+        ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+        ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+        ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+        ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+        ->where('mst_parent_checklists.type_checklist', 'H1 People')
+        ->whereNot('checklist_response.response', 'Exist, Good')
+        ->where('mst_periode_checklists.id', '26')
+        ->get();
+        // dd($mandatoryCounts);
 
         foreach($datas as $data){
 
@@ -113,6 +128,29 @@ class MstFormChecklistController extends Controller
             ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
             ->get()->toArray();
             $data->point = $responsCounts;
+  
+
+        }
+
+        foreach($datas as $datam){
+
+            $mandatoryCounts = ChecklistResponse::selectRaw('
+                SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
+                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
+                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 0 AND mst_checklists.mandatory_platinum = 1) as p
+            ')
+            ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
+            ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+            ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_parent_checklists.type_checklist', $datam->type_checklist)
+            ->whereNot('checklist_response.response', 'Exist, Good')
+            ->where('mst_periode_checklists.id', $id)
+            ->get()->toArray();
+
+            $datam->mandatory = $mandatoryCounts;
+                
 
         }
         // dd($datas);
@@ -209,6 +247,7 @@ class MstFormChecklistController extends Controller
         ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
         ->where('mst_periode_checklists.id', $id_period)
         ->get();
+
 
         //file point
         $file_point = FileInputResponse::select(
@@ -486,6 +525,26 @@ class MstFormChecklistController extends Controller
             $data->point = $responsCounts;
 
         }
+
+        foreach($datas as $datam){
+
+            $mandatoryCounts = ChecklistResponse::selectRaw('
+                SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
+                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
+                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 0 AND mst_checklists.mandatory_platinum = 1) as p
+            ')
+            ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
+            ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+            ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_parent_checklists.type_checklist', $datam->type_checklist)
+            ->whereNot('checklist_response.response', 'Exist, Good')
+            ->where('mst_periode_checklists.id', $id)
+            ->get()->toArray();
+            $datam->mandatory = $mandatoryCounts;
+
+        }
         // dd($datas);
         $grading = MstGrading::all();
 
@@ -534,11 +593,31 @@ class MstFormChecklistController extends Controller
                 // echo $formattedResult;// ini % result
                 // echo $result_audit; //result Audit
 
+                $mandatory = "";
+                foreach($datas->mandatory as $man):
+                    if($man['sgp'] != null){
+                        $mandatory = "Bronze";
+                    }else{
+                        if($man['gp'] != null){
+                        $mandatory = "Silver";
+                            
+                        }else{
+                            if($man['p'] != null){
+                            $mandatory = "Gold";
+                                
+                            }else{
+                                $mandatory = "Platinum";
+                            }
+                        }
+                    }
+                endforeach;
+
                 ChecklistJaringan::where('id', $data_point->id)->update([
                     'status' => 2,
                     'total_point' => $totalPoint,
                     'result_percentage' => $formattedResult,
-                    'audit_result' => $result_audit
+                    'audit_result' => $result_audit,
+                    'mandatory_item' => $mandatory
                 ]);
 
                 DB::commit();

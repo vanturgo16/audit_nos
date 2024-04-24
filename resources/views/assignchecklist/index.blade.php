@@ -123,6 +123,7 @@
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Type Checklist</th>
                                     <th class="align-middle text-center">Total Parent Checklist</th>
+                                    <th class="align-middle text-center">Total Checklist</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -168,6 +169,21 @@
                             html = '<span class="badge bg-secondary text-white">Not Set</span>';
                         } else {
                             html = '<h5><span class="badge bg-success text-white">' + row.count + '</span></h5>';
+                        }
+                        return html;
+                    },
+                },
+                {
+                    orderable: true,
+                    searchable: true,
+                    data: 'count',
+                    className: 'align-middle text-center text-bold',
+                    render: function(data, type, row) {
+                        var html
+                        if(row.count == 0){
+                            html = '<span class="badge bg-secondary text-white">Not Set</span>';
+                        } else {
+                            html = '<h5><span class="badge bg-success text-white">' + row.count_check + '</span></h5>';
                         }
                         return html;
                     },
