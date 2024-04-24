@@ -228,6 +228,13 @@ class MstAssignChecklistController extends Controller
                 ->first();
             $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
             $periodinfo->count = $count;
+            $checklistdetail = MstAssignChecklists::select('mst_parent_checklists.type_checklist')
+                ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+                ->leftJoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+                ->where('mst_assign_checklists.id_periode_checklist', $id)
+                ->groupBy('mst_parent_checklists.type_checklist')
+                ->selectRaw('mst_parent_checklists.type_checklist, COUNT(*) as count')
+                ->get();
             // Recepient Email
             if($development == 1){
                 $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
@@ -241,7 +248,7 @@ class MstAssignChecklistController extends Controller
                 $ccemail = $emailsubmitter;
             }
             // Mail Content
-            $mailInstance = new SubmitAssignChecklist($periodinfo, $emailsubmitter);
+            $mailInstance = new SubmitAssignChecklist($periodinfo, $checklistdetail, $emailsubmitter);
             // Send Email
             Mail::to($toemail)->cc($ccemail)->send($mailInstance);
 

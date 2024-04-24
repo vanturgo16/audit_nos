@@ -14,11 +14,13 @@ class SubmitAssignChecklist extends Mailable
     use Queueable, SerializesModels;
 
     public $periodinfo;
+    public $checklistdetail;
     public $emailsubmitter;
 
-    public function __construct($periodinfo, $emailsubmitter)
+    public function __construct($periodinfo, $checklistdetail, $emailsubmitter)
     {
         $this->periodinfo = $periodinfo;
+        $this->checklistdetail = $checklistdetail;
         $this->emailsubmitter = $emailsubmitter;
     }
 

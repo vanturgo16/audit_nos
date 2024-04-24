@@ -10,6 +10,8 @@ use App\Models\MstChecklistDetails;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Mail;
 // use Intervention\Image\Facades\Image;
 use Browser;
 
@@ -22,8 +24,13 @@ use App\Models\MstJaringan;
 use App\Models\MstParentChecklists;
 use App\Models\MstPeriodeChecklists;
 use App\Models\TransFileResponse;
+use App\Models\MstRules;
+use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
+
+// Mail
+use App\Mail\SubmitChecklist;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -36,9 +43,17 @@ class MstFormChecklistController extends Controller
     }
     public function index(Request $request)
     {
-
-        // $datas=MstChecklists::get();
         $datas = MstJaringan::get();
+
+        if ($request->ajax()) {
+            $data = DataTables::of($datas)
+            ->addColumn('action', function ($data) {
+                return view('formchecklist.action.index', compact('data'));
+            })
+            ->toJson();
+
+            return $data;
+        }
 
         //Audit Log
         $this->auditLogsShort('View Jaringan Checklist');
@@ -67,7 +82,7 @@ class MstFormChecklistController extends Controller
         return view('formchecklist.periode',compact('datas', 'id', 'jaringan'));
     }
 
-    public function periode_jaringan($id)
+    public function periode_jaringan(Request $request, $id)
     {
         $id = decrypt($id);
         $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
@@ -79,6 +94,15 @@ class MstFormChecklistController extends Controller
 
         $jaringan = MstJaringan::where('id', $id)->first()->dealer_name;
 
+        if ($request->ajax()) {
+            $data = DataTables::of($datas)
+            ->addColumn('action', function ($data) {
+                return view('formchecklist.action.period', compact('data'));
+            })
+            ->toJson();
+
+            return $data;
+        }
 
         //Audit Log
         $this->auditLogsShort('View Periode Form Checklist');
@@ -86,16 +110,12 @@ class MstFormChecklistController extends Controller
         return view('formchecklist.periode',compact('datas', 'id', 'jaringan'));
 
     }
-    public function typechecklist($id)
+    public function typechecklist(Request $request, $id)
     {
         $id = decrypt($id);//id Period
 
-        // dd($id);
-
         $datas = ChecklistJaringan::all()->where('id_periode', $id);
-
         $period = MstPeriodeChecklists::where('id', $id)->first();
-        
         $id_jaringan = MstPeriodeChecklists::where('id', $id)->first()->id_branch;
 
         $mandatoryCounts = ChecklistResponse::selectRaw('
@@ -115,7 +135,6 @@ class MstFormChecklistController extends Controller
         // dd($mandatoryCounts);
 
         foreach($datas as $data){
-
             $responsCounts = ChecklistResponse::select('checklist_response.response as response')
             ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
             ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
@@ -128,12 +147,9 @@ class MstFormChecklistController extends Controller
             ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
             ->get()->toArray();
             $data->point = $responsCounts;
-  
-
         }
 
         foreach($datas as $datam){
-
             $mandatoryCounts = ChecklistResponse::selectRaw('
                 SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
                 SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
@@ -148,14 +164,22 @@ class MstFormChecklistController extends Controller
             ->whereNot('checklist_response.response', 'Exist, Good')
             ->where('mst_periode_checklists.id', $id)
             ->get()->toArray();
-
             $datam->mandatory = $mandatoryCounts;
-                
-
         }
         // dd($datas);
 
         $grading = MstGrading::all();
+
+        if ($request->ajax()) {
+            $data = DataTables::of($datas)
+            ->addColumn('action', function ($data) {
+                return view('formchecklist.action.typechecklist', compact('data'));
+            })
+            ->toJson();
+
+            return $data;
+        }
+
         // $status = $datas->every(function ($item, $key) {
 
         //     return $item['status'] == 1;
@@ -510,7 +534,6 @@ class MstFormChecklistController extends Controller
         $datas = ChecklistJaringan::all()->where('id_periode', $id);
 
         foreach($datas as $data){
-
             $responsCounts = ChecklistResponse::select('checklist_response.response as response')
             ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
             ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
@@ -523,11 +546,9 @@ class MstFormChecklistController extends Controller
             ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
             ->get()->toArray();
             $data->point = $responsCounts;
-
         }
 
         foreach($datas as $datam){
-
             $mandatoryCounts = ChecklistResponse::selectRaw('
                 SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
                 SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
@@ -543,16 +564,12 @@ class MstFormChecklistController extends Controller
             ->where('mst_periode_checklists.id', $id)
             ->get()->toArray();
             $datam->mandatory = $mandatoryCounts;
-
         }
         // dd($datas);
         $grading = MstGrading::all();
 
-
         DB::beginTransaction();
         try{
-
-            
             foreach($datas as $data_point):
                 $totalPoint = 0;
 
@@ -570,9 +587,7 @@ class MstFormChecklistController extends Controller
                         $totalPoint += $point['count'] * 0;
                     }
                 endforeach;
-
                 // $totalPoint = 0;
-
 
                 if($totalPoint != 0){
                     $result = ($totalPoint / ($data_point->total_checklist - $data_point->checklist_remaining)) * 100;
@@ -581,7 +596,6 @@ class MstFormChecklistController extends Controller
                     $formattedResult = 0;
                 }
                 
-
                 foreach($grading as $item):
                     if($formattedResult >= $item->bottom && $formattedResult <= $item->top){
                        
@@ -620,30 +634,50 @@ class MstFormChecklistController extends Controller
                     'mandatory_item' => $mandatory
                 ]);
 
-                DB::commit();
-
-
             endforeach;
             //setelah selesai update, update status Period nya
             // echo "status periode : 3";
             MstPeriodeChecklists::where('id', $id)->update([
                 'status' => '3'
             ]);
-            
-           
+
+            // [ MAILING ]
+            // Initiate Variable
+            $emailsubmitter = auth()->user()->email;
+            $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
+            $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->where('mst_periode_checklists.id', $id)
+                ->first();
+            $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
+            $periodinfo->count = $count;
+            $checklistdetail = MstAssignChecklists::select('mst_parent_checklists.type_checklist')
+                ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+                ->leftJoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+                ->where('mst_assign_checklists.id_periode_checklist', $id)
+                ->groupBy('mst_parent_checklists.type_checklist')
+                ->selectRaw('mst_parent_checklists.type_checklist, COUNT(*) as count')
+                ->get();
+            // Recepient Email
+            if($development == 1){
+                $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
+                $ccemail = null;
+            } else {
+                $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
+                $ccemail = $emailsubmitter;
+            }
+            // Mail Content
+            $mailInstance = new SubmitChecklist($periodinfo, $checklistdetail, $emailsubmitter);
+            // Send Email
+            Mail::to($toemail)->cc($ccemail)->send($mailInstance);
             
             DB::commit();
 
             $this->auditLogsShort('Submit answer Checklist Period ('. $id . ')');
             
             return redirect()->route('formchecklist.typechecklist', encrypt($id))->with(['success' => 'Success Submit Your answer Checklist']);
-
-
-
-        } catch (\Exception $e) {
-
+        } catch (Exception $e) {
             DB::rollBack();
-            dd($e);
         }
     }
     public function mark($id)

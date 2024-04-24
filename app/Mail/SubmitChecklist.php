@@ -13,21 +13,23 @@ class SubmitChecklist extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $test;
+    public $periodinfo;
+    public $checklistdetail;
     public $emailsubmitter;
 
-    public function __construct($test, $emailsubmitter)
+    public function __construct($periodinfo, $checklistdetail, $emailsubmitter)
     {
-        $this->test = $test;
+        $this->periodinfo = $periodinfo;
+        $this->checklistdetail = $checklistdetail;
         $this->emailsubmitter = $emailsubmitter;
     }
 
     public function build()
     {
         //SUBJECT NAME
-        $subject = "[INTERNAL AUDITOR - SUBMIT CHECKLIST AUDIT]";
+        $subject = "[SUBMIT RESPONSE CHECKLIST - INTERNAL AUDITOR]";
 
-        $email = $this->view('mail.submitChecklist')->subject($subject);
+        $email = $this->view('mail.submitResponseChecklist')->subject($subject);
 
         return $email;
     }

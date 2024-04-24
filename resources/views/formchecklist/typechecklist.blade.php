@@ -57,12 +57,50 @@
                 <div class="card">
                     <div class="card-header">
                         @if($status == true)
-                        <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                            <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                            {{-- Modal Submit --}}
+                            <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-top" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="{{ route('formchecklist.submitchecklist', encrypt($id)) }}" id="formsubmit" method="POST">
+                                            @csrf
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-12 text-center">
+                                                        <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
+                                                        <h5>Are You Sure to Submit Your Answer For This Checklist?</h5>
+                                                        <p>(You are no longer to edit next!)</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                                            </div>
+                                        </form>
+                                        <script>
+                                            document.getElementById('formsubmit').addEventListener('submit', function(event) {
+                                                if (!this.checkValidity()) {
+                                                    event.preventDefault(); // Prevent form submission if it's not valid
+                                                    return false;
+                                                }
+                                                var submitButton = this.querySelector('button[name="sb"]');
+                                                submitButton.disabled = true;
+                                                submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
+                                                return true; // Allow form submission
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
                         @endif
                     </div>
                     <div class="card-body">
-
-                        <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
+                        <table class="table table-bordered dt-responsive w-100" id="server-side-table" style="font-size: small">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
@@ -78,286 +116,250 @@
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php $no = 0;?>
-                                @foreach ($datas as $data)
-                                <?php $no++ ;?>
-                                    <tr>
-                                        <td class="align-middle text-center">{{ $no }}</td>
-                                        <td class="align-middle text-center">{{ $data->type_checklist }}</td>
-                                        <td class="align-middle text-center">{{ $data->total_checklist - $data->checklist_remaining}} of {{ $data->total_checklist}}</td>
-                                        <td class="align-middle text-center">{{ $data->checklist_remaining}}</td>
-                                        <td class="align-middle text-center">
-                                            @if($data->total_point == "")
-                                                @foreach($data->point as $point)
-                                                    <span class="badge bg-info text-white">{{$point['type_response']}} : {{$point['count']}}</span>
-                                                    <br>
-                                                @endforeach
-                                            @else
-                                                {{$data->total_point}}
-                                            @endif
-                                        </td>
-                                        <td class="align-middle text-center">
-                                        @if($data->result_percentage == "")
-                                            @php
-                                                $totalPoint = 0;
-                                            @endphp
-
-                                            @foreach($data->point as $point)
-                                                @if($point['type_response'] == 'Exist, Good')
-                                                    @php
-                                                        $totalPoint += $point['count'] * 1;
-                                                    @endphp
-                                                @elseif($point['type_response'] == 'Exist Not Good')
-                                                    @php
-                                                        $totalPoint += $point['count'] * -1;
-                                                    @endphp
-                                                @elseif($point['type_response'] == 'Not Exist')
-                                                    @php
-                                                        $totalPoint += $point['count'] * 0;
-                                                    @endphp
-                                                @endif
-                                            @endforeach
-                                            @if($totalPoint != 0)
-                                                @php
-                                                    $result = ($totalPoint / ($data->total_checklist - $data->checklist_remaining)) * 100;
-                                                    $formattedResult = number_format((float)$result, 2, '.', '');
-                                                @endphp
-                                            @else
-                                                @php
-                                                    $formattedResult = 0;
-                                                @endphp
-                                            @endif
-                                            <!-- Total Point: {{ $totalPoint }} -->
-                                            <!-- Result:  -->
-                                            {{ $formattedResult }} %
-                                        @else
-                                            {{$data->result_percentage}} %
-                                        @endif
-
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            @if($data->status == "")
-                                                <span class="badge bg-secondary text-white">Not Started</span>
-                                            @elseif($data->status == 0)
-                                                <span class="badge bg-warning text-white">Not Complete</span>
-                                            @elseif($data->status == 1)
-                                                <span class="badge bg-info text-white">Complete</span>
-                                            @elseif($data->status == 2)
-                                                <span class="badge bg-warning text-white">Reviewed</span>
-                                            @elseif($data->status == 3)
-                                                <span class="badge bg-warning text-white">Reviewed</span>
-                                            @elseif($data->status == 4)
-                                                <span class="badge bg-warning text-white">Reviewed</span>
-                                            @elseif($data->status == 5)
-                                                <button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#notapprove{{$data->id}}"><i class="mdi mdi-sim-alert label-icon"></i>Not Approve</button>
-                                                <div class="modal fade" id="notapprove{{$data->id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-top" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title" id="staticBackdropLabel">Info Not Approve</h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    <div class="col-lg-12">
-                                                                        <div class="form-group">
-                                                                            <div><span class="fw-bold">Reson :</span></div>
-                                                                            <span>
-                                                                                <span>{{ $data->last_reason }}</span>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @elseif($data->status == 6)
-                                                <span class="badge bg-warning text-white">Reviewed</span>
-                                            @elseif($data->status == 7)
-                                                <span class="badge bg-success text-white">Approve</span>
-                                            @endif
-
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            @if($data->audit_result == "")
-
-                                                @php
-                                                    $result_audit = "";
-                                                @endphp
-                                                @foreach($grading as $item)
-                                                    @if($formattedResult >= $item->bottom && $formattedResult <= $item->top)
-                                                        @php
-                                                            $result_audit = $item->result;
-                                                        @endphp
-                                                    @endif
-                                                @endforeach
-                                                {{$result_audit}}
-                                            @else
-                                                {{$data->audit_result}}
-                                            @endif
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            @if($data->mandatory_item == "")
-                                                @foreach($data->mandatory as $man)
-                                                    @if($man['sgp'] != null)
-                                                        Bronze
-                                                    @else
-                                                        @if($man['gp'] != null)
-                                                            Silver
-                                                        @else
-                                                            @if($man['p'] != null)
-                                                                Gold
-                                                            @else
-                                                                Platinum
-                                                            @endif
-                                                        @endif
-                                                    @endif
-                                                @endforeach
-                                            @else
-                                            {{$data->mandatory_item}}
-                                            @endif
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            @if($data->start_date == null)
-                                                <span class="badge bg-secondary text-white">Not Started</span>
-                                            @else
-                                                {{ Carbon\Carbon::parse($data->start_date)->format('d-m-Y') }}
-                                            @endif
-                                        </td>
-
-
-                                        <td class="align-middle text-center">
-                                            <div class="btn-group" role="group">
-                                                <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    Action <i class="mdi mdi-chevron-down"></i>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
-
-                                                    @if($data->status == "")
-                                                        <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#start{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
-                                                    @elseif($data->status == 0 && $data->checklist_remaining != 0)
-                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
-                                                    @elseif($data->status == 0)
-                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
-                                                    @elseif($data->status == 1)
-                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
-                                                    @elseif($data->status == 2)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
-                                                    @elseif($data->status == 3)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
-                                                    @elseif($data->status == 4)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
-                                                    @elseif($data->status == 5)
-                                                        <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
-                                                    @elseif($data->status == 6)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
-                                                    @elseif($data->status == 7)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
-                                                    @endif
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {{-- Modal Start --}}
-                                    <div class="modal fade" id="start{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-top" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="staticBackdropLabel">Start</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <form action="{{ route('formchecklist.start', encrypt($data->id)) }}" id="formstart{{ $data->id }}" method="POST">
-                                                    @csrf
-                                                    <div class="modal-body">
-                                                        <div class="row">
-                                                            <div class="col-12 text-center">
-                                                                <h1><span class="mdi mdi-play-circle" style="color: #FFA500;"></span></h1>
-                                                                <h5>Start This Checklist?</h5>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light" id="sb{{ $data->id }}"><i class="mdi mdi-play-circle label-icon"></i>Start</button>
-                                                    </div>
-                                                </form>
-                                                <script>
-                                                    $(document).ready(function() {
-                                                        let idList = "{{ $data->id }}";
-                                                        $('#formstart' + idList).submit(function(e) {
-                                                            if (!$('#formstart' + idList).valid()){
-                                                                e.preventDefault();
-                                                            } else {
-                                                                $('#sb' + idList).attr("disabled", "disabled");
-                                                                $('#sb' + idList).html('<i class="mdi mdi-loading mdi-spin"></i> Please wait...');
-                                                            }
-                                                        });
-                                                    });
-                                                </script>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                @endforeach
-                            </tbody>
                         </table>
-
                     </div>
-                    @if($status == true)
-                    {{-- Modal Submit --}}
-                    <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-top" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form action="{{ route('formchecklist.submitchecklist', encrypt($id)) }}" id="formsubmit" method="POST">
-                                    @csrf
-                                    <div class="modal-body">
-                                        <div class="row">
-                                            <p>
-                                                You Want to Submit answer this checklist {{$period->period}}?
-                                                (You are not longer to edit this checklist!)
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
-                                    </div>
-                                </form>
-                                <script>
-                                    document.getElementById('formsubmit').addEventListener('submit', function(event) {
-                                        if (!this.checkValidity()) {
-                                            event.preventDefault(); // Prevent form submission if it's not valid
-                                            return false;
-                                        }
-                                        var submitButton = this.querySelector('button[name="sb"]');
-                                        submitButton.disabled = true;
-                                        submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                        return true; // Allow form submission
-                                    });
-                                </script>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
+<script>
+    var grading = <?php echo json_encode($grading); ?>;
+    $(function() {
+        $('#server-side-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{!! route('formchecklist.typechecklist', encrypt($id)) !!}',
+            columns: [{
+                data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    },
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },
+                {
+                    data: 'type_checklist',
+                    name: 'type_checklist',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center',
+                },
+                {
+                    data: 'total_checklist',
+                    name: 'total_checklist',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var check = row.total_checklist - row.checklist_remaining;
+                        return check + '<b> of </b>' + row.total_checklist;
+                    },
+                },
+                {
+                    data: 'checklist_remaining',
+                    name: 'checklist_remaining',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center',
+                },
+                {
+                    data: 'total_point',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html = '';
+                        if (row.total_point === "" || row.total_point === null) {
+                            row.point.forEach(function(point) {
+                                html += '<span class="badge bg-info text-white">' + point.type_response + ' : ' + point.count + '</span><br>';
+                            });
+                            html += '<span class="badge bg-success text-white">Total Point : 0</span><br>';
+                        } else {
+                            row.point.forEach(function(point) {
+                                html += '<span class="badge bg-info text-white">' + point.type_response + ' : ' + point.count + '</span><br>';
+                            });
+                            html += '<span class="badge bg-success text-white">Total Point : ' + row.total_point + '</span><br>';
+                        }
+                        return html;
+                    },
+                },
+                {
+                    data: 'result_percentage',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html = '';
+                        if (row.result_percentage === "" || row.result_percentage === null) {
+                            var totalPoint = 0;
+                            row.point.forEach(function(point) {
+                                if (point.type_response === 'Exist, Good') {
+                                    totalPoint += point.count * 1;
+                                } else if (point.type_response === 'Exist Not Good') {
+                                    totalPoint += point.count * -1;
+                                } else if (point.type_response === 'Not Exist') {
+                                    totalPoint += point.count * 0;
+                                }
+                            });
+                            var formattedResult = 0;
+                            if (totalPoint !== 0) {
+                                var result = (totalPoint / (row.total_checklist - row.checklist_remaining)) * 100;
+                                formattedResult = result.toFixed(2);
+                            }
+                            html = formattedResult + ' %';
+                        } else {
+                            html = row.result_percentage + ' %';
+                        }
 
+                        return html;
+                    },
+                },
+                {
+                    data: 'status',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html = '';
 
+                        if (row.status === "" || row.status === null) {
+                            html = '<span class="badge bg-secondary text-white">Not Started</span>';
+                        } else if (row.status == 0) {
+                            html = '<span class="badge bg-warning text-white">Not Complete</span>';
+                        } else if (row.status == 1) {
+                            html = '<span class="badge bg-info text-white">Complete</span>';
+                        } else if (row.status == 2) {
+                            html = '<span class="badge bg-warning text-white">Reviewed</span>';
+                        } else if (row.status == 3) {
+                            html = '<span class="badge bg-warning text-white">Reviewed</span>';
+                        } else if (row.status == 4) {
+                            html = '<span class="badge bg-warning text-white">Reviewed</span>';
+                        } else if (row.status == 5) {
+                            html = '<button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#notapprove'+ row.id +'"><i class="mdi mdi-sim-alert label-icon"></i>Not Approve</button>' +
+                                '<div class="modal fade" id="notapprove'+ row.id +'" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">' +
+                                    '<div class="modal-dialog modal-dialog-top" role="document">' +
+                                        '<div class="modal-content">' +
+                                            '<div class="modal-header">' +
+                                                '<h5 class="modal-title" id="staticBackdropLabel">Info Not Approve</h5>' +
+                                                '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+                                            '</div>' +
+                                            '<div class="modal-body">' +
+                                                '<div class="row">' +
+                                                    '<div class="col-lg-12">' +
+                                                        '<div class="form-group">' +
+                                                            '<div><span class="fw-bold">Reason :</span></div>' +
+                                                            '<span>' +
+                                                                '<span>' + row.last_reason + '</span>' +
+                                                            '</span>' +
+                                                        '</div>' +
+                                                    '</div>' +
+                                                '</div>' +
+                                            '</div>' +
+                                            '<div class="modal-footer">' +
+                                                '<button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>';
+                        } else if (row.status == 6) {
+                            html = '<span class="badge bg-warning text-white">Reviewed</span>';
+                        } else if (row.status == 7) {
+                            html = '<span class="badge bg-success text-white">Approve</span>';
+                        }
 
+                        return html;
+                    },
+                },
+                {
+                    data: 'audit_result',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html;
+
+                        if (row.audit_result === "" || row.audit_result === null) {
+                            var result_audit = "";
+
+                            var totalPoint = 0;
+                            row.point.forEach(function(point) {
+                                if (point.type_response === 'Exist, Good') {
+                                    totalPoint += point.count * 1;
+                                } else if (point.type_response === 'Exist Not Good') {
+                                    totalPoint += point.count * -1;
+                                } else if (point.type_response === 'Not Exist') {
+                                    totalPoint += point.count * 0;
+                                }
+                            });
+                            var formattedResult = 0;
+                            if (totalPoint !== 0) {
+                                var result = (totalPoint / (row.total_checklist - row.checklist_remaining)) * 100;
+                                formattedResult = result.toFixed(2);
+                            }
+
+                            grading.forEach(function(item) {
+                                if (formattedResult >= item.bottom && formattedResult <= item.top) {
+                                    result_audit = item.result;
+                                }
+                            });
+                            html = result_audit;
+                        } else {
+                            html = row.audit_result;
+                        }
+
+                        return html;
+                    },
+                },
+                {
+                    data: 'mandatory_item',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html = '';
+
+                        if (row.mandatory_item === "" || row.mandatory_item === null) {
+                            row.mandatory.forEach(function(man) {
+                                if (man.sgp != null) {
+                                    html += 'Bronze';
+                                } else if (man.gp != null) {
+                                    html += 'Silver';
+                                } else if (man.p != null) {
+                                    html += 'Gold';
+                                } else {
+                                    html += 'Platinum';
+                                }
+                            });
+                        } else {
+                            html = row.mandatory_item;
+                        }
+
+                        return html;
+                    },
+                },
+                {
+                    data: 'start_date',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html;
+                        if (row.start_date === null) {
+                            html = '<span class="badge bg-secondary text-white">Not Started</span>';
+                        } else {
+                            var startDate = new Date(row.start_date);
+                            html = startDate.toLocaleDateString('es-CL').replace(/\//g, '-');
+                        }
+                        return html;
+                    },
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },
+            ],
+        });
+    });
+</script>
 
 @endsection

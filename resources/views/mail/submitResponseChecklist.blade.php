@@ -2,9 +2,9 @@
 <html>
 <body>
     <span>
-        Dear Internal Auditor Team,
-        <br> We Would Like to Inform you that We Already Assign Checklist Audit.
-        <br> Please Kindly Give Action For Checklist as below details
+        Dear Assessor Team,
+        <br> We Would Like to Inform you that We Already Answer Checklist Audit.
+        <br> Please Kindly Review For Checklist as below details
         <br>
         <br>
 
@@ -84,13 +84,13 @@
             </tr>
             @endforeach
         </table>
-
+        
         <br> Thank you.
         <br> Regards,
         <br>
         <br>
         <br> {{ $emailsubmitter }}
-        <br> [Person In Charge Assessor] <br>
+        <br> [Person In Charge Internal Auditor] <br>
 
     </span>
 </body>
