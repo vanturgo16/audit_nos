@@ -31,7 +31,7 @@
         @elseif(in_array($data->status, [0, 1, 5]))
             <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
         @elseif(in_array($data->status, [2, 3, 4, 6, 7]))
-            <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+            <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
         @endif
 
     </ul>
@@ -39,6 +39,86 @@
 
 {{-- MODAL --}}
 <div class="left-align truncate-text">
+    {{-- Modal Info --}}
+    <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-top" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Info Checklist {{ $data->type_checklist }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Audit Result :</span></div>
+                                <span>
+                                    <span>
+                                    @if($data->audit_result == "")
+                                        @php
+                                            $result_audit = "";
+                                        @endphp
+                                        @foreach($grading as $item)
+                                            @if($formattedResult >= $item->bottom && $formattedResult <= $item->top)
+                                                @php
+                                                    $result_audit = $item->result;
+                                                @endphp
+                                            @endif
+                                        @endforeach
+                                        {{$result_audit}}
+                                        @else
+                                        {{$data->audit_result}}
+                                    @endif
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Mandatory item :</span></div>
+                                <span>
+                                    <span>
+                                        @if($data->mandatory_item == "")
+                                            @foreach($data->mandatory as $man)
+                                                @if($man['sgp'] != null)
+                                                    Bronze
+                                                @else
+                                                    @if($man['gp'] != null)
+                                                        Silver
+                                                    @else
+                                                        @if($man['p'] != null)
+                                                            Gold
+                                                        @else
+                                                            Platinum
+                                                        @endif
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        @else
+                                        {{$data->mandatory_item}}
+                                        @endif
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <div><span class="fw-bold">Result Final :</span></div>
+                                <span>
+                                    <span>
+                                        {{$data->result_final}}
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {{-- Modal Start --}}
     <div class="modal fade" id="start{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">

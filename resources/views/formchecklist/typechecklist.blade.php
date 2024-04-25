@@ -110,8 +110,6 @@
                                     <th class="align-middle text-center">Total Point</th>
                                     <th class="align-middle text-center">% Result</th>
                                     <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Result Audit</th>
-                                    <th class="align-middle text-center">Mandatory item</th>
                                     <th class="align-middle text-center">Start Date</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -265,71 +263,6 @@
                             html = '<span class="badge bg-warning text-white">Reviewed</span>';
                         } else if (row.status == 7) {
                             html = '<span class="badge bg-success text-white">Approve</span>';
-                        }
-
-                        return html;
-                    },
-                },
-                {
-                    data: 'audit_result',
-                    orderable: true,
-                    className: 'align-middle text-center',
-                    render: function(data, type, row) {
-                        var html;
-
-                        if (row.audit_result === "" || row.audit_result === null) {
-                            var result_audit = "";
-
-                            var totalPoint = 0;
-                            row.point.forEach(function(point) {
-                                if (point.type_response === 'Exist, Good') {
-                                    totalPoint += point.count * 1;
-                                } else if (point.type_response === 'Exist Not Good') {
-                                    totalPoint += point.count * -1;
-                                } else if (point.type_response === 'Not Exist') {
-                                    totalPoint += point.count * 0;
-                                }
-                            });
-                            var formattedResult = 0;
-                            if (totalPoint !== 0) {
-                                var result = (totalPoint / (row.total_checklist - row.checklist_remaining)) * 100;
-                                formattedResult = result.toFixed(2);
-                            }
-
-                            grading.forEach(function(item) {
-                                if (formattedResult >= item.bottom && formattedResult <= item.top) {
-                                    result_audit = item.result;
-                                }
-                            });
-                            html = result_audit;
-                        } else {
-                            html = row.audit_result;
-                        }
-
-                        return html;
-                    },
-                },
-                {
-                    data: 'mandatory_item',
-                    orderable: true,
-                    className: 'align-middle text-center',
-                    render: function(data, type, row) {
-                        var html = '';
-
-                        if (row.mandatory_item === "" || row.mandatory_item === null) {
-                            row.mandatory.forEach(function(man) {
-                                if (man.sgp != null) {
-                                    html += 'Bronze';
-                                } else if (man.gp != null) {
-                                    html += 'Silver';
-                                } else if (man.p != null) {
-                                    html += 'Gold';
-                                } else {
-                                    html += 'Platinum';
-                                }
-                            });
-                        } else {
-                            html = row.mandatory_item;
                         }
 
                         return html;

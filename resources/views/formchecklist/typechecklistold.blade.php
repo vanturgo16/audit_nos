@@ -248,17 +248,17 @@
                                                     @elseif($data->status == 1)
                                                         <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
                                                     @elseif($data->status == 2)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 3)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 4)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 5)
                                                         <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
                                                     @elseif($data->status == 6)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 7)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @endif
                                                 </ul>
                                             </div>

@@ -607,31 +607,62 @@ class MstFormChecklistController extends Controller
                 // echo $formattedResult;// ini % result
                 // echo $result_audit; //result Audit
 
-                $mandatory = "";
-                foreach($datas->mandatory as $man):
+                $mandator = "";
+                foreach($data_point->mandatory as $man):
                     if($man['sgp'] != null){
-                        $mandatory = "Bronze";
+                        $mandator = "Bronze";
                     }else{
                         if($man['gp'] != null){
-                        $mandatory = "Silver";
+                        $mandator = "Silver";
                             
                         }else{
                             if($man['p'] != null){
-                            $mandatory = "Gold";
+                            $mandator = "Gold";
                                 
                             }else{
-                                $mandatory = "Platinum";
+                                $mandator = "Platinum";
                             }
                         }
                     }
                 endforeach;
+
+                $result = "";
+                if ($result_audit == "Platinum" && $mandator == "Platinum") {
+                    $result = "Platinum";
+                } elseif ($result_audit == "Platinum" && $mandator == "Gold") {
+                    $result = "Gold";
+                } elseif ($result_audit == "Platinum" && $mandator == "Silver") {
+                    $result = "Silver";
+                } elseif ($result_audit == "Platinum" && $mandator == "Bronze") {
+                    $result = "Bronze";
+                } elseif ($result_audit == "Gold" && $mandator == "Platinum") {
+                    $result = "Gold";
+                } elseif ($result_audit == "Gold" && $mandator == "Gold") {
+                    $result = "Gold";
+                } elseif ($result_audit == "Gold" && $mandator == "Silver") {
+                    $result = "Silver";
+                } elseif ($result_audit == "Gold" && $mandator == "Bronze") {
+                    $result = "Bronze";
+                } elseif ($result_audit == "Silver" && $mandator == "Platinum") {
+                    $result = "Silver";
+                } elseif ($result_audit == "Silver" && $mandator == "Gold") {
+                    $result = "Silver";
+                } elseif ($result_audit == "Silver" && $mandator == "Silver") {
+                    $result = "Silver";
+                } elseif ($result_audit == "Silver" && $mandator == "Bronze") {
+                    $result = "Bronze";
+                } else {
+                    $result = "Bronze";
+                }
+                
 
                 ChecklistJaringan::where('id', $data_point->id)->update([
                     'status' => 2,
                     'total_point' => $totalPoint,
                     'result_percentage' => $formattedResult,
                     'audit_result' => $result_audit,
-                    'mandatory_item' => $mandatory
+                    'mandatory_item' => $mandator,
+                    'result_final' => $result
                 ]);
 
             endforeach;
