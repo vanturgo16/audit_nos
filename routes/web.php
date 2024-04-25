@@ -127,8 +127,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/formchecklist/periode/typechecklist/checklistform/{id}', [MstFormChecklistController::class, 'checklistform'])->name('formchecklist.checklistform');
     Route::post('/formchecklist/periode/typechecklist/checklistform/store/{id}', [MstFormChecklistController::class, 'store'])->name('formchecklist.store');
     Route::post('/formchecklist/periode/typechecklist/submitchecklist/{id}', [MstFormChecklistController::class, 'submitchecklist'])->name('formchecklist.submitchecklist');
-
-    
+    Route::get('/checklistform/detail/{id}', [MstAssessorChecklistController::class, 'review'])->name('checklistform.detail');
     
     // Checklist Assessor
     Route::get('/assessor/jaringan', [MstAssessorChecklistController::class, 'listjaringan'])->name('assessor.listjaringan');
@@ -137,8 +136,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('assessor/review/{id}', [MstAssessorChecklistController::class, 'review'])->name('assessor.review');
     Route::post('assessor/submitreview/{id}', [MstAssessorChecklistController::class, 'submitreview'])->name('assessor.submitreview');
     Route::post('assessor/finishreview/{id}', [MstAssessorChecklistController::class, 'finishreview'])->name('assessor.finishreview');
+    Route::post('assessor/closedapproved/{id}', [MstAssessorChecklistController::class, 'closedapproved'])->name('assessor.closedapproved');
     Route::get('assessor/history/{id}', [MstAssessorChecklistController::class, 'history'])->name('assessor.history');
-
 
     //Audit Log
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog');

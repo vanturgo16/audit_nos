@@ -1,30 +1,18 @@
-<div class="btn-group" role="group">
-    <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        Action <i class="mdi mdi-chevron-down"></i>
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
-        @if($data->status == "")
-            <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#start{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
-        @elseif(in_array($data->status, [0, 1, 5]))
-            <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-update"></span> | Check / Update</a></li>
-        @elseif(in_array($data->status, [2, 3, 4, 6, 7]))
-            <li><a class="dropdown-item drpdwn" href="{{ route('checklistform.detail', encrypt($data->id)) }}"><span class="mdi mdi-information"></span> | Detail</a></li>
-            <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#result{{ $data->id }}"><span class="mdi mdi-dns-outline"></span> | All Result</a></li>
-        @endif
-
-    </ul>
-</div>
+@if(in_array($data->status, [0, null]))
+    <span class="badge bg-secondary text-white">Not Yet</span>
+@else
+    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#result{{ $data->id }}">View</button>
+@endif
 
 {{-- MODAL --}}
 <div class="left-align truncate-text">
     {{-- Modal Result --}}
-    @if(in_array($data->status, [2, 3, 4, 6, 7]))
+    @if(!in_array($data->status, [0, null]))
         <div class="modal fade" id="result{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-top" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Info Checklist {{ $data->type_checklist }}</h5>
+                        <h5 class="modal-title" id="staticBackdropLabel">Result {{ $data->type_checklist }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -174,43 +162,4 @@
             </div>
         </div>
     @endif
-    {{-- Modal Start --}}
-    <div class="modal fade" id="start{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-top" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Start</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="{{ route('formchecklist.start', encrypt($data->id)) }}" id="formstart{{ $data->id }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-12 text-center">
-                                <h1><span class="mdi mdi-play-circle" style="color: #FFA500;"></span></h1>
-                                <h5>Start This Checklist?</h5>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light" id="sb{{ $data->id }}"><i class="mdi mdi-play-circle label-icon"></i>Start</button>
-                    </div>
-                </form>
-                <script>
-                    $(document).ready(function() {
-                        let idList = "{{ $data->id }}";
-                        $('#formstart' + idList).submit(function(e) {
-                            if (!$('#formstart' + idList).valid()){
-                                e.preventDefault();
-                            } else {
-                                $('#sb' + idList).attr("disabled", "disabled");
-                                $('#sb' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                            }
-                        });
-                    });
-                </script>
-            </div>
-        </div>
-    </div>
 </div>

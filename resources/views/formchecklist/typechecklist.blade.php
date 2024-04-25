@@ -43,9 +43,11 @@
                                 @elseif($period->status == 3)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
                                 @elseif($period->status == 4)
-                                    <span class="badge bg-success text-white">Closed Approved</span>
+                                    <span class="badge bg-success text-white">Assessor Approved</span>
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
+                                @elseif($period->status == 6)
+                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Closed Approved</span>
                                 @endif
                             </td>
                         </tr>
@@ -143,7 +145,7 @@
                     name: 'type_checklist',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle text-center',
+                    className: 'align-middle text-bold',
                 },
                 {
                     data: 'total_checklist',

@@ -79,7 +79,7 @@
                     <span>{{ $detail->type_checklist }}</span>
                 </td>
                 <td style="border: 1px solid #000; padding: 5px;">
-                    <span>{{ $detail->count }}</span>
+                    <span>{{ $detail->total_checklist }}</span>
                 </td>
             </tr>
             @endforeach

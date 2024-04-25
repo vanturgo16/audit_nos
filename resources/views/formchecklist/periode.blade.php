@@ -88,11 +88,13 @@
                         } else if(row.status == 2){
                             html = '<span class="badge bg-success text-white">Active</span>';
                         } else if(row.status == 3){
-                            html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-warning text-white">Reviewed</span>';
+                            html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>';
                         } else if(row.status == 4){
-                            html = '<span class="badge bg-danger text-white">Closed Approved</span>';
+                            html = '<span class="badge bg-success text-white">Assessor Approved</span>';
                         } else if(row.status == 5){
                             html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>';
+                        } else if(row.status == 6){
+                            html = '<span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Closed Approved</span>';
                         } 
                         return html;
                     },

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChecklistJaringan;
 use App\Models\ChecklistResponse;
 use App\Models\FileInputResponse;
 use App\Models\MstAssignChecklists;
@@ -26,6 +25,7 @@ use App\Models\MstPeriodeChecklists;
 use App\Models\TransFileResponse;
 use App\Models\MstRules;
 use App\Models\User;
+use App\Models\ChecklistJaringan;
 use Carbon\Carbon;
 use DateTime;
 
@@ -172,8 +172,8 @@ class MstFormChecklistController extends Controller
 
         if ($request->ajax()) {
             $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) {
-                return view('formchecklist.action.typechecklist', compact('data'));
+            ->addColumn('action', function ($data) use ($grading) {
+                return view('formchecklist.action.typechecklist', compact('data', 'grading'));
             })
             ->toJson();
 
@@ -655,8 +655,7 @@ class MstFormChecklistController extends Controller
                     $result = "Bronze";
                 }
                 
-
-                ChecklistJaringan::where('id', $data_point->id)->update([
+                ChecklistJaringan::where('id', $data_point->id)->whereNotIn('status', ['6', '7'])->update([
                     'status' => 2,
                     'total_point' => $totalPoint,
                     'result_percentage' => $formattedResult,
@@ -682,13 +681,7 @@ class MstFormChecklistController extends Controller
                 ->first();
             $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
             $periodinfo->count = $count;
-            $checklistdetail = MstAssignChecklists::select('mst_parent_checklists.type_checklist')
-                ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-                ->leftJoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-                ->where('mst_assign_checklists.id_periode_checklist', $id)
-                ->groupBy('mst_parent_checklists.type_checklist')
-                ->selectRaw('mst_parent_checklists.type_checklist, COUNT(*) as count')
-                ->get();
+            $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
             // Recepient Email
             if($development == 1){
                 $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
