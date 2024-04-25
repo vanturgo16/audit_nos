@@ -72,8 +72,6 @@
                                     <th class="align-middle text-center">Total Point</th>
                                     <th class="align-middle text-center">% Result</th>
                                     <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Result Audit</th>
-                                    <th class="align-middle text-center">Mandatory item</th>
                                     <th class="align-middle text-center">Start Date</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -184,45 +182,6 @@
 
                                         </td>
                                         <td class="align-middle text-center">
-                                            @if($data->audit_result == "")
-
-                                                @php
-                                                    $result_audit = "";
-                                                @endphp
-                                                @foreach($grading as $item)
-                                                    @if($formattedResult >= $item->bottom && $formattedResult <= $item->top)
-                                                        @php
-                                                            $result_audit = $item->result;
-                                                        @endphp
-                                                    @endif
-                                                @endforeach
-                                                {{$result_audit}}
-                                            @else
-                                                {{$data->audit_result}}
-                                            @endif
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            @if($data->mandatory_item == "")
-                                                @foreach($data->mandatory as $man)
-                                                    @if($man['sgp'] != null)
-                                                        Bronze
-                                                    @else
-                                                        @if($man['gp'] != null)
-                                                            Silver
-                                                        @else
-                                                            @if($man['p'] != null)
-                                                                Gold
-                                                            @else
-                                                                Platinum
-                                                            @endif
-                                                        @endif
-                                                    @endif
-                                                @endforeach
-                                            @else
-                                            {{$data->mandatory_item}}
-                                            @endif
-                                        </td>
-                                        <td class="align-middle text-center">
                                             @if($data->start_date == null)
                                                 <span class="badge bg-secondary text-white">Not Started</span>
                                             @else
@@ -248,22 +207,101 @@
                                                     @elseif($data->status == 1)
                                                         <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
                                                     @elseif($data->status == 2)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 3)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 4)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 5)
                                                         <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Update</a></li>
                                                     @elseif($data->status == 6)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @elseif($data->status == 7)
-                                                        <li><a class="dropdown-item drpdwn" href="#"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
+                                                        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#info{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Detail</a></li>
                                                     @endif
                                                 </ul>
                                             </div>
                                         </td>
                                     </tr>
+                                    {{-- Modal Detail --}}
+                                    <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="staticBackdropLabel">Info Checklist : {{ $data->type_checklist }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row">
+                                                        <div class="col-lg-4 mb-3">
+                                                            <div class="form-group">
+                                                                <div><span class="fw-bold">Result Audit :</span></div>
+                                                                <span>
+                                                                    <span>
+                                                                        @if($data->audit_result == "")
+                                                                            @php
+                                                                                $result_audit = "";
+                                                                            @endphp
+                                                                            @foreach($grading as $item)
+                                                                                @if($formattedResult >= $item->bottom && $formattedResult <= $item->top)
+                                                                                    @php
+                                                                                        $result_audit = $item->result;
+                                                                                    @endphp
+                                                                                @endif
+                                                                            @endforeach
+                                                                            {{$result_audit}}
+                                                                        @else
+                                                                        {{$data->audit_result}}
+                                                                        @endif
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4 mb-3">
+                                                            <div class="form-group">
+                                                                <div><span class="fw-bold">Mandaroty item :</span></div>
+                                                                <span>
+                                                                    <span>
+                                                                        @if($data->mandatory_item == "")
+                                                                            @foreach($data->mandatory as $man)
+                                                                                @if($man['sgp'] != null)
+                                                                                    Bronze
+                                                                                @else
+                                                                                    @if($man['gp'] != null)
+                                                                                        Silver
+                                                                                    @else
+                                                                                        @if($man['p'] != null)
+                                                                                            Gold
+                                                                                        @else
+                                                                                            Platinum
+                                                                                        @endif
+                                                                                    @endif
+                                                                                @endif
+                                                                            @endforeach
+                                                                        @else
+                                                                        {{$data->mandatory_item}}
+                                                                        @endif
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4 mb-3">
+                                                            <div class="form-group">
+                                                                <div><span class="fw-bold">Result Final :</span></div>
+                                                                <span>
+                                                                    <span>{{ $data->result_final }}</span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     {{-- Modal Start --}}
                                     <div class="modal fade" id="start{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-top" role="document">
