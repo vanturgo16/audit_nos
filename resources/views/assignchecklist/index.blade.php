@@ -87,10 +87,11 @@
                                             @csrf
                                             <div class="modal-body">
                                                 <div class="row">
-                                                    <p>
-                                                        Start submit this checklist? 
-                                                        (You are not longer to edit this checklist!)
-                                                    </p>
+                                                    <div class="col-12 text-center">
+                                                        <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
+                                                        <h5>Start Submit This Assign Checklist?</h5>
+                                                        <p>(You are no longer to edit next!)</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -141,15 +142,7 @@
             processing: true,
             serverSide: true,
             ajax: '{!! route('assignchecklist.index', encrypt($period->id)) !!}',
-            // ajax: {
-            //     url: '{!! route('assignchecklist.index', encrypt($period->id)) !!}',
-            //     success: function(data) {
-            //         console.log(data);
-            //         return data;
-            //     }
-            // },
             columns: [{
-                
                 data: null,
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;

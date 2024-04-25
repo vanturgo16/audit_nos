@@ -23,12 +23,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <!-- <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Jaringan</button> -->
-                    </div>
                     <div class="card-body">
-
-                        <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
+                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
@@ -37,37 +33,53 @@
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php $no = 0;?> 
-                                @foreach ($datas as $data)
-                                <?php $no++ ;?>
-                                    <tr>
-                                        <td class="align-middle text-center">{{ $no }}</td>
-                                        <td class="align-middle text-center"><b>{{ $data->dealer_name }}</b></td>
-                                        <td class="align-middle text-center"><b>{{ $data->type }}</b></td>
-                                        <td class="align-middle text-center">
-                                            <div class="btn-group" role="group">
-                                                <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                    Action <i class="mdi mdi-chevron-down"></i>
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
-                                                    <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.periode', encrypt($data->id)) }}"><span class="mdi mdi-check-underline-circle"></span> | Period checklist</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
-
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
+<script>
+    $(function() {
+        $('#server-side-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{!! route('formchecklist.index') !!}',
+            columns: [{
+                data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    },
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },
+                {
+                    data: 'dealer_name',
+                    name: 'dealer_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center text-bold',
+                },
+                {
+                    data: 'type',
+                    name: 'type',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center',
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },
+            ],
+        });
+    });
+</script>
 
 @endsection

@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SubmitChecklist extends Mailable
+class SubmitAssignChecklist extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -27,9 +27,9 @@ class SubmitChecklist extends Mailable
     public function build()
     {
         //SUBJECT NAME
-        $subject = "[SUBMIT RESPONSE CHECKLIST - INTERNAL AUDITOR]";
+        $subject = "[SUBMIT ASSIGN CHECKLIST - ASSESSOR]";
 
-        $email = $this->view('mail.submitResponseChecklist')->subject($subject);
+        $email = $this->view('mail.submitAssignChecklist')->subject($subject);
 
         return $email;
     }
