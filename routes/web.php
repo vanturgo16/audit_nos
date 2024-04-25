@@ -102,7 +102,7 @@ Route::middleware(['auth'])->group(function () {
 
     
     //Period Checklist
-    Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index')->middleware('role:Super Admin');
+    Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
     Route::post('periodchecklist/create', [MstPeriodChecklistController::class, 'store'])->name('periodchecklist.store');
     Route::post('periodchecklist/update/{id}', [MstPeriodChecklistController::class, 'update'])->name('periodchecklist.update');
     Route::post('periodchecklist/activate/{id}', [MstPeriodChecklistController::class, 'activate'])->name('periodchecklist.activate');
