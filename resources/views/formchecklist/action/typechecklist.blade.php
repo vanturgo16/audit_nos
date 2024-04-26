@@ -9,7 +9,11 @@
         </button>
         <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
             @if($data->status == "")
-                <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#start{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
+                @if($today >= $startdate)
+                    <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#start{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
+                @else
+                    <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#notyetstart{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
+                @endif
             @elseif(in_array($data->status, [0, 1, 5]))
                 <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-update"></span> | Check / Update</a></li>
             @elseif(in_array($data->status, [2, 3, 4, 6, 7]))
@@ -213,6 +217,29 @@
                             });
                         });
                     </script>
+                </div>
+            </div>
+        </div>
+        {{-- Modal Not Yet Start --}}
+        <div class="modal fade" id="notyetstart{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-top" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Start</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <h1><span class="mdi mdi-information" style="color: #FFA500;"></span></h1>
+                                <h5>Checklist Filling Period Hasn't Started Yet</h5>
+                                <p>Will Be Able To Start On Date <b><u>{{ $startdate }}</u></b> Onwards</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>

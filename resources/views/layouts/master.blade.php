@@ -69,6 +69,17 @@
                     <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
                         <i class="fa fa-fw fa-bars"></i>
                     </button>
+
+                    <!-- Role-->
+                    @if(Auth::check() && Auth::user()->role == null)
+                        // Code to destroy authentication session
+                        <?php Auth::logout(); ?>
+                    @endif
+                    <form class="app-search d-none d-lg-block">
+                        <div class="position-relative">
+                            <h3><span class="badge bg-info text-white">{{ Auth::user()->role }}</span></h3>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="d-flex">

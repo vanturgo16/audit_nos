@@ -14,54 +14,36 @@ use App\Models\MstRules;
 use App\Models\User;
 
 // Mail 
-use App\Mail\ReminderExpiredPeriod;
+use App\Mail\ReminderSubmitPeriod;
 
-class PeriodAuditCommand extends Command
+class ReminderSubmitPeriodCommand extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    // protected $signature = 'app:period-audit-command';
-    protected $signature = 'period:start';
+    protected $signature = 'ReminderSubmitPeriodCommand';
+    protected $description = 'Reminder Submit Period Checklist';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Start Period Checklist';
-
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         $today = Carbon::today();
+        $formattedDate = $today->format('Y-m-d');
 
         DB::beginTransaction();
         try{
-            // Get Period EndDate Today
-            $periodexpired = MstPeriodeChecklists::select('mst_periode_checklists.*')
-                ->where('is_active', '1')
-                ->where('status', '1')
-                ->where('end_date', '<=', $today)
+            // Get Period StartDate Today
+            $remindsubmit = MstPeriodeChecklists::select('mst_periode_checklists.*')
+                ->where('is_active', '0')
+                ->where('start_date', $formattedDate)
                 ->get();
 
-            foreach($periodexpired as $expired){
-                // Update is_active Period to Expired (3)
-                MstPeriodeChecklists::where('id', $expired->id)->update(['status' => null]);
-
-                // Send Email Reminder To Assessor
+            foreach($remindsubmit as $submit){
+                // Send Email Reminder Submit To Assessor
                 // [ MAILING ]
                 // Initiate Variable
                 $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
                 $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
                     ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                    ->where('mst_periode_checklists.id', $expired->id)
+                    ->where('mst_periode_checklists.id', $submit->id)
                     ->first();
-                $count = MstAssignChecklists::where('id_periode_checklist', $expired->id)->count();
+                $count = MstAssignChecklists::where('id_periode_checklist', $submit->id)->count();
                 $periodinfo->count = $count;
                 // Recepient Email
                 if($development == 1){
@@ -70,7 +52,7 @@ class PeriodAuditCommand extends Command
                     $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
                 }
                 // Mail Content
-                $mailInstance = new ReminderExpiredPeriod($periodinfo);
+                $mailInstance = new ReminderSubmitPeriod($periodinfo);
                 // Send Email
                 Mail::to($toemail)->send($mailInstance);
             }

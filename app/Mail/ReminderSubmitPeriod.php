@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class ReminderExpiredPeriod extends Mailable
+class ReminderSubmitPeriod extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -23,9 +23,9 @@ class ReminderExpiredPeriod extends Mailable
     public function build()
     {
         //SUBJECT NAME
-        $subject = "[REMINDER EXPIRED PERIOD - SYSTEM AUDIT NOS]";
+        $subject = "[REMINDER SUBMIT PERIOD - SYSTEM AUDIT NOS]";
 
-        $email = $this->view('mail.reminderExpiredPeriod')->subject($subject);
+        $email = $this->view('mail.reminderSubmitPeriod')->subject($subject);
 
         return $email;
     }

@@ -2,8 +2,9 @@
 <html>
 <body>
     <span>
-        Dear Assessor Team,
-        <br> Please Kindly Give Action For This Expired Period Checklist as below details
+        Dear Internal Auditor Team,
+        <br> The Checklist That Has Been Assigned To You Has <b>Expired</b>
+        <br> Detail Period Checklist as below details
         <br>
         <br>
 
@@ -61,6 +62,8 @@
                 </td>
             </tr>
         </table>
+
+        <br> Please Contact Your Assessor For The Further
         
         <br>
         <br> [Dashboard AUDIT NOS] <br>

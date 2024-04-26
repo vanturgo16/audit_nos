@@ -169,13 +169,16 @@ class MstFormChecklistController extends Controller
         // dd($datas);
 
         $grading = MstGrading::all();
-
         $statusperiod = $period->status;
+
+        $today = Carbon::today();
+        $today = $today->format('Y-m-d');
+        $startdate = $period->start_date;
 
         if ($request->ajax()) {
             $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) use ($grading, $statusperiod) {
-                return view('formchecklist.action.typechecklist', compact('data', 'grading', 'statusperiod'));
+            ->addColumn('action', function ($data) use ($grading, $statusperiod, $today, $startdate) {
+                return view('formchecklist.action.typechecklist', compact('data', 'grading', 'statusperiod', 'today', 'startdate'));
             })
             ->toJson();
 

@@ -71,30 +71,34 @@ class MstPeriodChecklistController extends Controller
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
         }
 
+        $start_date = Carbon::parse($request->start_date);
         $end_date = Carbon::parse($request->end_date);
         $today = Carbon::today();
 
+        if ($end_date < $start_date) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Start Date Must Be Earlier Than End Date']);
+        } 
+        if ($start_date < $today) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill Start Date Less as Today']);
+        } 
         if ($end_date <= $today) {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
         } 
 
         DB::beginTransaction();
         try{
-
             // kita buat dulu periodenya
             $newPeriode = MstPeriodeChecklists::create([
-                            'period' => $request->period,
-                            'id_branch' => $request->id_branch,
-                            'start_date' => $request->start_date,
-                            'end_date' => $request->end_date,
-                            'is_active' => '0',
-                            'status' => '0'
-                        ]);
+                'period' => $request->period,
+                'id_branch' => $request->id_branch,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'is_active' => '0',
+                'status' => '0'
+            ]);
             $IdPeriod = $newPeriode->id;
-
             //lalu kita dapatkan type jaringannya untuk assign checklist
             $branchs = MstJaringan::where('id', $request->id_branch)->first()->type;
-
             //setelah type jaringan didapatkan, kita lakukan pengecekan ke Mapping Checklist
             // dapatkan id_parent
             $mapcheck = MstMapChecklists::select('id_parent_checklist')
@@ -102,26 +106,20 @@ class MstPeriodChecklistController extends Controller
             
             // id_parent didapatkan , lakukan perulangan untuk mendapatkan id_checklist
             foreach($mapcheck as $map){
-
                 // echo 'id_parent : '.$map['id_parent_checklist'].'<br>';
                 $checklist = MstChecklists::select('id')
                 ->where('id_parent_checklist', $map['id_parent_checklist'])->get();
-
                 $no = 1;
                 //id_checklist didapatkan
                 foreach($checklist as $check){
-
                     // echo 'id_checklist'.$no++.' : '.$check['id'].'<br>';
                     //create assign dengan id_checklist yang didapat
                     MstAssignChecklists::create([
                         'id_periode_checklist' => $IdPeriod,
                         'id_mst_checklist' => $check['id']
                     ]);
-
                 }
-                
                 $no = 1;
-    
             }
             
             //Audit Log
@@ -134,41 +132,6 @@ class MstPeriodChecklistController extends Controller
             return redirect()->back()->with(['fail' => 'Failed to Create New Period Checklist!']);
         }
     }
-    // public function store(Request $request)
-    // {
-    //     // dd($request->all());
-    //     $validate = Validator::make($request->all(),[
-    //         'period' => 'required',
-    //         'id_branch' => 'required',
-    //         'start_date' => 'required',
-    //         'end_date' => 'required'
-    //     ]);
-    //     if($validate->fails()){
-    //         return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
-    //     }
-
-    //     DB::beginTransaction();
-    //     try{
-            
-    //         MstPeriodeChecklists::create([
-    //             'period' => $request->period,
-    //             'id_branch' => $request->id_branch,
-    //             'start_date' => $request->start_date,
-    //             'end_date' => $request->end_date,
-    //             'is_active' => '0',
-    //             'status' => '0'
-    //         ]);
-
-    //         //Audit Log
-    //         $this->auditLogsShort('Create New Period Checklist');
-
-    //         DB::commit();
-    //         return redirect()->back()->with(['success' => 'Success Create New Period Checklist']);
-    //     } catch (Exception $e) {
-    //         DB::rollback();
-    //         return redirect()->back()->with(['fail' => 'Failed to Create New Period Checklist!']);
-    //     }
-    // }
 
     public function update(Request $request, $id)
     {
@@ -184,6 +147,20 @@ class MstPeriodChecklistController extends Controller
         ]);
         if($validate->fails()){
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
+
+        $start_date = Carbon::parse($request->start_date);
+        $end_date = Carbon::parse($request->end_date);
+        $today = Carbon::today();
+
+        if ($end_date < $start_date) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Start Date Must Be Earlier Than End Date']);
+        } 
+        if ($start_date < $today) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill Start Date Less as Today']);
+        } 
+        if ($end_date <= $today) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
         }
 
         $databefore = MstPeriodeChecklists::where('id', $id)->first();

@@ -17,10 +17,17 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('period:start')->dailyAt('00:01');
 
-        $schedule->command('period:start')
+        $schedule->command('AlertExpiredPeriodCommand')
             ->timezone('Asia/Jakarta')
             ->dailyAt('08:00');
-            // ->sendOutputTo("storage/logs_cron/LogPeriodAuditExpired_".$now.".txt");
+            // ->everyMinute();
+            // ->sendOutputTo("storage/logs/LogAlertExpired_".$now.".txt");
+
+        $schedule->command('ReminderSubmitPeriodCommand')
+            ->timezone('Asia/Jakarta')
+            ->dailyAt('08:00');
+            // ->everyMinute()
+            // ->sendOutputTo("storage/logs/LogReminderSubmit_".$now.".txt");
     }
 
     /**

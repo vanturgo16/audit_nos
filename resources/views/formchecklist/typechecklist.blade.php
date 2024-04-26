@@ -37,7 +37,7 @@
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">:
                                 @if($period->status == 0)
-                                    <span class="badge bg-warning text-white">Expired</span>
+                                    <span class="badge bg-warning text-white">Expired</span> - Contact Your Assessor
                                 @elseif($period->status == 1)
                                     <span class="badge bg-success text-white">Active</span>
                                 @elseif($period->status == 2)
