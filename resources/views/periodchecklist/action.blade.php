@@ -8,21 +8,21 @@
         @if($data->is_active == 0)
         <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#update{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit</a></li>
         @endif
+        @if($data->status == null)
+        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#updateexpired{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit Expired</a></li>
+        @endif
         <li>
             <a class="dropdown-item drpdwn" href="{{ route('assignchecklist.index', encrypt($data->id)) }}">
                 <span class="mdi mdi-check-underline-circle"></span> | 
-                @if(in_array($data->status, [null, 0]))
+                @if($data->status == null)
+                    Detail Checklist
+                @elseif($data->status == 0)
                     Assign Checklist
                 @else
                     Detail Checklist
                 @endif
             </a>
         </li>
-        <!-- @if($data->is_active == 0)
-            <li><a class="dropdown-item drpdwn-scs" href="#" data-bs-toggle="modal" data-bs-target="#activate{{ $data->id }}"><span class="mdi mdi-check-circle"></span> | Activate</a></li>
-        @else
-            <li><a class="dropdown-item drpdwn-dgr" href="#" data-bs-toggle="modal" data-bs-target="#deactivate{{ $data->id }}"><span class="mdi mdi-close-circle"></span> | Deactivate</a></li>
-        @endif -->
     </ul>
 </div>
 
@@ -42,10 +42,14 @@
                             <div class="form-group">
                                 <div><span class="fw-bold">Status :</span></div>
                                 <span>
-                                    @if($data->is_active == 1)
-                                        <span class="badge bg-success text-white">Active</span>
+                                    @if($data->status == null)
+                                        <span class="badge bg-warning text-white">Expired</span>
                                     @else
-                                        <span class="badge bg-danger text-white">Inactive</span>
+                                        @if($data->is_active == 1)
+                                            <span class="badge bg-success text-white">Active</span>
+                                        @else
+                                            <span class="badge bg-danger text-white">Inactive</span>
+                                        @endif
                                     @endif
                                 </span>
                             </div>
@@ -76,7 +80,7 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <div><span class="fw-bold">Period Checklist :</span></div>
+                                <div><span class="fw-bold">End Date :</span></div>
                                 <span>
                                     <span>{{ $data->end_date }}</span>
                                 </span>
@@ -164,8 +168,81 @@
         </div>
     </div>
 
+    {{-- Modal Update Expired --}}
+    <div class="modal fade" id="updateexpired{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-top" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Update After Expired</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('periodchecklist.updateexpired', encrypt($data->id)) }}" id="formeditexpired{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Period Checklist :</span></div>
+                                    <span>
+                                        <span>{{ $data->period }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Branch Name :</span></div>
+                                    <span>
+                                        <span>{{ $data->dealer_name }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Start Date :</span></div>
+                                    <span>
+                                        <span>{{ $data->start_date }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-3">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">End Date :</span></div>
+                                    <span>
+                                        <span>{{ $data->end_date }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Update End Date</label><label style="color: darkred">*</label>
+                                <input class="form-control" name="end_date" type="date" value="{{ $data->end_date }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-updateexpired{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Update</button>
+                    </div>
+                </form>
+                <script>
+                    $(document).ready(function() {
+                        let idList = "{{ $data->id }}";
+                        $('#formeditexpired' + idList).submit(function(e) {
+                            if (!$('#formeditexpired' + idList).valid()){
+                                e.preventDefault();
+                            } else {
+                                $('#sb-updateexpired' + idList).attr("disabled", "disabled");
+                                $('#sb-updateexpired' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+
     {{-- Modal Activate --}}
-    <div class="modal fade" id="activate{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    {{-- <div class="modal fade" id="activate{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -199,10 +276,10 @@
                 </script>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Modal Deactivate --}}
-    <div class="modal fade" id="deactivate{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    {{-- <div class="modal fade" id="deactivate{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -236,6 +313,6 @@
                 </script>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 

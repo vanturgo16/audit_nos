@@ -37,7 +37,9 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">: 
-                                @if($period->status == 1)
+                                @if($period->status == null)
+                                    <span class="badge bg-warning text-white">Expired</span>
+                                @elseif($period->status == 1)
                                     <span class="badge bg-success text-white">Active</span>
                                 @elseif($period->status == 2)
                                     <span class="badge bg-success text-white">Active</span>

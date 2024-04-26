@@ -10,11 +10,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 // Model
 use App\Models\MstPeriodeChecklists;
 use App\Models\MstJaringan;
 use App\Models\MstMapChecklists;
+use App\Models\ChecklistJaringan;
+use App\Models\MstRules;
+
+// Mail
+use App\Mail\UpdateExpired;
 
 class MstPeriodChecklistController extends Controller
 {
@@ -63,6 +70,13 @@ class MstPeriodChecklistController extends Controller
         if($validate->fails()){
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
         }
+
+        $end_date = Carbon::parse($request->end_date);
+        $today = Carbon::today();
+
+        if ($end_date <= $today) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
+        } 
 
         DB::beginTransaction();
         try{
@@ -199,6 +213,72 @@ class MstPeriodChecklistController extends Controller
             }
         } else {
             return redirect()->back()->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
+        }
+    }
+
+    public function updateexpired(Request $request, $id)
+    {
+        // dd($request->all());
+
+        $id = decrypt($id);
+
+        $validate = Validator::make($request->all(),[
+            'end_date' => 'required'
+        ]);
+        if($validate->fails()){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        }
+
+        $end_date = Carbon::parse($request->end_date);
+        $today = Carbon::today();
+
+        if ($end_date <= $today) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
+        } 
+
+        DB::beginTransaction();
+        try{
+            MstPeriodeChecklists::where('id', $id)->update([
+                'end_date' => $request->end_date,
+                'status' => 1,
+            ]);
+
+            // [ MAILING ]
+            // Initiate Variable
+            $emailsubmitter = auth()->user()->email;
+            $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
+            $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->where('mst_periode_checklists.id', $id)
+                ->first();
+            $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
+            $periodinfo->count = $count;
+            $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
+            // Recepient Email
+            if($development == 1){
+                $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
+                $ccemail = null;
+            } else {
+                $toemail = MstPeriodeChecklists::leftJoin('mst_employees', 'mst_periode_checklists.id_branch', 'mst_employees.id_dealer')
+                    ->leftJoin('users', 'mst_employees.email', 'users.email')
+                    ->where('mst_periode_checklists.id', $id)
+                    ->where('users.role', 'Internal Auditor Dealer')
+                    ->pluck('mst_employees.email')->toArray();
+                $ccemail = $emailsubmitter;
+            }
+            // Mail Content
+            $mailInstance = new UpdateExpired($periodinfo, $checklistdetail, $emailsubmitter);
+            // Send Email
+            Mail::to($toemail)->cc($ccemail)->send($mailInstance);
+
+            //Audit Log
+            $this->auditLogsShort('Update Expired Period Checklist ID:'.$id);
+
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Success Update Expired Period Checklist']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Failed to Update Expired Period Checklist!']);
         }
     }
 

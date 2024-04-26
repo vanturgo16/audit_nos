@@ -170,10 +170,12 @@ class MstFormChecklistController extends Controller
 
         $grading = MstGrading::all();
 
+        $statusperiod = $period->status;
+
         if ($request->ajax()) {
             $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) use ($grading) {
-                return view('formchecklist.action.typechecklist', compact('data', 'grading'));
+            ->addColumn('action', function ($data) use ($grading, $statusperiod) {
+                return view('formchecklist.action.typechecklist', compact('data', 'grading', 'statusperiod'));
             })
             ->toJson();
 

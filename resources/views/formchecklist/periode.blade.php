@@ -8,13 +8,16 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0 font-size-18">Form Checklist Jaringan ({{$jaringan}})</h4>
-                    <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('formchecklist.index') }}"
-                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
-                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
-                            Back
-                        </a>
-                    </div>
+                    @if(Auth::user()->role == 'Internal Auditor Dealer')
+                    @else
+                        <div class="page-title-right">
+                            <a id="backButton" type="button" href="{{ route('formchecklist.index') }}"
+                                class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                                <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                                Back
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -83,7 +86,9 @@
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
                         var html
-                        if(row.status == 1){
+                        if(row.status == null){
+                            html = '<span class="badge bg-warning text-white">Expired</span>';
+                        } else if(row.status == 1){
                             html = '<span class="badge bg-success text-white">Active</span>';
                         } else if(row.status == 2){
                             html = '<span class="badge bg-success text-white">Active</span>';

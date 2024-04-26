@@ -106,7 +106,9 @@
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
                         var html
-                        if(row.status == 0){
+                        if(row.status == null){
+                            html = '<span class="badge bg-warning text-white">Expired</span>';
+                        } else if(row.status == 0){
                             html = '<span class="badge bg-danger text-white">Inactive</span>';
                         } else if(row.status == 1){
                             html = '<span class="badge bg-success text-white">Active</span>';
