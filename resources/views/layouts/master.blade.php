@@ -212,7 +212,7 @@
                             </li> --}}
                             <li>
                                 <a href="{{ route('formchecklist.index') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-file-check"></i>
                                     <span>Form Checklist</span>
                                 </a>
                             </li>
@@ -369,7 +369,7 @@
                             </li>
                             <li>
                                 <a href="{{ route('assessor.listjaringan') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-clipboard-check"></i>
                                     <span>Result Checklist</span>
                                 </a>
                             </li>
@@ -390,7 +390,7 @@
                             <li class="menu-title" data-key="t-menu">PIC MD Menu</li>
                             <li>
                                 <a href="{{ route('assessor.listjaringan') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-clipboard-check"></i>
                                     <span>Result Checklist</span>
                                 </a>
                             </li>
@@ -411,7 +411,7 @@
                             <li class="menu-title" data-key="t-menu">Auditor Menu</li>
                             <li>
                                 <a href="{{ route('formchecklist.auditor') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-file-check"></i>
                                     <span>Form Checklist</span>
                                 </a>
                             </li>

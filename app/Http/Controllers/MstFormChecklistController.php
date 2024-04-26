@@ -261,6 +261,22 @@ class MstFormChecklistController extends Controller
         ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
         ->groupBy('mst_parent_checklists.parent_point_checklist')
         ->get();
+
+        foreach ($point as $poin){
+            $path_guide = MstAssignChecklists::select(
+                'mst_parent_checklists.path_guide_premises'
+            )
+            ->Join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->Join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->Join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->Join('checklist_jaringan', 'mst_periode_checklists.id', 'checklist_jaringan.id_periode')
+            ->where('checklist_jaringan.id', $id)
+            ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
+            ->where('mst_parent_checklists.parent_point_checklist', $poin->parent_point)
+            ->first()->path_guide_premises;
+
+            $poin->path_guide = $path_guide;
+        }
         // dd($point);
 
         $period = MstPeriodeChecklists::where('id', $id_period)->first()->period;

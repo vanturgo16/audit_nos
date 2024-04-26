@@ -55,5 +55,5 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    max-width: calc(5ch + 1em);
+    max-width: calc(6ch + 1em);
 }
