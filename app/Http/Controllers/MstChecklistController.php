@@ -46,7 +46,7 @@ class MstChecklistController extends Controller
             'mandatory_silver' => 'required',
             'mandatory_gold' => 'required',
             'mandatory_platinum' => 'required',
-            'upload_file' => 'required'
+            // 'upload_file' => 'required'
         ]);
 
         if($request->parent_point_checklist == "AddParent"){
@@ -113,7 +113,8 @@ class MstChecklistController extends Controller
                 'mandatory_silver' => $request->mandatory_silver,
                 'mandatory_gold' => $request->mandatory_gold,
                 'mandatory_platinum' => $request->mandatory_platinum,
-                'upload_file' => $request->upload_file
+                // 'upload_file' => $request->upload_file
+                'upload_file' => 0
             ]);
 
             //Audit Log
@@ -144,7 +145,7 @@ class MstChecklistController extends Controller
             'mandatory_silver' => 'required',
             'mandatory_gold' => 'required',
             'mandatory_platinum' => 'required',
-            'upload_file' => 'required'
+            // 'upload_file' => 'required'
         ]);
 
 
@@ -156,7 +157,7 @@ class MstChecklistController extends Controller
         $databefore->mandatory_silver = $request->mandatory_silver;
         $databefore->mandatory_gold = $request->mandatory_gold;
         $databefore->mandatory_platinum = $request->mandatory_platinum;
-        $databefore->upload_file = $request->upload_file;
+        // $databefore->upload_file = $request->upload_file;
 
         if($databefore->isDirty()){
             DB::beginTransaction();
@@ -169,7 +170,8 @@ class MstChecklistController extends Controller
                     'mandatory_silver' => $request->mandatory_silver,
                     'mandatory_gold' => $request->mandatory_gold,
                     'mandatory_platinum' => $request->mandatory_platinum,
-                    'upload_file' => $request->upload_file
+                    // 'upload_file' => $request->upload_file
+                    'upload_file' => 0
                 ]);
 
                 //Audit Log

@@ -16,6 +16,7 @@
                 @endif
             @elseif(in_array($data->status, [0, 1, 5]))
                 <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-update"></span> | Check / Update</a></li>
+                <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#result{{ $data->id }}"><span class="mdi mdi-dns-outline"></span> | All Result</a></li>
             @elseif(in_array($data->status, [2, 3, 4, 6, 7]))
                 <li><a class="dropdown-item drpdwn" href="{{ route('checklistform.detail', encrypt($data->id)) }}"><span class="mdi mdi-information"></span> | Detail</a></li>
                 <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#result{{ $data->id }}"><span class="mdi mdi-dns-outline"></span> | All Result</a></li>
@@ -26,7 +27,7 @@
     {{-- MODAL --}}
     <div class="left-align truncate-text">
         {{-- Modal Result --}}
-        @if(in_array($data->status, [2, 3, 4, 6, 7]))
+        @if(in_array($data->status, [1, 2, 3, 4, 5, 6, 7]))
             <div class="modal fade" id="result{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-top" role="document">
                     <div class="modal-content">
@@ -66,7 +67,42 @@
                                         <div><span class="fw-bold">Persentase Result (%) :</span></div>
                                         <span>
                                             <span>
-                                            {{ $data->result_percentage.' %' }}
+                                                @if($data->result_percentage == "")
+                                                    @php
+                                                        $totalPoint = 0;
+                                                    @endphp
+
+                                                    @foreach($data->point as $point)
+                                                        @if($point['type_response'] == 'Exist, Good')
+                                                            @php
+                                                                $totalPoint += $point['count'] * 1;
+                                                            @endphp
+                                                        @elseif($point['type_response'] == 'Exist Not Good')
+                                                            @php
+                                                                $totalPoint += $point['count'] * -1;
+                                                            @endphp
+                                                        @elseif($point['type_response'] == 'Not Exist')
+                                                            @php
+                                                                $totalPoint += $point['count'] * 0;
+                                                            @endphp
+                                                        @endif
+                                                    @endforeach
+                                                    @if($totalPoint != 0)
+                                                        @php
+                                                            $result = ($totalPoint / ($data->total_checklist - $data->checklist_remaining)) * 100;
+                                                            $formattedResult = number_format((float)$result, 2, '.', '');
+                                                        @endphp
+                                                    @else
+                                                        @php
+                                                            $formattedResult = 0;
+                                                        @endphp
+                                                    @endif
+                                                    <!-- Total Point: {{ $totalPoint }} -->
+                                                    <!-- Result:  -->
+                                                    {{ $formattedResult }} %
+                                                @else
+                                                    {{$data->result_percentage}} %
+                                                @endif
                                             </span>
                                         </span>
                                     </div>
@@ -108,7 +144,7 @@
                                                 @endif
                                                 <!-- Total Point: {{ $totalPoint }} -->
                                                 <!-- Result:  -->
-                                                {{ $formattedResult }} %
+                                                {{-- {{ $formattedResult }} % --}}
                                             @else
                                                 @php
                                                     $formattedResult = 0;

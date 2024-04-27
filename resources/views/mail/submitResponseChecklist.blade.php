@@ -3,7 +3,7 @@
 <body>
     <span>
         Dear Assessor Team,
-        <br> We Would Like to Inform you that We Already Answer Checklist Audit.
+        <br> We Would Like to Inform you that We Already Finish Submitted Checklist Audit.
         <br> Please Kindly Review For Checklist as below details
         <br>
         <br>

@@ -43,7 +43,7 @@
                                 @elseif($period->status == 3)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
                                 @elseif($period->status == 4)
-                                    <span class="badge bg-success text-white">Closed Approved</span>
+                                    <span class="badge bg-success text-white">Approved</span>
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                 @endif

@@ -49,7 +49,7 @@
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                 @elseif($period->status == 6)
-                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Closed Approved</span>
+                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
                                 @endif
                             </td>
                         </tr>

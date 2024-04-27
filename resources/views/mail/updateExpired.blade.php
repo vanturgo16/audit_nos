@@ -3,7 +3,7 @@
 <body>
     <span>
         Dear Internal Auditor Team,
-        <br> We Would Like to Inform you that We Already Update Period in Expired Checklist.
+        <br> We Would Like to Inform you that We Have Already Extend Period in This Checklist.
         <br> Please Kindly Give Action For Checklist as below details
         <br>
         <br>

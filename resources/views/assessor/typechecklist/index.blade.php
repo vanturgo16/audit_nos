@@ -50,7 +50,7 @@
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
                                 @elseif($period->status == 6)
-                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Closed Approved</span>
+                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
                                 @endif
                             </td>
                         </tr>
@@ -70,51 +70,6 @@
 
             <div class="col-12">
                 <div class="card">
-                    {{-- Closed Approved --}}
-                    @if($period->status == 4 && in_array(Auth::user()->role, ['Super Admin', 'PIC NOS MD']))
-                    <div class="card-header d-flex justify-content-end">
-                        <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#closedapproved"><i class="mdi mdi-check-bold label-icon"></i> Closed Approve</button>
-                        {{-- Modal Closed Approved --}}
-                        <div class="modal fade" id="closedapproved" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-top" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">Closed Approved This Period Checklist</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form action="{{ route('assessor.closedapproved', encrypt($period->id)) }}" id="formclosed" method="POST">
-                                        @csrf
-                                        <div class="modal-body">
-                                            <div class="row mt-2 mb-2">
-                                                <h5 class="text-center">
-                                                    <b>Are You Sure To Closed Approved This Period Checklist?</b>
-                                                    <textarea class="form-control mt-4" name="note" placeholder="Note (Optional)..." rows="3"></textarea>
-                                                </h5>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sbclosed"><i class="mdi mdi-check-bold label-icon"></i>Closed</button>
-                                        </div>
-                                    </form>
-                                    <script>
-                                        document.getElementById('formclosed').addEventListener('submit', function(event) {
-                                            if (!this.checkValidity()) {
-                                                event.preventDefault(); // Prevent form submission if it's not valid
-                                                return false;
-                                            }
-                                            var submitButton = this.querySelector('button[name="sbclosed"]');
-                                            submitButton.disabled = true;
-                                            submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                            return true; // Allow form submission
-                                        });
-                                    </script>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-
                     @if($check == 0 && in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer']))
                     <div class="card-header d-flex justify-content-end">
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Finish Review</button>

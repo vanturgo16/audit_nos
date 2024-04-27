@@ -9,7 +9,7 @@
         <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#update{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit</a></li>
         @endif
         @if($data->status == null)
-        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#updateexpired{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit Expired</a></li>
+        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#updateexpired{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Extend Period</a></li>
         @endif
         <li>
             <a class="dropdown-item drpdwn" href="{{ route('assignchecklist.index', encrypt($data->id)) }}">
@@ -173,7 +173,7 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Update After Expired</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Extend Period</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('periodchecklist.updateexpired', encrypt($data->id)) }}" id="formeditexpired{{ $data->id }}" method="POST" enctype="multipart/form-data">

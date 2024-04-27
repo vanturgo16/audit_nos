@@ -277,7 +277,7 @@ class MstFormChecklistController extends Controller
 
             $poin->path_guide = $path_guide;
         }
-        // dd($point);
+        // dd($point, $datas);
 
         $period = MstPeriodeChecklists::where('id', $id_period)->first()->period;
 
