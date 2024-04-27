@@ -7,13 +7,29 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Review Checklist</h4>
+                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer']))
+                        @if(in_array($type->status, [2, 3]))
+                        <h4 class="mb-sm-0 font-size-18">Review Checklist</h4>
+                        @else
+                        <h4 class="mb-sm-0 font-size-18">Detail Checklist</h4>
+                        @endif
+                    @else
+                        <h4 class="mb-sm-0 font-size-18">Detail Checklist</h4>
+                    @endif
                     <div class="page-title-right">
+                        @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD']))
                         <a id="backButton" type="button" href="{{ route('assessor.typechecklist', encrypt($type->id_periode)) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
                             Back
                         </a>
+                        @else
+                        <a id="backButton" type="button" href="{{ route('formchecklist.typechecklist', encrypt($type->id_periode)) }}"
+                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                            Back
+                        </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -31,7 +47,7 @@
                         </tr>
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
-                            <td class="align-middle">: 
+                            <td class="align-middle">:  
                                 @if($type->status == null)
                                     <span class="badge bg-secondary text-white">Not Started</span>
                                 @elseif($type->status == 0)
@@ -41,8 +57,14 @@
                                 @elseif($type->status == 2)
                                     <span class="badge bg-warning text-white">Review</span>
                                 @elseif($type->status == 3)
-                                    <span class="badge bg-danger text-white">Not Approve</span>
+                                    <span class="badge bg-warning text-white">Review</span>
                                 @elseif($type->status == 4)
+                                    <span class="badge bg-danger text-white">Not Approve</span>
+                                @elseif($type->status == 5)
+                                    <span class="badge bg-danger text-white">Not Approve</span>
+                                @elseif($type->status == 6)
+                                    <span class="badge bg-success text-white">Approve</span>
+                                @elseif($type->status == 7)
                                     <span class="badge bg-success text-white">Approve</span>
                                 @endif  
                             </td>

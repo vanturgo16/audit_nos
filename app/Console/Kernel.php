@@ -3,6 +3,7 @@
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Carbon\Carbon;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
@@ -12,7 +13,21 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('period:start')->dailyAt('00:01');
+        $now=Carbon::now()->format('YmdHis');
+
+        // $schedule->command('period:start')->dailyAt('00:01');
+
+        $schedule->command('AlertExpiredPeriodCommand')
+            ->timezone('Asia/Jakarta')
+            ->dailyAt('08:00');
+            // ->everyMinute();
+            // ->sendOutputTo("storage/logs/LogAlertExpired_".$now.".txt");
+
+        $schedule->command('ReminderSubmitPeriodCommand')
+            ->timezone('Asia/Jakarta')
+            ->dailyAt('08:00');
+            // ->everyMinute()
+            // ->sendOutputTo("storage/logs/LogReminderSubmit_".$now.".txt");
     }
 
     /**

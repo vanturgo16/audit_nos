@@ -41,7 +41,9 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">: 
-                                @if($period->status == 0)
+                                @if($period->status == null)
+                                    <span class="badge bg-warning text-white">Expired</span>
+                                @elseif($period->status == 0)
                                     <span class="badge bg-danger text-white">Inactive</span>
                                 @elseif($period->status == 1)
                                     <span class="badge bg-success text-white">Active</span>
@@ -50,22 +52,14 @@
                                 @elseif($period->status == 3)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>
                                 @elseif($period->status == 4)
-                                    <span class="badge bg-danger text-white">Closed Approved</span>
+                                    <span class="badge bg-success text-white">Assessor Approved</span>
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span>
+                                @elseif($period->status == 6)
+                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
                                 @endif
                             </td>
                         </tr>
-                        <!-- <tr>
-                            <td class="align-middle"><b>Active</b></td>
-                            <td class="align-middle">: 
-                                @if ($period->is_active == 1)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @else
-                                    <span class="badge bg-danger text-white">Inactive</span>
-                                @endif
-                            </td>
-                        </tr> -->
                     </tbody>
                 </table>
             </div>
@@ -87,10 +81,11 @@
                                             @csrf
                                             <div class="modal-body">
                                                 <div class="row">
-                                                    <p>
-                                                        Start submit this checklist? 
-                                                        (You are not longer to edit this checklist!)
-                                                    </p>
+                                                    <div class="col-12 text-center">
+                                                        <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
+                                                        <h5>Start Submit This Assign Checklist?</h5>
+                                                        <p>(You are no longer to edit next!)</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -122,6 +117,7 @@
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Type Checklist</th>
                                     <th class="align-middle text-center">Total Parent Checklist</th>
+                                    <th class="align-middle text-center">Total Checklist</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -140,15 +136,7 @@
             processing: true,
             serverSide: true,
             ajax: '{!! route('assignchecklist.index', encrypt($period->id)) !!}',
-            // ajax: {
-            //     url: '{!! route('assignchecklist.index', encrypt($period->id)) !!}',
-            //     success: function(data) {
-            //         console.log(data);
-            //         return data;
-            //     }
-            // },
             columns: [{
-                
                 data: null,
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
@@ -175,6 +163,21 @@
                             html = '<span class="badge bg-secondary text-white">Not Set</span>';
                         } else {
                             html = '<h5><span class="badge bg-success text-white">' + row.count + '</span></h5>';
+                        }
+                        return html;
+                    },
+                },
+                {
+                    orderable: true,
+                    searchable: true,
+                    data: 'count',
+                    className: 'align-middle text-center text-bold',
+                    render: function(data, type, row) {
+                        var html
+                        if(row.count == 0){
+                            html = '<span class="badge bg-secondary text-white">Not Set</span>';
+                        } else {
+                            html = '<h5><span class="badge bg-success text-white">' + row.count_check + '</span></h5>';
                         }
                         return html;
                     },

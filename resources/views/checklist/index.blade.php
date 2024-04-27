@@ -192,7 +192,7 @@
                                                         <label class="form-check-label" for="mandatory_platinum2">Yes</label>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-4 mb-3">
+                                                {{-- <div class="col-lg-4 mb-3">
                                                     <label class="form-label d-block">Upload File<label style="color: darkred">*</label></label>
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="upload_file" id="upload_file1" value="0">
@@ -202,7 +202,7 @@
                                                         <input class="form-check-input" type="radio" name="upload_file" id="upload_file2" value="1">
                                                         <label class="form-check-label" for="upload_file2">Yes</label>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -237,7 +237,7 @@
                                     <th class="align-middle text-center">Child Point</th>
                                     <th class="align-middle text-center">Sub Point</th>
                                     <th class="align-middle text-center">Mandatory</th>
-                                    <th class="align-middle text-center">File Upload</th>
+                                    {{-- <th class="align-middle text-center">File Upload</th> --}}
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -271,13 +271,13 @@
                                                 -
                                             @endif
                                         </td>
-                                        <td class="align-middle text-center"> 
+                                        {{-- <td class="align-middle text-center"> 
                                             @if($data->upload_file == 1)
                                                 <span class="badge bg-success text-white">Yes</span>
                                             @else
                                                 <span class="badge bg-danger text-white">No</span>
                                             @endif
-                                        </td>
+                                        </td> --}}
                                         <td class="align-middle text-center">
                                             <div class="btn-group" role="group">
                                                 <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
@@ -462,7 +462,7 @@
                                                                     <label class="form-check-label" for="mandatory_platinum2">Yes</label>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-lg-6 mb-3">
+                                                            {{-- <div class="col-lg-6 mb-3">
                                                                 <label class="form-label d-block">Upload File<label style="color: darkred">*</label></label>
                                                                 <div class="form-check form-check-inline">
                                                                     <input class="form-check-input" type="radio" name="upload_file" id="upload_file1" value="0" @if($data->upload_file == 0) checked @endif>
@@ -472,7 +472,7 @@
                                                                     <input class="form-check-input" type="radio" name="upload_file" id="upload_file2" value="1" @if($data->upload_file == 1) checked @endif>
                                                                     <label class="form-check-label" for="upload_file2">Yes</label>
                                                                 </div>
-                                                            </div>
+                                                            </div> --}}
                                                         </div>
                                                         </div>
                                                         <div class="modal-footer">

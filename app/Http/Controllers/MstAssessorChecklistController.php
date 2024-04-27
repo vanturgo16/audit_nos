@@ -14,11 +14,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 // Model
 use App\Models\MstPeriodeChecklists;
 use App\Models\MstJaringan;
 use App\Models\SubmitReviewLog;
+use App\Models\MstRules;
+
+// Mail
+use App\Mail\SubmitReviewChecklist;
+use App\Models\User;
 
 class MstAssessorChecklistController extends Controller
 {
@@ -82,12 +88,14 @@ class MstAssessorChecklistController extends Controller
 
         // Get Period
         $period = MstPeriodeChecklists::where('id', $id)->first();
+
+        $id_jaringan = MstPeriodeChecklists::where('id', $id)->first()->id_branch;
         
         // Check The Checklist Has Full Review or no
         $checks = ChecklistJaringan::select('status')->where('id_periode', $id)->get();
         $check = 0;
         foreach ($checks as $checkItem) {
-            if ($checkItem->status == 2 || $period->status == 5) {
+            if ($checkItem->status == 2 || $period->status == 5 || $period->status == 4 || $period->status == 6) {
                 $check = 1;
                 break;
             }
@@ -95,6 +103,22 @@ class MstAssessorChecklistController extends Controller
 
         if ($request->ajax()) {
             $datas = ChecklistJaringan::all()->where('id_periode', $id);
+
+            $mandatoryCounts = ChecklistResponse::selectRaw('
+                SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
+                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
+                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 0 AND mst_checklists.mandatory_platinum = 1) as p
+            ')
+            ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
+            ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+            ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_parent_checklists.type_checklist', 'H1 People')
+            ->whereNot('checklist_response.response', 'Exist, Good')
+            ->where('mst_periode_checklists.id', '26')
+            ->get();
+            // dd($mandatoryCounts);
 
             foreach($datas as $data){
                 $responsCounts = ChecklistResponse::select('checklist_response.response as response')
@@ -108,7 +132,25 @@ class MstAssessorChecklistController extends Controller
                 ->groupBy('checklist_response.response')
                 ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
                 ->get()->toArray();
-                $data->total_point_arr = $responsCounts;
+                $data->point = $responsCounts;
+            }
+
+            foreach($datas as $datam){
+                $mandatoryCounts = ChecklistResponse::selectRaw('
+                    SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
+                    SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
+                    SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 0 AND mst_checklists.mandatory_platinum = 1) as p
+                ')
+                ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
+                ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+                ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+                ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+                ->where('mst_parent_checklists.type_checklist', $datam->type_checklist)
+                ->whereNot('checklist_response.response', 'Exist, Good')
+                ->where('mst_periode_checklists.id', $id)
+                ->get()->toArray();
+                $datam->mandatory = $mandatoryCounts;
             }
 
             $grading = MstGrading::all();
@@ -119,6 +161,9 @@ class MstAssessorChecklistController extends Controller
             $data = DataTables::of($datas)
             ->addColumn('action', function ($data) {
                 return view('assessor.typechecklist.action', compact('data'));
+            })
+            ->addColumn('resultbutton', function ($data) use ($grading) {
+                return view('assessor.typechecklist.result', compact('data', 'grading'));
             })
             ->toJson();
 
@@ -224,6 +269,7 @@ class MstAssessorChecklistController extends Controller
     public function finishreview(Request $request, $id)
     {
         $id = decrypt($id);
+
         $userEmail = auth()->user()->email;
 
         //Get Status For Period, (Check IF Inside Period Checklist, The Checklist Contain Not Approved)
@@ -235,10 +281,6 @@ class MstAssessorChecklistController extends Controller
                 break;
             }
         }
-
-        // dd($statuschecklist);
-
-        
 
         DB::beginTransaction();
         try{
@@ -283,6 +325,37 @@ class MstAssessorChecklistController extends Controller
             $update = MstPeriodeChecklists::where('id', $id)->update([
                 'status' => $status
             ]);
+            
+            // [ MAILING ]
+            // Initiate Variable
+            $emailsubmitter = auth()->user()->email;
+            $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
+            $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->where('mst_periode_checklists.id', $id)
+                ->first();
+            $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
+            $periodinfo->count = $count;
+            $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
+            $note = $request->note;
+            // Recepient Email
+            if($development == 1){
+                $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
+                $ccemail = null;
+            } else {
+                $internalaudit = MstPeriodeChecklists::leftJoin('mst_employees', 'mst_periode_checklists.id_branch', 'mst_employees.id_dealer')
+                    ->leftJoin('users', 'mst_employees.email', 'users.email')
+                    ->where('mst_periode_checklists.id', $id)
+                    ->where('users.role', 'Internal Auditor Dealer')
+                    ->pluck('mst_employees.email')->toArray();
+                $picnosmd = User::where('role', 'PIC NOS MD')->pluck('email')->toArray();
+                $toemail = array_merge($internalaudit, $picnosmd);
+                $ccemail = $emailsubmitter;
+            }
+            // Mail Content
+            $mailInstance = new SubmitReviewChecklist($periodinfo, $checklistdetail, $emailsubmitter, $note);
+            // Send Email
+            Mail::to($toemail)->cc($ccemail)->send($mailInstance);
 
             //Audit Log
             $this->auditLogsShort('Finish Review Checklist Id Period: '.$id);
@@ -292,6 +365,37 @@ class MstAssessorChecklistController extends Controller
         } catch (Exception $e) {
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Finish Checklist!']);
+        }
+    }
+
+    public function closedapproved(Request $request, $id)
+    {
+        $id = decrypt($id);
+
+        DB::beginTransaction();
+        try{
+            // Create Finish Review Log
+            $log_finish = FinishReviewLog::create([
+                'id_period' => $id,
+                'date' => now(),
+                'status' => 6,
+                'note' => $request->note,
+                'finish_by' => auth()->user()->email,
+            ]);
+
+            // Update Period Status
+            $update = MstPeriodeChecklists::where('id', $id)->update([
+                'status' => 6
+            ]);
+
+            //Audit Log
+            $this->auditLogsShort('Closed Approve Checklist Id Period: '.$id);
+
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Success Closed Approve']);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Failed to Close Approve Checklist!']);
         }
     }
 

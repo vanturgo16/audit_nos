@@ -144,6 +144,8 @@
                             html = '<span class="badge bg-success text-white">Approved</span>';
                         } else if(row.status == 5){
                             html = '<span class="badge bg-warning text-white">Rejected</span>';
+                        } else if(row.status == 6){
+                            html = '<span class="badge bg-success text-white">Closed Approve</span>';
                         }
                         return html;
                     },

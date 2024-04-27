@@ -37,17 +37,21 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">: 
-                                @if($period->status == 1)
+                                @if($period->status == null)
+                                    <span class="badge bg-warning text-white">Expired</span>
+                                @elseif($period->status == 1)
                                     <span class="badge bg-success text-white">Active</span>
                                 @elseif($period->status == 2)
                                     <span class="badge bg-success text-white">Active</span>
                                 @elseif($period->status == 3)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
                                 @elseif($period->status == 4)
-                                    <span class="badge bg-danger text-white">Closed Approved</span>
+                                    <span class="badge bg-success text-white">Assessor Approved</span>
                                 @elseif($period->status == 5)
                                     <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
-                                @endif    
+                                @elseif($period->status == 6)
+                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
+                                @endif
                             </td>
                         </tr>
                         @if($historydecision != null)
@@ -116,11 +120,8 @@
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Type Checklist</th>
                                     <th class="align-middle text-center">Total Checklist</th>
-                                    <th class="align-middle text-center">Checklist Remain</th>
-                                    <th class="align-middle text-center">Total Point</th>
-                                    <th class="align-middle text-center">% Result</th>
-                                    <th class="align-middle text-center">Result Audit</th>
                                     <th class="align-middle text-center">Status</th>
+                                    <th class="align-middle text-center">All Result</th>
                                     <th class="align-middle text-center">Start Date</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -162,40 +163,9 @@
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
                         var html
-                        html = row.total_checklist-row.checklist_remaining + ' of ' + row.total_checklist;
+                        html = row.total_checklist-row.checklist_remaining + ' <b>of</b> ' + row.total_checklist;
                         return html;
                     },
-                },
-                {
-                    data: 'checklist_remaining',
-                    name: 'checklist_remaining',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle text-center'
-                },
-                {
-                    data: 'total_point',
-                    name: 'total_point',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle text-center'
-                },
-                {
-                    data: 'result_percentage',
-                    orderable: true,
-                    className: 'align-middle text-center',
-                    render: function(data, type, row) {
-                        var html
-                        html = row.result_percentage + ' %';
-                        return html;
-                    },
-                },
-                {
-                    data: 'audit_result',
-                    name: 'audit_result',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle text-center'
                 },
                 {
                     data: 'status',
@@ -225,6 +195,13 @@
                         return html;
                     },
                 },
+                {
+                    data: 'resultbutton',
+                    name: 'resultbutton',
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },              
                 {
                     data: 'start_date',
                     name: 'start_date',

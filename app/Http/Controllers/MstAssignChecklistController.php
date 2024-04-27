@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 // Model
 use App\Models\MstAssignChecklists;
@@ -16,6 +17,10 @@ use App\Models\MstDropdowns;
 use App\Models\MstJaringan;
 use App\Models\MstParentChecklists;
 use App\Models\MstPeriodeChecklists;
+use App\Models\MstRules;
+
+// Mail
+use App\Mail\SubmitAssignChecklist;
 
 class MstAssignChecklistController extends Controller
 {
@@ -48,12 +53,12 @@ class MstAssignChecklistController extends Controller
     {
         $typechecklist = MstDropdowns::select('name_value')->where('category', 'Type Checklist')->get();
         foreach($typechecklist as $type){
-            // $count = MstAssignChecklists::leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            // ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            // ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            // ->where('mst_periode_checklists.id', $period->id)
-            // ->where('mst_parent_checklists.type_checklist', $type->name_value)
-            // ->count();
+            $count_check = MstAssignChecklists::leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_periode_checklists.id', $period->id)
+            ->where('mst_parent_checklists.type_checklist', $type->name_value)
+            ->count();
 
             $count = MstAssignChecklists::leftJoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
             ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
@@ -65,6 +70,7 @@ class MstAssignChecklistController extends Controller
             ->get()
             ->count();
 
+            $type->count_check = $count_check;
             $type->count = $count;
         }
 
@@ -80,7 +86,6 @@ class MstAssignChecklistController extends Controller
     public function type(Request $request, $id, $type)
     {
         $id = decrypt($id);
-        // dd($id, $type);
 
         $period=MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
             ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
@@ -169,6 +174,7 @@ class MstAssignChecklistController extends Controller
             return redirect()->back()->with(['fail' => 'Failed to Delete Assign Checklist']);
         }
     }
+
     public function searchchecklist($id)
     {
         $data = MstChecklists::where('id', $id)->first();
@@ -176,17 +182,17 @@ class MstAssignChecklistController extends Controller
         $data = $data->toArray();
         return response()->json($data);
     }
+
     public function submit($id)
     {
         $id = decrypt($id);
+        
         $datas = MstAssignChecklists::select('mst_parent_checklists.type_checklist')
         ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
         ->leftJoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
         ->where('mst_assign_checklists.id_periode_checklist', $id)
         ->groupBy('mst_parent_checklists.type_checklist')
         ->get();
-
-       
 
         foreach ($datas as $data) {
             $count = MstAssignChecklists::Join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
@@ -197,22 +203,48 @@ class MstAssignChecklistController extends Controller
         }
         DB::beginTransaction();
         try{
-
             MstPeriodeChecklists::where('id', $id)->update([
                 'is_active' => '1',
                 'status' => '1'
             ]);
 
             foreach($datas as $data){
-    
-                    ChecklistJaringan::create([
-                        'id_periode' => $id,
-                        'type_checklist' => $data->type_checklist,
-                        'total_checklist' => $data->countt,
-                        'checklist_remaining' => $data->countt,
-                    ]);         
-                
+                ChecklistJaringan::create([
+                    'id_periode' => $id,
+                    'type_checklist' => $data->type_checklist,
+                    'total_checklist' => $data->countt,
+                    'checklist_remaining' => $data->countt,
+                ]);   
             }
+            
+            // [ MAILING ]
+            // Initiate Variable
+            $emailsubmitter = auth()->user()->email;
+            $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
+            $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->where('mst_periode_checklists.id', $id)
+                ->first();
+            $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
+            $periodinfo->count = $count;
+            $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
+            // Recepient Email
+            if($development == 1){
+                $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
+                $ccemail = null;
+            } else {
+                $toemail = MstPeriodeChecklists::leftJoin('mst_employees', 'mst_periode_checklists.id_branch', 'mst_employees.id_dealer')
+                    ->leftJoin('users', 'mst_employees.email', 'users.email')
+                    ->where('mst_periode_checklists.id', $id)
+                    ->where('users.role', 'Internal Auditor Dealer')
+                    ->pluck('mst_employees.email')->toArray();
+                $ccemail = $emailsubmitter;
+            }
+            // Mail Content
+            $mailInstance = new SubmitAssignChecklist($periodinfo, $checklistdetail, $emailsubmitter);
+            // Send Email
+            Mail::to($toemail)->cc($ccemail)->send($mailInstance);
+
             //Audit Log
             $this->auditLogsShort('Create New Assign Checklist');
 

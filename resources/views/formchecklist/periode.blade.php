@@ -7,14 +7,17 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Form Checklist Jaringan ({{$jaringan}})</h4>
-                    <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('formchecklist.index') }}"
-                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
-                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
-                            Back
-                        </a>
-                    </div>
+                    <h4 class="mb-sm-0 font-size-18">List Period Checklist - Jaringan ({{$jaringan}})</h4>
+                    @if(Auth::user()->role == 'Internal Auditor Dealer')
+                    @else
+                        <div class="page-title-right">
+                            <a id="backButton" type="button" href="{{ route('formchecklist.index') }}"
+                                class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                                <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                                Back
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -24,70 +27,93 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <!-- <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Jaringan</button> -->
-                    </div>
                     <div class="card-body">
-
-                        <table id="datatable-buttons" class="table table-bordered dt-responsive nowrap w-100">
+                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Period Checklist</th>
                                     <th class="align-middle text-center">Date</th>
                                     <th class="align-middle text-center">Status</th>
-                                    <!-- <th class="align-middle text-center">Active</th> -->
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php $no = 0;?> 
-                                @foreach ($datas as $data)
-                                <?php $no++ ;?>
-                                    <tr>
-                                        <td class="align-middle text-center">{{ $no }}</td>
-                                        <td class="align-middle text-center"><b>{{ $data->period }}</b></td>
-                                        <td class="align-middle text-center">{{ Carbon\Carbon::parse($data->start_date)->format('d-m-Y') }} until {{ Carbon\Carbon::parse($data->end_date)->format('d-m-Y') }}</td>
-                                        <td class="align-middle text-center">
-                                        @if($data->status == 1)
-                                            <span class="badge bg-success text-white">Active</span>
-                                        @elseif($data->status == 2)
-                                            <span class="badge bg-success text-white">Active</span>
-                                        @elseif($data->status == 3)
-                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-warning text-white">Reviewed</span>
-                                        @elseif($data->status == 4)
-                                            <span class="badge bg-danger text-white">Closed Approved</span>
-                                        @elseif($data->status == 5)
-                                            <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
-                                        @endif
-                                        </td>
-                                        <!-- <td class="align-middle text-center">
-                                            @if($data->is_active == 1)
-                                                <span class="badge bg-success text-white">Active</span>
-                                            @else
-                                                <span class="badge bg-danger text-white">Inactive</span>
-                                            @endif
-                                        </td> -->
-                                        <td class="align-middle text-center">
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('formchecklist.typechecklist', encrypt($data->id)) }}" type="button" class="btn btn-sm btn-primary"
-                                                    aria-expanded="false">
-                                                    <i class="mdi mdi-check-underline-circle"></i> Checklist 
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
-
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
+<script>
+    $(function() {
+        $('#server-side-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{!! route('formchecklist.periode', encrypt($id)) !!}',
+            columns: [{
+                data: null,
+                    render: function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    },
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },
+                {
+                    data: 'period',
+                    name: 'period',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center text-bold',
+                },
+                {
+                    data: 'start_date',
+                    name: 'start_date',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var startDate = new Date(row.start_date);
+                        var endDate = new Date(row.end_date);
+                        return startDate.toLocaleDateString('es-CL').replace(/\//g, '-') + '<b> Until </b>' + endDate.toLocaleDateString('es-CL').replace(/\//g, '-');
+                    },
+                },
+                {
+                    data: 'status',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: function(data, type, row) {
+                        var html
+                        if(row.status == null){
+                            html = '<span class="badge bg-warning text-white">Expired</span>';
+                        } else if(row.status == 1){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } else if(row.status == 2){
+                            html = '<span class="badge bg-success text-white">Active</span>';
+                        } else if(row.status == 3){
+                            html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>';
+                        } else if(row.status == 4){
+                            html = '<span class="badge bg-success text-white">Assessor Approved</span>';
+                        } else if(row.status == 5){
+                            html = '<span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>';
+                        } else if(row.status == 6){
+                            html = '<span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>';
+                        } 
+                        return html;
+                    },
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-middle text-center',
+                },
+            ],
+        });
+    });
+</script>
 
 @endsection

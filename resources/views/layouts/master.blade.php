@@ -69,6 +69,17 @@
                     <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
                         <i class="fa fa-fw fa-bars"></i>
                     </button>
+
+                    <!-- Role-->
+                    @if(Auth::check() && Auth::user()->role == null)
+                        // Code to destroy authentication session
+                        <?php Auth::logout(); ?>
+                    @endif
+                    <form class="app-search d-none d-lg-block">
+                        <div class="position-relative">
+                            <h3><span class="badge bg-info text-white">{{ Auth::user()->role }}</span></h3>
+                        </div>
+                    </form>
                 </div>
 
                 <div class="d-flex">
@@ -111,7 +122,8 @@
                 <div id="sidebar-menu">
                     <!-- Left Menu Start -->
 
-                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin']))
+                    {{-- Super Admin --}}
+                    @if(Auth::user()->role == 'Super Admin')
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li>
                                 <a href="{{ route('dashboard') }}">
@@ -200,7 +212,7 @@
                             </li> --}}
                             <li>
                                 <a href="{{ route('formchecklist.index') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-file-check"></i>
                                     <span>Form Checklist</span>
                                 </a>
                             </li>
@@ -224,6 +236,87 @@
                         </ul>
                     @endif
 
+                    {{-- Admin --}}
+                    @if(Auth::user()->role == 'Admin')
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+                            <li class="menu-title" data-key="t-menu">Configuration</li>
+                            <li>
+                                <a href="{{ route('user.index') }}">
+                                    <i data-feather="users"></i>
+                                    <span>Manage User</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">Master Data</li>
+
+                            <li>
+                                <a href="{{ route('employee.index') }}">
+                                    <i class="mdi mdi-account-group"></i>
+                                    <span>Master Employee</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('department.index') }}">
+                                    <i class="mdi mdi-graph-outline"></i>
+                                    <span>Master Dept</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('position.index') }}">
+                                    <i class="mdi mdi-lan"></i>
+                                    <span>Master Position</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('jaringan.index') }}">
+                                    <i class="mdi mdi-office-building"></i>
+                                    <span>Master Jaringan</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('dropdown.index') }}">
+                                    <i class="mdi mdi-package-down"></i>
+                                    <span>Master Dropdown</span>
+                                </a>
+                            </li>
+                            
+                            <li>
+                                <a href="{{ route('checklist.index') }}">
+                                    <i class="mdi mdi-check-network"></i>
+                                    <span>Master Checklist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('mapchecklist.index') }}">
+                                    <i class="mdi mdi-checkbox-multiple-outline"></i>
+                                    <span>Master Mapping Checklist</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('grading.index') }}">
+                                    <i class="mdi mdi-percent-outline"></i>
+                                    <span>Master Grading</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">Logs</li>
+                            <li>
+                                <a href="{{ route('auditlog') }}">
+                                    <i class="mdi mdi-chart-donut"></i>
+                                    <span>Audit Logs</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    @endif
+
+                    {{-- Assessor Main Dealer --}}
                     @if(Auth::user()->role == 'Assessor Main Dealer')
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li>
@@ -276,7 +369,7 @@
                             </li>
                             <li>
                                 <a href="{{ route('assessor.listjaringan') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-clipboard-check"></i>
                                     <span>Result Checklist</span>
                                 </a>
                             </li>
@@ -284,6 +377,7 @@
                         </ul>
                     @endif
 
+                    {{-- PIC NOS MD --}}
                     @if(Auth::user()->role == 'PIC NOS MD')
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li>
@@ -296,7 +390,7 @@
                             <li class="menu-title" data-key="t-menu">PIC MD Menu</li>
                             <li>
                                 <a href="{{ route('assessor.listjaringan') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-clipboard-check"></i>
                                     <span>Result Checklist</span>
                                 </a>
                             </li>
@@ -304,6 +398,7 @@
                         </ul>
                     @endif
 
+                    {{-- Internal Auditor Dealer --}}
                     @if(Auth::user()->role == 'Internal Auditor Dealer')
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li>
@@ -316,7 +411,7 @@
                             <li class="menu-title" data-key="t-menu">Auditor Menu</li>
                             <li>
                                 <a href="{{ route('formchecklist.auditor') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <i class="mdi mdi-file-check"></i>
                                     <span>Form Checklist</span>
                                 </a>
                             </li>

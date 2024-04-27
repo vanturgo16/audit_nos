@@ -11,7 +11,7 @@
                         @if(in_array(auth()->user()->role, ['Super Admin', 'Admin']))
                         Master Dropdowns
                         @else
-                        Master Periods
+                        Master Period
                         @endif
                     </h4>
                     <div class="page-title-right">
