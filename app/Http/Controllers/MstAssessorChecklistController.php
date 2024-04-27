@@ -15,16 +15,18 @@ use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 // Model
 use App\Models\MstPeriodeChecklists;
 use App\Models\MstJaringan;
 use App\Models\SubmitReviewLog;
 use App\Models\MstRules;
+use App\Models\User;
 
 // Mail
 use App\Mail\SubmitReviewChecklist;
-use App\Models\User;
+use App\Mail\SubmitPICReviewChecklist;
 
 class MstAssessorChecklistController extends Controller
 {
@@ -357,6 +359,17 @@ class MstAssessorChecklistController extends Controller
             // Send Email
             Mail::to($toemail)->cc($ccemail)->send($mailInstance);
 
+            // Check Expired Date Period if Not Approved
+            if($status == 5){
+                $period = MstPeriodeChecklists::where('id', $id)->first();
+                if ($period) {
+                    $today = Carbon::today();
+                    if ($period->end_date <= $today) {
+                        MstPeriodeChecklists::where('id', $id)->update(['status' => null]);
+                    }
+                }
+            }
+
             //Audit Log
             $this->auditLogsShort('Finish Review Checklist Id Period: '.$id);
 
@@ -372,30 +385,88 @@ class MstAssessorChecklistController extends Controller
     {
         $id = decrypt($id);
 
+        if($request->decision == "Approved"){
+            $status = 6;
+            $decisionpic = 1;
+        } else {
+            $status = 5;
+            $decisionpic = 0;
+        }
+
         DB::beginTransaction();
         try{
             // Create Finish Review Log
             $log_finish = FinishReviewLog::create([
                 'id_period' => $id,
                 'date' => now(),
-                'status' => 6,
+                'status' => $status,
                 'note' => $request->note,
                 'finish_by' => auth()->user()->email,
             ]);
 
             // Update Period Status
             $update = MstPeriodeChecklists::where('id', $id)->update([
-                'status' => 6
+                'status' => $status,
+                'decisionpic' => $decisionpic,
+                'notespic' => $request->note
             ]);
 
+            // Update Checklist Jaringan to Reject All If Reject
+            if($status == 5){
+                ChecklistJaringan::where('id_periode', $id)->update([
+                    'status' => '5'
+                ]);
+            }
+
+            // Send Email Decision
+            // [ MAILING ]
+            // Initiate Variable
+            $emailsubmitter = auth()->user()->email;
+            $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
+            $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->where('mst_periode_checklists.id', $id)
+                ->first();
+            $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
+            $periodinfo->count = $count;
+            $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
+            $note = $request->note;
+            // Recepient Email
+            if($development == 1){
+                $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
+                $ccemail = null;
+            } else {
+                $auditor = MstPeriodeChecklists::leftJoin('mst_employees', 'mst_periode_checklists.id_branch', 'mst_employees.id_dealer')
+                    ->leftJoin('users', 'mst_employees.email', 'users.email')
+                    ->where('mst_periode_checklists.id', $id)
+                    ->where('users.role', 'Internal Auditor Dealer')
+                    ->pluck('mst_employees.email')->toArray();
+                $assessor = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
+                $toemail = array_merge($auditor, $assessor);
+                $ccemail = auth()->user()->email;
+            }
+            // Mail Content
+            $mailInstance = new SubmitPICReviewChecklist($periodinfo, $checklistdetail, $emailsubmitter, $note);
+            // Send Email
+            Mail::to($toemail)->cc($ccemail)->send($mailInstance);
+
+            // Check Expired Date Period
+            $period = MstPeriodeChecklists::where('id', $id)->first();
+            if ($period) {
+                $today = Carbon::today();
+                if ($period->end_date <= $today) {
+                    MstPeriodeChecklists::where('id', $id)->update(['status' => null]);
+                }
+            }
+
             //Audit Log
-            $this->auditLogsShort('Closed Approve Checklist Id Period: '.$id);
+            $this->auditLogsShort('Decision PIC Checklist Id Period: '.$id);
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Closed Approve']);
+            return redirect()->back()->with(['success' => 'Success Submit Decision Checklist']);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Close Approve Checklist!']);
+            return redirect()->back()->with(['fail' => 'Failed to Submit Decision Checklist!']);
         }
     }
 

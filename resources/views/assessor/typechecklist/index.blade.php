@@ -37,20 +37,27 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">: 
-                                @if($period->status == null)
-                                    <span class="badge bg-warning text-white">Expired</span>
-                                @elseif($period->status == 1)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @elseif($period->status == 2)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @elseif($period->status == 3)
-                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
-                                @elseif($period->status == 4)
-                                    <span class="badge bg-success text-white">Assessor Approved</span>
-                                @elseif($period->status == 5)
-                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
-                                @elseif($period->status == 6)
-                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
+                                @if($period->decisionpic == "0")
+                                    @if($period->status == null)
+                                        <span class="badge bg-warning text-white">Expired</span>
+                                    @endif
+                                    <span class="badge bg-danger text-white">PIC - Rejected</span>
+                                @else
+                                    @if($period->status == null)
+                                        <span class="badge bg-warning text-white">Expired</span>
+                                    @elseif($period->status == 1)
+                                        <span class="badge bg-success text-white">Active</span>
+                                    @elseif($period->status == 2)
+                                        <span class="badge bg-success text-white">Active</span>
+                                    @elseif($period->status == 3)
+                                        <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
+                                    @elseif($period->status == 4)
+                                        <span class="badge bg-success text-white">Assessor Approved</span>
+                                    @elseif($period->status == 5)
+                                        <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
+                                    @elseif($period->status == 6)
+                                        <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
+                                    @endif
                                 @endif
                             </td>
                         </tr>
@@ -80,28 +87,38 @@
                     {{-- Approved PIC NOS MD --}}
                     @if($period->status == 4 && in_array(Auth::user()->role, ['Super Admin', 'PIC NOS MD']))
                     <div class="card-header d-flex justify-content-end">
-                        <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#closedapproved"><i class="mdi mdi-check-bold label-icon"></i> Closed Approve</button>
+                        <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#closedapproved"><i class="mdi mdi-message-question label-icon"></i> Your Decision</button>
                         {{-- Modal Approved PIC NOS MD --}}
                         <div class="modal fade" id="closedapproved" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-top" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">Approved This Period Checklist</h5>
+                                        <h5 class="modal-title" id="staticBackdropLabel">Decision This Period Checklist</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ route('assessor.closedapproved', encrypt($period->id)) }}" id="formclosed" method="POST">
                                         @csrf
                                         <div class="modal-body">
-                                            <div class="row mt-2 mb-2">
-                                                <h5 class="text-center">
-                                                    <b>Are You Sure To Approved This Period Checklist?</b>
-                                                    <textarea class="form-control mt-4" name="note" placeholder="Note (Optional)..." rows="3"></textarea>
-                                                </h5>
+                                            <div class="row">
+                                                <p>
+                                                    Your Decission For This Response Checklist?
+                                                </p>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="decision" id="approved" value="Approved" checked>
+                                                <label class="form-check-label" for="approved">Approved</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="decision" id="notapproved" value="Not Approved">
+                                                <label class="form-check-label" for="notapproved">Not Approved</label>
+                                            </div>
+                                            <div class="mt-2">
+                                                <textarea class="form-control" name="note" placeholder="Note (Optional)..." rows="3"></textarea>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sbclosed"><i class="mdi mdi-check-bold label-icon"></i>Closed</button>
+                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sbclosed"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
                                         </div>
                                     </form>
                                     <script>

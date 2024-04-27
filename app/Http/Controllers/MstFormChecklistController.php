@@ -165,8 +165,8 @@ class MstFormChecklistController extends Controller
             ->where('mst_periode_checklists.id', $id)
             ->get()->toArray();
             $datam->mandatory = $mandatoryCounts;
+            $datam->decisionpic = $period->decisionpic;
         }
-        // dd($datas);
 
         $grading = MstGrading::all();
         $statusperiod = $period->status;

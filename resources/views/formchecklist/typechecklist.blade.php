@@ -36,20 +36,28 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">:
-                                @if($period->status == 0)
-                                    <span class="badge bg-warning text-white">Expired</span> - Contact Your Assessor
-                                @elseif($period->status == 1)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @elseif($period->status == 2)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @elseif($period->status == 3)
-                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
-                                @elseif($period->status == 4)
-                                    <span class="badge bg-success text-white">Assessor Approved</span>
-                                @elseif($period->status == 5)
-                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
-                                @elseif($period->status == 6)
-                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
+                                @if($period->decisionpic == "0")
+                                    @if($period->status == null)
+                                        <span class="badge bg-warning text-white">Expired</span> - Contact Your Assessor
+                                        <br>
+                                    @endif
+                                    <span class="badge bg-danger text-white">PIC - Rejected</span>
+                                @else
+                                    @if($period->status == 0)
+                                        <span class="badge bg-warning text-white">Expired</span> - Contact Your Assessor
+                                    @elseif($period->status == 1)
+                                        <span class="badge bg-success text-white">Active</span>
+                                    @elseif($period->status == 2)
+                                        <span class="badge bg-success text-white">Active</span>
+                                    @elseif($period->status == 3)
+                                        <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Completed</span>
+                                    @elseif($period->status == 4)
+                                        <span class="badge bg-success text-white">Assessor Approved</span>
+                                    @elseif($period->status == 5)
+                                        <span class="badge bg-success text-white">Active</span> <span class="badge bg-danger text-white">Rejected</span>
+                                    @elseif($period->status == 6)
+                                        <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
+                                    @endif
                                 @endif
                             </td>
                         </tr>
@@ -67,47 +75,49 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        @if($status == true)
-                            <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
-                            {{-- Modal Submit --}}
-                            <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-top" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <form action="{{ route('formchecklist.submitchecklist', encrypt($id)) }}" id="formsubmit" method="POST">
-                                            @csrf
-                                            <div class="modal-body">
-                                                <div class="row">
-                                                    <div class="col-12 text-center">
-                                                        <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
-                                                        <h5>Are You Sure to Submit Your Answer For This Checklist?</h5>
-                                                        <p>(You are no longer to edit next!)</p>
+                        @if($period->status != null)
+                            @if($status == true)
+                                <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                                {{-- Modal Submit --}}
+                                <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-top" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{{ route('formchecklist.submitchecklist', encrypt($id)) }}" id="formsubmit" method="POST">
+                                                @csrf
+                                                <div class="modal-body">
+                                                    <div class="row">
+                                                        <div class="col-12 text-center">
+                                                            <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
+                                                            <h5>Are You Sure to Submit Your Answer For This Checklist?</h5>
+                                                            <p>(You are no longer to edit next!)</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
-                                            </div>
-                                        </form>
-                                        <script>
-                                            document.getElementById('formsubmit').addEventListener('submit', function(event) {
-                                                if (!this.checkValidity()) {
-                                                    event.preventDefault(); // Prevent form submission if it's not valid
-                                                    return false;
-                                                }
-                                                var submitButton = this.querySelector('button[name="sb"]');
-                                                submitButton.disabled = true;
-                                                submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                                return true; // Allow form submission
-                                            });
-                                        </script>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                                                </div>
+                                            </form>
+                                            <script>
+                                                document.getElementById('formsubmit').addEventListener('submit', function(event) {
+                                                    if (!this.checkValidity()) {
+                                                        event.preventDefault(); // Prevent form submission if it's not valid
+                                                        return false;
+                                                    }
+                                                    var submitButton = this.querySelector('button[name="sb"]');
+                                                    submitButton.disabled = true;
+                                                    submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
+                                                    return true; // Allow form submission
+                                                });
+                                            </script>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                         @endif
                     </div>
                     <div class="card-body">
@@ -230,7 +240,6 @@
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
                         var html = '';
-
                         if (row.status === "" || row.status === null) {
                             html = '<span class="badge bg-secondary text-white">Not Started</span>';
                         } else if (row.status == 0) {
@@ -244,7 +253,10 @@
                         } else if (row.status == 4) {
                             html = '<span class="badge bg-warning text-white">Reviewed</span>';
                         } else if (row.status == 5) {
-                            html = '<button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#notapprove'+ row.id +'"><i class="mdi mdi-sim-alert label-icon"></i>Not Approve</button>' +
+                            if (row.decisionpic === "0") {
+                                html = '<span class="badge bg-danger text-white">PIC - Rejected</span>';
+                            } else {
+                                html = '<button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#notapprove'+ row.id +'"><i class="mdi mdi-sim-alert label-icon"></i>Not Approve</button>' +
                                 '<div class="modal fade" id="notapprove'+ row.id +'" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">' +
                                     '<div class="modal-dialog modal-dialog-top" role="document">' +
                                         '<div class="modal-content">' +
@@ -270,6 +282,7 @@
                                         '</div>' +
                                     '</div>' +
                                 '</div>';
+                            }
                         } else if (row.status == 6) {
                             html = '<span class="badge bg-warning text-white">Reviewed</span>';
                         } else if (row.status == 7) {
