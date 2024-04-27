@@ -241,14 +241,13 @@ class MstFormChecklistController extends Controller
         ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
         ->get();
 
-        
-
         $id_period = $type->id_periode;
         
         foreach ($datas as $data) {
             $checklistDetails = MstChecklistDetails::where('id_checklist', $data->id_checklist)->get()->toArray();
             $data->mark = $checklistDetails;
         }
+        // dd($datas);
         // pengelompokan point
         $point = MstAssignChecklists::select(
             'mst_parent_checklists.parent_point_checklist as parent_point'
@@ -591,6 +590,9 @@ class MstFormChecklistController extends Controller
 
         DB::beginTransaction();
         try{
+            //Update Last Submit Audit
+            MstPeriodeChecklists::where('id', $id)->update([ 'last_submit_audit' => Carbon::now() ]);
+
             foreach($datas as $data_point):
                 $totalPoint = 0;
 

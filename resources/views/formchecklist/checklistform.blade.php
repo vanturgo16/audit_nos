@@ -169,7 +169,7 @@
 
                                         <div class="row">
                                             <div class="@if($poin->path_guide != null) col-lg-9 @else col-lg-12 @endif">
-                                                <table class="table w-100" style="height: 40vh;">
+                                                <table class="table w-100" style="height: 43vh;">
                                                     <tbody>
                                                         <?php $no = 0;?> 
                                                         @foreach ($datas as $data)
@@ -181,7 +181,8 @@
                                                                     <h3><span class="badge bg-primary"><b>{{ $no }}</b></span></h3>
                                                                 </td>
                                                                 <td style="border-bottom: 0px;">
-                                                                    <div style="max-height: 30vh; overflow-y: auto;">
+                                                                    <h5><b>{{ $data->sub_point_checklist }}</b></h5>
+                                                                    <div style="max-height: 25vh; overflow-y: auto;">
                                                                         {!! $data->indikator !!}
                                                                     </div>
                                                                     
@@ -203,6 +204,22 @@
                                                                         </div>
     
                                                                     @endforeach
+                                                                    <br>
+                                                                    @if($data->mandatory_silver == 0 && $data->mandatory_gold == 0 && $data->mandatory_platinum == 0)
+                                                                    @else
+                                                                    <button type="button" class="btn btn-sm btn-warning waves-effect btn-label waves-light" disabled>
+                                                                        <i class="mdi mdi-alert label-icon"></i>Mandatory : 
+                                                                        @if($data->mandatory_silver == 1)
+                                                                            <span class="badge bg-danger">Silver</span>
+                                                                        @endif
+                                                                        @if($data->mandatory_gold == 1)
+                                                                            <span class="badge bg-danger">Gold</span>
+                                                                        @endif
+                                                                        @if($data->mandatory_platinum == 1)
+                                                                            <span class="badge bg-danger">Platinum</span>
+                                                                        @endif
+                                                                    </button>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
     

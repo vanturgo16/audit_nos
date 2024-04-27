@@ -54,6 +54,12 @@
                                 @endif
                             </td>
                         </tr>
+                        @if($period->last_submit_audit != null)
+                        <tr>
+                            <td class="align-middle"><b>Last Submit Checklist</b></td>
+                            <td class="align-middle">: {{ Carbon\Carbon::parse($period->last_submit_audit)->format('d-m-Y H:i:s') }}</td>
+                        </tr>
+                        @endif
                         @if($historydecision != null)
                         <tr>
                             <td class="align-middle"><b>History Log Decision</b></td>
