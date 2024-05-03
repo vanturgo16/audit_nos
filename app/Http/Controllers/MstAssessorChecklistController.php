@@ -2,13 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChecklistJaringan;
-use App\Models\ChecklistResponse;
-use App\Models\FileInputResponse;
-use App\Models\FinishReviewLog;
-use App\Models\MstAssignChecklists;
-use App\Models\MstDropdowns;
-use App\Models\MstGrading;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +16,13 @@ use App\Models\MstJaringan;
 use App\Models\SubmitReviewLog;
 use App\Models\MstRules;
 use App\Models\User;
+use App\Models\ChecklistJaringan;
+use App\Models\ChecklistResponse;
+use App\Models\FileInputResponse;
+use App\Models\FinishReviewLog;
+use App\Models\MstAssignChecklists;
+use App\Models\MstDropdowns;
+use App\Models\MstGrading;
 
 // Mail
 use App\Mail\SubmitReviewChecklist;
@@ -104,7 +104,9 @@ class MstAssessorChecklistController extends Controller
         }
 
         if ($request->ajax()) {
-            $datas = ChecklistJaringan::all()->where('id_periode', $id);
+            //ForSortingBasedDropdown
+            $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
+            $datas = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
 
             $mandatoryCounts = ChecklistResponse::selectRaw('
                 SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
@@ -477,8 +479,12 @@ class MstAssessorChecklistController extends Controller
 
         $period = MstPeriodeChecklists::where('id', $id)->first();
         $datas = FinishReviewLog::where('id_period', $id)->get();
+
+        //ForSortingBasedDropdown
+        $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
+        
         foreach($datas as $data){
-            $submitlog = SubmitReviewLog::where('id_finish_review', $data->id)->get();
+            $submitlog = SubmitReviewLog::where('id_finish_review', $data->id)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
             $data->submitlog = $submitlog;
         }
 

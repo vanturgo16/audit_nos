@@ -114,7 +114,10 @@ class MstFormChecklistController extends Controller
     {
         $id = decrypt($id);//id Period
 
-        $datas = ChecklistJaringan::all()->where('id_periode', $id);
+        //ForSortingBasedDropdown
+        $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
+        $datas = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
+
         $period = MstPeriodeChecklists::where('id', $id)->first();
         $id_jaringan = MstPeriodeChecklists::where('id', $id)->first()->id_branch;
 

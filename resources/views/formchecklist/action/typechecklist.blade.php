@@ -14,7 +14,9 @@
                 @else
                     <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#notyetstart{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
                 @endif
-            @elseif(in_array($data->status, [0, 1, 5]))
+            @elseif($data->status == 0)
+                <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-update"></span> | Check / Update</a></li>
+            @elseif(in_array($data->status, [1, 5]))
                 <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-update"></span> | Check / Update</a></li>
                 <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#result{{ $data->id }}"><span class="mdi mdi-dns-outline"></span> | All Result</a></li>
             @elseif(in_array($data->status, [2, 3, 4, 6, 7]))

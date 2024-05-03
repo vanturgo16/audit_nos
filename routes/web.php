@@ -34,6 +34,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     //User
     Route::get('/user', [UserController::class, 'index'])->name('user.index')->middleware('role:Super Admin,Admin');
@@ -167,6 +168,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/area/ajax/mappingPostalCode/{subdistrict_id}', [AjaxMappingRegional::class, 'selectPostalCode'])->name('mappingPostalCode');
 
     //Mapping Json
+    Route::get('/mapping/dealer/{id}', [DashboardController::class, 'mappingdealer'])->name('mapping.dealer');
     Route::get('/json_position/{id}', [MstPositionController::class, 'json_position'])->name('json_position');
     Route::post('/check_email_employee', [MstEmployeeController::class, 'check_email'])->name('check_email_employee');
 });
