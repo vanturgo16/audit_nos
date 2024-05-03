@@ -184,7 +184,12 @@
                                     <span>Master Dropdown</span>
                                 </a>
                             </li>
-                            
+                            <li>
+                                <a href="{{ route('parentchecklist.index') }}">
+                                    <i class="mdi mdi-clipboard-check-multiple"></i>
+                                    <span>Master Parent Checklist</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('checklist.index') }}">
                                     <i class="mdi mdi-check-network"></i>
@@ -205,6 +210,12 @@
                             </li>
 
                             <li class="menu-title" data-key="t-menu">Checklist Audit</li>
+                            <li>
+                                <a href="{{ route('periodname.index') }}">
+                                    <i class="mdi mdi-clipboard-text-clock"></i>
+                                    <span>Master Period Name</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('periodchecklist.index') }}">
                                     <i class="mdi mdi-check-underline-circle"></i>
@@ -294,6 +305,12 @@
                             </li>
                             
                             <li>
+                                <a href="{{ route('parentchecklist.index') }}">
+                                    <i class="mdi mdi-clipboard-check-multiple"></i>
+                                    <span>Master Parent Checklist</span>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('checklist.index') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
@@ -342,6 +359,12 @@
                             </li>
                             
                             <li>
+                                <a href="{{ route('parentchecklist.index') }}">
+                                    <i class="mdi mdi-clipboard-check-multiple"></i>
+                                    <span>Master Parent Checklist</span>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('checklist.index') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
@@ -361,9 +384,9 @@
                             </li>
 
                             <li>
-                                <a href="{{ route('dropdown.index') }}">
+                                <a href="{{ route('periodname.index') }}">
                                     <i class="mdi mdi-clipboard-text-clock"></i>
-                                    <span>Master Period</span>
+                                    <span>Master Period Name</span>
                                 </a>
                             </li>
 

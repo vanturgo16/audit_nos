@@ -19,6 +19,7 @@ use App\Models\MstJaringan;
 use App\Models\MstMapChecklists;
 use App\Models\ChecklistJaringan;
 use App\Models\MstRules;
+use App\Models\MstPeriodName;
 
 // Mail
 use App\Mail\UpdateExpired;
@@ -30,7 +31,7 @@ class MstPeriodChecklistController extends Controller
     public function index(Request $request)
     {
         $branchs = MstJaringan::get();
-        $period_name = MstDropdowns::where('category', 'Period Name')->get();
+        $period_name = MstPeriodName::get();
 
         if ($request->ajax()) {
             $data = $this->getData($branchs, $period_name);

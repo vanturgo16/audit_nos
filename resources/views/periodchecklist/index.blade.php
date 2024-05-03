@@ -42,8 +42,8 @@
                                                     <select class="form-select js-example-basic-single" name="period" style="width: 100%" required>
                                                         <option value="" selected>-- Select Period --</option>
                                                         @foreach($period_name as $item)
-                                                            <option value="{{ $item->name_value }}">
-                                                                {{ $item->name_value }}
+                                                            <option value="{{ $item->period_name }}">
+                                                                {{ $item->period_name }}
                                                             </option>
                                                         @endforeach
                                                     </select>

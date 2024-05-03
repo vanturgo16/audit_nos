@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MstAssessorChecklistController;
 use App\Http\Controllers\MstAssignChecklistController;
 use App\Http\Controllers\MstJaringanController;
+use App\Http\Controllers\MstParentChecklistController;
 use App\Http\Controllers\MstChecklistController;
 use App\Http\Controllers\MstDepartmentController;
 use App\Http\Controllers\MstDropdownController;
@@ -14,10 +15,12 @@ use App\Http\Controllers\MstEmployeeController;
 use App\Http\Controllers\MstFormChecklistController;
 use App\Http\Controllers\MstGradingController;
 use App\Http\Controllers\MstMapChecklistController;
+use App\Http\Controllers\MstPeriodNameController;
 use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
 use App\Http\Controllers\UserController;
+use App\Models\MstPeriodName;
 use Illuminate\Support\Facades\Route;
 
 
@@ -78,16 +81,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/employee', [MstEmployeeController::class, 'index'])->name('employee.index')->middleware('role:Super Admin,Admin');
     Route::post('employee/create', [MstEmployeeController::class, 'store'])->name('employee.store')->middleware('role:Super Admin,Admin');
     Route::post('employee/update/{id}', [MstEmployeeController::class, 'update'])->name('employee.update')->middleware('role:Super Admin,Admin');
-    
+
+    //Parent Checklist
+    Route::get('/parentchecklist', [MstParentChecklistController::class, 'index'])->name('parentchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::post('parentchecklist/create', [MstParentChecklistController::class, 'store'])->name('parentchecklist.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/parentchecklist/info/{id}', [MstParentChecklistController::class, 'info'])->name('parentchecklist.info')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/parentchecklist/edit/{id}', [MstParentChecklistController::class, 'edit'])->name('parentchecklist.edit')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::post('parentchecklist/update/{id}', [MstParentChecklistController::class, 'update'])->name('parentchecklist.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+
     //Checklist
     Route::get('/checklist', [MstChecklistController::class, 'index'])->name('checklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/checklist/mappingparent/{name}', [MstChecklistController::class, 'mappingparent'])->name('mappingParent')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/checklist/info/{id}', [MstChecklistController::class, 'info'])->name('checklist.info')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/checklist/edit/{id}', [MstChecklistController::class, 'edit'])->name('checklist.edit')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('checklist/create', [MstChecklistController::class, 'store'])->name('checklist.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('checklist/update/{id}', [MstChecklistController::class, 'update'])->name('checklist.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::get('/checklist/mark/{id}', [MstChecklistController::class, 'mark'])->name('checklist.mark')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('checklist/createmark/{id}', [MstChecklistController::class, 'markstore'])->name('checklist.markstore')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
-    Route::get('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::post('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
 
-    //Checklist
+    //Mapping Checklist
     Route::get('/mapchecklist', [MstMapChecklistController::class, 'index'])->name('mapchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::get('/mapchecklist/type/{type}', [MstMapChecklistController::class, 'type'])->name('mapchecklist.type')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('/mapchecklist/add/{type}', [MstMapChecklistController::class, 'addtype'])->name('mapchecklist.addtype')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
@@ -96,11 +109,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/mapchecklist/deleteparent/{id}', [MstMapChecklistController::class, 'deleteparent'])->name('mapchecklist.deleteparent')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('/mapchecklist/addparent/{type}', [MstMapChecklistController::class, 'addparent'])->name('mapchecklist.addparent')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
 
-
     //Grading
     Route::get('/grading', [MstGradingController::class, 'index'])->name('grading.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
-
     
+    //Naming Period
+    Route::get('/periodname', [MstPeriodNameController::class, 'index'])->name('periodname.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::post('periodname/create', [MstPeriodNameController::class, 'store'])->name('periodname.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::post('periodname/update/{id}', [MstPeriodNameController::class, 'update'])->name('periodname.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::post('periodname/activate/{id}', [MstPeriodNameController::class, 'activate'])->name('periodname.activate')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::post('periodname/deactivate/{id}', [MstPeriodNameController::class, 'deactivate'])->name('periodname.deactivate')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+
     //Period Checklist
     Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('periodchecklist/create', [MstPeriodChecklistController::class, 'store'])->name('periodchecklist.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer');

@@ -33,11 +33,7 @@ class MstDropdownController extends Controller
 
     private function getData($category)
     {
-        if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
-            $query=MstDropdowns::orderBy('category')->get();
-        } else {
-            $query=MstDropdowns::where('category', 'Period Name')->get();
-        }
+        $query=MstDropdowns::orderBy('category')->get();
 
         $data = DataTables::of($query)
             ->addColumn('action', function ($data) use ($category){
@@ -81,18 +77,11 @@ class MstDropdownController extends Controller
             $this->auditLogsShort('Create New Dropdown');
 
             DB::commit();
-            if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
-                return redirect()->back()->with(['success' => 'Success Create New Dropdown']);
-            } else {
-                return redirect()->back()->with(['success' => 'Success Create New Period']);
-            }
+            
+            return redirect()->back()->with(['success' => 'Success Create New Dropdown']);
         } catch (Exception $e) {
             DB::rollback();
-            if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
-                return redirect()->back()->with(['fail' => 'Failed to Create New Dropdown!']);
-            } else {
-                return redirect()->back()->with(['fail' => 'Failed to Create New Period!']);
-            }
+            return redirect()->back()->with(['fail' => 'Failed to Create New Dropdown!']);
         }
     }
 
@@ -135,22 +124,11 @@ class MstDropdownController extends Controller
                 $this->auditLogsShort('Update Dropdown');
 
                 DB::commit();
-                
-                if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
-                    return redirect()->back()->with(['success' => 'Success Update Dropdown']);
-                } else {
-                    return redirect()->back()->with(['fail' => 'Failed to Update Period!']);
-                }
 
+                return redirect()->back()->with(['success' => 'Success Update Dropdown']);
             } catch (Exception $e) {
                 DB::rollback();
-                
-                if(in_array(auth()->user()->role, ['Super Admin', 'Admin'])){
-                    return redirect()->back()->with(['fail' => 'Failed to Update Dropdown!']);
-                } else {
-                    return redirect()->back()->with(['fail' => 'Failed to Update Period!']);
-                }
-                
+                return redirect()->back()->with(['fail' => 'Failed to Update Dropdown!']);
             }
         } else {
             return redirect()->back()->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
