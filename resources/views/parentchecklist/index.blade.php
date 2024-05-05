@@ -46,7 +46,7 @@
                                                     <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
                                                 </div>
                                                 <div class="col-lg-6 mb-3" id="newTumbnail">
-                                                    <label class="form-label">Tumbnail</label><label style="color: darkred">*</label>
+                                                    <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
                                                     <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail">
                                                     <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
                                                 </div>

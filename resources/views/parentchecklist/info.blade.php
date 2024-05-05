@@ -90,7 +90,7 @@
                             @if($parent->path_guide_premises != null)
                                 <div class="col-lg-6 mb-3">
                                     <div class="form-group">
-                                        <div><span class="fw-bold">Guide Image :</span></div>
+                                        <div><span class="fw-bold">Guide Parent Point :</span></div>
                                         <div class="custom-image-container">
                                             <a href="{{ url($parent->path_guide_premises) }}" target="_blank">
                                                 <img src="{{ url($parent->path_guide_premises) }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">

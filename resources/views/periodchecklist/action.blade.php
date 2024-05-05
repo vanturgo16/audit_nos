@@ -117,7 +117,7 @@
                         <div class="row">
                             <div class="col-lg-12 mb-3">
                                 <label class="form-label">Period Checklist</label><label style="color: darkred">*</label>
-                                <select class="form-select js-example-basic-single" name="period" style="width: 100%" required>
+                                <select class="form-select js-example-basic-single" style="width: 100%" name="period" style="width: 100%" required>
                                     <option value="" selected>-- Select Period --</option>
                                     @foreach($period_name as $item)
                                         <option value="{{ $item->period_name }}" @if($data->period == $item->period_name) selected="selected" @endif>

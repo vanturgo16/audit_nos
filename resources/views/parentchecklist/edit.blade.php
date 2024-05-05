@@ -39,7 +39,7 @@
                             <div class="row">
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
-                                    <select class="form-select js-example-basic-single" name="type_checklist" required>
+                                    <select class="form-select js-example-basic-single" style="width: 100%" name="type_checklist" required>
                                         <option value="" selected>-- Select Type --</option>
                                         <option disabled>──────────</option>
                                         @foreach($type_checklist as $item)
@@ -56,7 +56,7 @@
                                 <div class="col-lg-6 mb-3">
                                 </div>
                                 <div class="col-lg-12">
-                                    <label class="form-label">Tumbnail</label>
+                                    <label class="form-label">Guide Parent Point</label>
                                 </div>
 
                                 <div class="col-lg-6 mb-3">

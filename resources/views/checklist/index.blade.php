@@ -40,10 +40,18 @@
                                         <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                             <div class="row">
                                                 <input type="hidden" name="type_checklist" value="{{ $type }}">
-                                                
+
+                                                @if($type == 'H1 Premises')
+                                                    <div class="col-lg-6 mb-3">
+                                                        <label class="form-label">Guide Checklist (H1 Premises)</label><label style="color: darkred">*</label>
+                                                        <input type="file" name="guide_checklist" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Guide" required>
+                                                    </div>
+                                                    <div class="col-lg-6 mb-3"></div>
+                                                @endif
+
                                                 <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
-                                                    <select class="form-select js-example-basic-single" name="parent_point_checklist" id="parentPoint" required>
+                                                    <select class="form-select js-example-basic-single" style="width: 100%" name="parent_point_checklist" id="parentPoint" required>
                                                         <option value="" disabled selected>-- Select Parent --</option>
                                                         <option disabled>──────────</option>
                                                         @foreach( $type_parent as $item)
@@ -71,7 +79,7 @@
                                                     <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
                                                 </div>
                                                 <div class="col-lg-6 mb-3" id="newTumbnail">
-                                                    <label class="form-label">Tumbnail</label><label style="color: darkred">*</label>
+                                                    <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
                                                     <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail">
                                                     <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
                                                 </div>
