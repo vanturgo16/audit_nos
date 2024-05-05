@@ -44,12 +44,12 @@
                     <div class="page-title-left">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('checklist.index') }}">List Checklist</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('checklist.index', $parent->type_checklist) }}">List Checklist (Type: {{ $parent->type_checklist }})</a></li>
                             <li class="breadcrumb-item active">Info</li>
                         </ol>
                     </div>
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('checklist.index') }}"
+                        <a id="backButton" type="button" href="{{ route('checklist.index', $parent->type_checklist) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
                             Back

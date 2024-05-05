@@ -7,12 +7,14 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Parent Checklist</h4>
+                    <h4 class="mb-sm-0 font-size-18">Master Parent Checklist (Type : {{ $type }})</h4>
+
                     <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item active">List Parent Checklist</li>
-                        </ol>
+                        <a id="backButton" type="button" href="{{ route('parentchecklist.typechecklist') }}"
+                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                            Back
+                        </a>
                     </div>
                 </div>
             </div>
@@ -24,33 +26,21 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Checklist</button>
+                        <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Parent Checklist</button>
                         {{-- Modal Add --}}
                         <div class="modal fade" id="add-new" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                             <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">Add New Parent Checklist</h5>
+                                        <h5 class="modal-title" id="staticBackdropLabel">Add New Parent Checklist (Type: {{ $type }})</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ route('parentchecklist.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                             <div class="row">
-                                                <div class="col-lg-12">
-                                                    <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
-                                                </div>
-                                                <div class="col-lg-6 mb-3">
-                                                    <select class="form-select js-example-basic-single" name="type_checklist" required>
-                                                        <option value="" selected>-- Select Type --</option>
-                                                        <option disabled>──────────</option>
-                                                        @foreach($type_checklist as $item)
-                                                            <option value="{{ $item->name_value }}" {{ old('name_value') == $item->name_value ? 'selected' : '' }}> {{ $item->name_value }} </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-lg-6 mb-3">
-                                                </div>
+                                                <input type="hidden" name="type_checklist" value="{{ $type }}">
+
                                                 <div class="col-lg-6 mb-3" id="newParent">
                                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
                                                     <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
@@ -107,7 +97,6 @@
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
-                                    <th class="align-middle text-center">Type Checklist</th>
                                     <th class="align-middle text-center">Parent Point</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -126,7 +115,7 @@
         $('#server-side-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{!! route('parentchecklist.index') !!}',
+            ajax: '{!! route('parentchecklist.index', $type) !!}',
             columns: [{
                 data: null,
                     render: function(data, type, row, meta) {
@@ -137,16 +126,10 @@
                     className: 'align-middle text-center',
                 },
                 {
-                    data: 'type_checklist',
-                    name: 'type_checklist',
-                    orderable: true,
-                    className: 'align-middle text-center text-bold'
-                },
-                {
                     data: 'parent_point_checklist',
                     name: 'parent_point_checklist',
                     orderable: true,
-                    className: 'align-middle text-center'
+                    className: 'align-middle text-bold'
                 },
                 {
                     data: 'action',

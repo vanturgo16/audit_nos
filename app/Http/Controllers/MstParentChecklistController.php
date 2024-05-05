@@ -18,10 +18,33 @@ class MstParentChecklistController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index(Request $request)
+    public function typechecklist(Request $request)
     {
-        $type_checklist = MstDropdowns::where('category', 'Type Checklist')->get();
-        $datas = MstParentChecklists::get();
+        $datas = MstDropdowns::select('name_value')->where('category', 'Type Checklist')->get();
+
+        foreach($datas as $data){
+            $amount = MstParentChecklists::where('type_checklist', $data->name_value)->count();
+            $data->amount = $amount;
+        }
+
+        if ($request->ajax()) {
+            $data = DataTables::of($datas)
+            ->addColumn('action', function ($data) {
+                return view('parentchecklist.type.action', compact('data'));
+            })
+            ->toJson();
+            return $data;
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List Type Checklist in Parent');
+        
+        return view('parentchecklist.type.index');
+    }
+
+    public function index(Request $request, $type)
+    {
+        $datas = MstParentChecklists::where('type_checklist', $type)->get();
 
         if ($request->ajax()) {
             $data = DataTables::of($datas)
@@ -35,7 +58,7 @@ class MstParentChecklistController extends Controller
         //Audit Log
         $this->auditLogsShort('View List Mst Parent Checklist');
         
-        return view('parentchecklist.index',compact('datas', 'type_checklist'));
+        return view('parentchecklist.index',compact('datas', 'type'));
     }
 
     public function info($id)
@@ -147,14 +170,14 @@ class MstParentChecklistController extends Controller
                     'path_guide_premises' => $url_thumb
                 ]);
             } else {
-                return redirect()->route('parentchecklist.index')->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
+                return redirect()->route('parentchecklist.index', $request->type_checklist)->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
             }
 
             //Audit Log
             $this->auditLogsShort('Update Parent Checklist ID ('. $id . ')');
 
             DB::commit();
-            return redirect()->route('parentchecklist.index')->with(['success' => 'Success Update Parent Checklist']);
+            return redirect()->route('parentchecklist.index', $request->type_checklist)->with(['success' => 'Success Update Parent Checklist']);
         } catch (Exception $e) {
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Update Parent Checklist!']);

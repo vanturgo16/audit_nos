@@ -185,13 +185,13 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('parentchecklist.index') }}">
+                                <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
                                     <span>Master Parent Checklist</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('checklist.index') }}">
+                                <a href="{{ route('checklist.typechecklist') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
                                 </a>
@@ -305,13 +305,13 @@
                             </li>
                             
                             <li>
-                                <a href="{{ route('parentchecklist.index') }}">
+                                <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
                                     <span>Master Parent Checklist</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('checklist.index') }}">
+                                <a href="{{ route('checklist.typechecklist') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
                                 </a>
@@ -359,13 +359,13 @@
                             </li>
                             
                             <li>
-                                <a href="{{ route('parentchecklist.index') }}">
+                                <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
                                     <span>Master Parent Checklist</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('checklist.index') }}">
+                                <a href="{{ route('checklist.typechecklist') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
                                 </a>
