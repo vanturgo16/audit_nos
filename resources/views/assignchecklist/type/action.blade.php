@@ -15,7 +15,7 @@
 <div class="left-align truncate-text">
     {{-- Modal Info --}}
     <div class="modal fade" id="info{{ $data->id_assign_checklist }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-top" role="document">
+        <div class="modal-dialog modal-dialog-top modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Info</h5>

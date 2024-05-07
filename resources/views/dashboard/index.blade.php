@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        {{-- <div class="row">
+        <div class="row">
             <div class="col-lg-12">
                 <div class="card">
                     <div class="card-header p-3">
@@ -103,7 +103,7 @@
                                     @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD']))
                                         <div class="col-4">
                                             <label class="form-label">Jaringan</label>
-                                            <select class="form-select js-example-basic-single" name="dealer_name" required>
+                                            <select class="form-select js-example-basic-single" style="width: 100%" name="dealer_name" required>
                                                 <option value="" selected>-- Select Jaringan --</option>
                                                 @foreach ($dealers as $item)
                                                     <option value="{{ $item->id }}" @if($idDealer == $item->id) selected="selected" @endif>{{ $item->dealer_name }}</option>
@@ -113,7 +113,7 @@
                                     @endif
                                     <div class="col-4">
                                         <label class="form-label">Period</label>
-                                        <select class="form-select js-example-basic-single" name="id_period" required>
+                                        <select class="form-select js-example-basic-single" style="width: 100%" name="id_period" required>
                                             <option value="" selected>-- Select Period --</option>
                                             @foreach ($periods as $item)
                                                 <option value="{{ $item->id }}">{{ $item->period }}</option>
@@ -214,7 +214,12 @@
                                                 <tr>
                                                     <th colspan="2" class="align-middle text-center">Indikator</th>
                                                     @foreach($typechecklist as $type)
-                                                        <th class="align-middle text-center">{{ $type->type_checklist }}</th>
+                                                        <th class="align-middle text-center">
+                                                            <a href="{{ $type->id_checklist_jaringan }}"
+                                                                type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">
+                                                                <i class="mdi mdi-information label-icon"></i>{{ $type->type_checklist }}
+                                                            </a>
+                                                        </th>
                                                     @endforeach
                                                     <th class="align-middle text-center">Final Result</th>
                                                 </tr>
@@ -241,7 +246,7 @@
                                                             @elseif($result->status == 0)
                                                                 <span class="badge bg-warning text-white">Not Complete</span>
                                                             @else
-                                                                <span class="badge bg-info text-white">Complete</span>
+                                                                <span class="badge bg-success text-white">Complete</span>
                                                             @endif
                                                         </th>
                                                     @endforeach
@@ -393,7 +398,7 @@
                     </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
 
 
 

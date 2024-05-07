@@ -35,7 +35,7 @@ class DashboardController extends Controller
             $statusPeriod = MstPeriodeChecklists::where('id', $idPeriod)->first()->status;
             //ForSortingBasedDropdown
             $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
-            $typechecklist = ChecklistJaringan::select('type_checklist')->where('id_periode', $idPeriod)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
+            $typechecklist = ChecklistJaringan::select('id as id_checklist_jaringan', 'type_checklist')->where('id_periode', $idPeriod)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
             $typechecklistValues = $typechecklist->pluck('type_checklist')->toArray();
 
             $resultchecklist = ChecklistJaringan::select('type_checklist', 'result_percentage', 'status',

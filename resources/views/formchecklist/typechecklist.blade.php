@@ -145,6 +145,7 @@
 
 <script>
     var grading = <?php echo json_encode($grading); ?>;
+    
     $(function() {
         $('#server-side-table').DataTable({
             processing: true,
@@ -256,32 +257,7 @@
                             if (row.decisionpic === "0") {
                                 html = '<span class="badge bg-danger text-white">PIC - Rejected</span>';
                             } else {
-                                html = '<button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#notapprove'+ row.id +'"><i class="mdi mdi-sim-alert label-icon"></i>Not Approve</button>' +
-                                '<div class="modal fade" id="notapprove'+ row.id +'" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">' +
-                                    '<div class="modal-dialog modal-dialog-top" role="document">' +
-                                        '<div class="modal-content">' +
-                                            '<div class="modal-header">' +
-                                                '<h5 class="modal-title" id="staticBackdropLabel">Info Not Approve</h5>' +
-                                                '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
-                                            '</div>' +
-                                            '<div class="modal-body">' +
-                                                '<div class="row">' +
-                                                    '<div class="col-lg-12">' +
-                                                        '<div class="form-group">' +
-                                                            '<div><span class="fw-bold">Reason :</span></div>' +
-                                                            '<span>' +
-                                                                '<span>' + row.last_reason + '</span>' +
-                                                            '</span>' +
-                                                        '</div>' +
-                                                    '</div>' +
-                                                '</div>' +
-                                            '</div>' +
-                                            '<div class="modal-footer">' +
-                                                '<button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>' +
-                                            '</div>' +
-                                        '</div>' +
-                                    '</div>' +
-                                '</div>';
+                                html = '<button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#notapprove'+ row.id +'"><i class="mdi mdi-sim-alert label-icon"></i>Not Approve</button>';
                             }
                         } else if (row.status == 6) {
                             html = '<span class="badge bg-warning text-white">Reviewed</span>';

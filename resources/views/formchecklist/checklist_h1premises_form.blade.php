@@ -23,13 +23,17 @@
     /* Style Image Hover */
     .custom-image-container {
         position: relative;
-        width: 100%;
+        width: 40%;
+        height: 25vh;
+        overflow: hidden;
     }
     .custom-image-container:hover .custom-overlay {
         opacity: 1;
     }
     .custom-image-container img {
         width: 100%;
+        height: 100%;
+        object-fit: cover;
         display: block;
     }
     .custom-overlay {
@@ -113,45 +117,10 @@
                                                 <input type="hidden" name="id_jaringan" value="{{$id}}">
                                                 <input type="hidden" name="sum_point" value="{{count($point)}}">
 
-                                                @php
-                                                    $file = "";
-                                                    foreach($file_point as $file){
-                                                        if($poin->parent_point == $file->parent_point){
-                                                            $file = $file->path_url;
-                                                            break;
-                                                        }else{
-                                                            $file= "";
-                                                            break;
-                                                        }
-                                                    }
-                                                @endphp
-
                                                 <h4 class="mb-3">
                                                     <i class="mdi mdi-arrow-right text-primary me-1"></i>
                                                     <span class="badge bg-primary"> {{$poin->parent_point}}</span>
                                                 </h4>
-                                                <div class="card px-2 py-2 mb-0">
-                                                    <div class="row">
-                                                        <div class="col-6">
-                                                            @if($file != "")
-                                                                <label for="">Update File Response Parent</label>
-                                                            @else
-                                                                <label for="">Upload File Response Parent *(If Any)</label>
-                                                            @endif
-                                                            <input class="form-control me-auto" type="file" name="file_parent" placeholder="input File">
-                                                        </div>
-                                                        <div class="col-6">
-                                                            @if($file != "")
-                                                                <label for="">File Before</label>
-                                                                <br>
-                                                                <a href="{{ url($file) }}"
-                                                                    type="button" class="btn btn-info waves-effect btn-label waves-light" download="File {{$type->type_checklist}}_{{$poin->parent_point}}">
-                                                                    <i class="mdi mdi-download label-icon"></i> Download
-                                                                </a>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
 
@@ -168,7 +137,7 @@
                                         <input type="hidden" name="id_checklist_jaringan" value="{{$id}}">
 
                                         <div class="row">
-                                            <div class="@if($poin->path_guide_parent != null) col-lg-9 @else col-lg-12 @endif">
+                                            <div class="col-lg-12">
                                                 <table class="table w-100" style="height: 43vh;">
                                                     <tbody>
                                                         <?php $no = 0;?> 
@@ -182,7 +151,7 @@
                                                                 </td>
                                                                 <td style="border-bottom: 0px;">
                                                                     <h5><b>{{ $data->sub_point_checklist }}</b></h5>
-                                                                    <div style="max-height: 25vh; overflow-y: auto;">
+                                                                    <div style="max-height: 25vh; overflow-y: auto; width: 40vw; overflow-x-auto;">
                                                                         {!! $data->indikator !!}
                                                                     </div>
                                                                     @php
@@ -223,6 +192,78 @@
                                                                     </button>
                                                                     @endif
                                                                 </td>
+                                                                
+                                                                <td style="border-bottom: 0px;">
+                                                                    @php 
+                                                                        $file_response_check = "";
+                                                                        foreach($respons as $respon)
+                                                                        {
+                                                                            if($data->id_assign == $respon->id_assign_checklist){
+                                                                                $file_response_check = $respon->path_input_response;
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                    @endphp
+                                                                    <div class="row">
+                                                                        <div class="col-12">
+                                                                            @if($file_response_check != "")
+                                                                                <label for="">Update File Response Checklist</label>
+                                                                            @else
+                                                                                <label for="">Upload File Response Checklist *(If Any)</label>
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="col-7">
+                                                                            <input class="form-control me-auto" type="file" name="{{$tab}}file_checklist{{$data->id_assign}}" placeholder="input File">
+                                                                        </div>
+                                                                        <div class="col-5">
+                                                                            @if($file_response_check != "")
+                                                                                <a href="{{ url($file_response_check) }}"
+                                                                                    type="button" class="btn btn-info waves-effect btn-label waves-light" download="File">
+                                                                                    <i class="mdi mdi-download label-icon"></i> File Before
+                                                                                </a>
+                                                                            @endif
+                                                                        </div>
+
+                                                                        @if($data->path_guide_checklist != null)
+                                                                            <div class="col-12 mt-3">
+                                                                            <label for="">Guide Image Checklist</label>
+                                                                                <div class="custom-image-container">
+                                                                                    <div class="card">
+                                                                                        <a href="#" data-bs-toggle="modal" data-bs-target="#detailimage{{ $data->id_assign }}">
+                                                                                            <img src="{{url($data->path_guide_checklist)}}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">
+                                                                                            <div class="custom-overlay">
+                                                                                                <div class="custom-text">View Full Image</div>
+                                                                                            </div>
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endif
+
+                                                                    </div>
+                                                                </td>
+                                                                
+                                                                @if($data->path_guide_checklist != null)
+                                                                {{-- Modal --}}
+                                                                <div class="modal fade" id="detailimage{{ $data->id_assign }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                                                    <div class="modal-dialog modal-dialog-top" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title" id="staticBackdropLabel">Full Image</h5>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <div class="row">
+                                                                                    <img src="{{url($data->path_guide_checklist)}}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                @endif
                                                             </tr>
     
                                                             @endif
@@ -282,44 +323,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            @if($poin->path_guide_parent != null)
-                                                <div class="col-lg-3">
-                                                    <label>Guide Image Parent Checklist</label>
-                                                    <div class="custom-image-container">
-                                                        <a href="#" data-bs-toggle="modal" data-bs-target="#detailimage{{ $poin->path_guide_parent }}">
-                                                            <img src="{{url($poin->path_guide_parent)}}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">
-                                                            <div class="custom-overlay">
-                                                                <div class="custom-text">View Full Image</div>
-                                                            </div>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            @endif
                                         </div>
-
-                                        @if($poin->path_guide_parent != null)
-                                            {{-- Modal --}}
-                                            <div class="modal fade" id="detailimage{{ $poin->path_guide_parent }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-top" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="staticBackdropLabel">Full Image</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="row">
-                                                                <img src="{{url($poin->path_guide_parent)}}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-
+                                
                                     </form>
                                 </div>
 

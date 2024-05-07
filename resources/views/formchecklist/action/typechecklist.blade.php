@@ -281,5 +281,32 @@
                 </div>
             </div>
         </div>
+
+        {{-- Modal Not Approve --}}
+        @if($data->status == 5)
+        <div class="modal fade" id="notapprove{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Info Not Approve</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5><span class="fw-bold">Reason :</span></h5>
+                                <div class="card p-2" style="max-height: 47vh; overflow-y: auto;">
+                                    <span>{!! $data->last_reason !!}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 @endif

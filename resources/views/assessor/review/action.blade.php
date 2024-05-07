@@ -91,45 +91,77 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <div><span class="fw-bold">Image :</span></div>
-                                <span>
-                                    @if($data->path_guide_premises == null)
-                                        <span class="badge bg-secondary text-white">Null</span>
-                                    @else
-                                        <img src="{{url($data->path_guide_premises)}}" class="img-thumbnail" width="200" alt="Thumbnail 1">
-                                    @endif
-                                </span>
+                        
+
+                        @if($data->type_checklist == 'H1 Premises')
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Guide Checklist :</span></div>
+                                    <span>
+                                        @if($data->path_guide_checklist == null)
+                                            <span class="badge bg-secondary text-white">Null</span>
+                                        @else
+                                            <img src="{{url($data->path_guide_checklist)}}" class="img-thumbnail" width="200" alt="Thumbnail 1">
+                                        @endif
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                        @php
-                            $file = "";
-                            foreach($file_point as $file){
-                                if($data->parent_point == $file->parent_point){
-                                    $file = $file->path_url;
-                                    break;
-                                }else{
-                                    $file= "";
-                                    break;
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Response File Checklist :</span></div>
+                                    <span>
+                                        @if($data->path_input_response == null)
+                                            <span class="badge bg-secondary text-white">Null</span>
+                                        @else
+                                            <a href="{{ url($data->path_input_response) }}"
+                                                type="button" class="btn btn-info waves-effect btn-label waves-light" download="File {{$data->sub_point_checklist}}">
+                                                <i class="mdi mdi-download label-icon"></i> Download
+                                            </a>
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                        @else
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Guide Parent Checklist :</span></div>
+                                    <span>
+                                        @if($data->path_guide_premises == null)
+                                            <span class="badge bg-secondary text-white">Null</span>
+                                        @else
+                                            <img src="{{url($data->path_guide_premises)}}" class="img-thumbnail" width="200" alt="Thumbnail 1">
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                            @php
+                                $file = "";
+                                foreach($file_point as $file){
+                                    if($data->parent_point == $file->parent_point){
+                                        $file = $file->path_url;
+                                        break;
+                                    }else{
+                                        $file= "";
+                                        break;
+                                    }
                                 }
-                            }
-                        @endphp
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <div><span class="fw-bold">Response Upload File :</span></div>
-                                <span>
-                                    @if($file != "")
-                                        <a href="{{ url($file) }}"
-                                            type="button" class="btn btn-info waves-effect btn-label waves-light" download="File {{$data->parent_point}}">
-                                            <i class="mdi mdi-download label-icon"></i> Download
-                                        </a>
-                                    @else
-                                        <span class="badge bg-secondary text-white">Null</span>
-                                    @endif
-                                </span>
+                            @endphp
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Response File Parent :</span></div>
+                                    <span>
+                                        @if($file != "")
+                                            <a href="{{ url($file) }}"
+                                                type="button" class="btn btn-info waves-effect btn-label waves-light" download="File {{$data->parent_point}}">
+                                                <i class="mdi mdi-download label-icon"></i> Download
+                                            </a>
+                                        @else
+                                            <span class="badge bg-secondary text-white">Null</span>
+                                        @endif
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
                     <hr>
 

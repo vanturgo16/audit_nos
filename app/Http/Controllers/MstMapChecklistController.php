@@ -38,11 +38,15 @@ class MstMapChecklistController extends Controller
     public function type(Request $request, $type)
     {
         $type = decrypt($type);
+        
+        //ForSortingBasedDropdown
+        $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
         $datas = MstMapChecklists::select('type_checklist as type')
             ->where('mst_mapchecklists.type_jaringan', $type)
             ->join('mst_parent_checklists', 'mst_mapchecklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
             ->groupBy('mst_parent_checklists.type_checklist')
             ->selectRaw('COUNT(*) as count')
+            ->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")
             ->get();
 
         $type_checklist = MstDropdowns::select('type_checklist as name_value')

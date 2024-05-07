@@ -134,9 +134,9 @@
                                                     <div class="row">
                                                         <div class="col-6">
                                                             @if($file != "")
-                                                                <label for="">Update File Response Parent</label>
+                                                                <label for="">Update File</label>
                                                             @else
-                                                                <label for="">Upload File Response Parent *(If Any)</label>
+                                                                <label for="">Upload File *(If Any)</label>
                                                             @endif
                                                             <input class="form-control me-auto" type="file" name="file_parent" placeholder="input File">
                                                         </div>
@@ -168,7 +168,7 @@
                                         <input type="hidden" name="id_checklist_jaringan" value="{{$id}}">
 
                                         <div class="row">
-                                            <div class="@if($poin->path_guide_parent != null) col-lg-9 @else col-lg-12 @endif">
+                                            <div class="@if($poin->path_guide != null) col-lg-9 @else col-lg-12 @endif">
                                                 <table class="table w-100" style="height: 43vh;">
                                                     <tbody>
                                                         <?php $no = 0;?> 
@@ -185,10 +185,8 @@
                                                                     <div style="max-height: 25vh; overflow-y: auto;">
                                                                         {!! $data->indikator !!}
                                                                     </div>
-                                                                    @php
-                                                                        $markArray = json_decode($data->mark, true);
-                                                                    @endphp
-                                                                    @foreach($markArray as $mark)
+                                                                    
+                                                                    @foreach($data->mark as $mark)
                                                                         @php 
                                                                             $checked = "";
                                                                             foreach($respons as $respon)
@@ -207,17 +205,17 @@
     
                                                                     @endforeach
                                                                     <br>
-                                                                    @if($data->ms == 0 && $data->mg == 0 && $data->mp == 0)
+                                                                    @if($data->mandatory_silver == 0 && $data->mandatory_gold == 0 && $data->mandatory_platinum == 0)
                                                                     @else
                                                                     <button type="button" class="btn btn-sm btn-warning waves-effect btn-label waves-light" disabled>
                                                                         <i class="mdi mdi-alert label-icon"></i>Mandatory : 
-                                                                        @if($data->ms == 1)
+                                                                        @if($data->mandatory_silver == 1)
                                                                             <span class="badge bg-danger">Silver</span>
                                                                         @endif
-                                                                        @if($data->mg == 1)
+                                                                        @if($data->mandatory_gold == 1)
                                                                             <span class="badge bg-danger">Gold</span>
                                                                         @endif
-                                                                        @if($data->mp == 1)
+                                                                        @if($data->mandatory_platinum == 1)
                                                                             <span class="badge bg-danger">Platinum</span>
                                                                         @endif
                                                                     </button>
@@ -283,12 +281,11 @@
                                                 </div>
                                             </div>
 
-                                            @if($poin->path_guide_parent != null)
+                                            @if($poin->path_guide != null)
                                                 <div class="col-lg-3">
-                                                    <label>Guide Image Parent Checklist</label>
                                                     <div class="custom-image-container">
-                                                        <a href="#" data-bs-toggle="modal" data-bs-target="#detailimage{{ $poin->path_guide_parent }}">
-                                                            <img src="{{url($poin->path_guide_parent)}}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">
+                                                        <a href="{{url($poin->path_guide)}}" target="_blank">
+                                                            <img src="{{url($poin->path_guide)}}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">
                                                             <div class="custom-overlay">
                                                                 <div class="custom-text">View Full Image</div>
                                                             </div>
@@ -297,29 +294,7 @@
                                                 </div>
                                             @endif
                                         </div>
-
-                                        @if($poin->path_guide_parent != null)
-                                            {{-- Modal --}}
-                                            <div class="modal fade" id="detailimage{{ $poin->path_guide_parent }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-top" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="staticBackdropLabel">Full Image</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="row">
-                                                                <img src="{{url($poin->path_guide_parent)}}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-
+                                
                                     </form>
                                 </div>
 
