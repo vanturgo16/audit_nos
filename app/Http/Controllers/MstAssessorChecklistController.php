@@ -2,13 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChecklistJaringan;
-use App\Models\ChecklistResponse;
-use App\Models\FileInputResponse;
-use App\Models\FinishReviewLog;
-use App\Models\MstAssignChecklists;
-use App\Models\MstDropdowns;
-use App\Models\MstGrading;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +16,13 @@ use App\Models\MstJaringan;
 use App\Models\SubmitReviewLog;
 use App\Models\MstRules;
 use App\Models\User;
+use App\Models\ChecklistJaringan;
+use App\Models\ChecklistResponse;
+use App\Models\FileInputResponse;
+use App\Models\FinishReviewLog;
+use App\Models\MstAssignChecklists;
+use App\Models\MstDropdowns;
+use App\Models\MstGrading;
 
 // Mail
 use App\Mail\SubmitReviewChecklist;
@@ -104,51 +104,33 @@ class MstAssessorChecklistController extends Controller
         }
 
         if ($request->ajax()) {
-            $datas = ChecklistJaringan::all()->where('id_periode', $id);
-
-            $mandatoryCounts = ChecklistResponse::selectRaw('
-                SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
-                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
-                SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 0 AND mst_checklists.mandatory_platinum = 1) as p
-            ')
-            ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
-            ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            ->where('mst_parent_checklists.type_checklist', 'H1 People')
-            ->whereNot('checklist_response.response', 'Exist, Good')
-            ->where('mst_periode_checklists.id', '26')
-            ->get();
-            // dd($mandatoryCounts);
+            //ForSortingBasedDropdown
+            $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
+            $datas = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
 
             foreach($datas as $data){
                 $responsCounts = ChecklistResponse::select('checklist_response.response as response')
-                ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
-                ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-                ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-                ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-                ->where('mst_parent_checklists.type_checklist', $data->type_checklist)
-                ->where('mst_periode_checklists.id', $id)
-                ->groupBy('checklist_response.response')
-                ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
-                ->get()->toArray();
+                    ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
+                    ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+                    ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                    ->where('mst_assign_checklists.type_checklist', $data->type_checklist)
+                    ->where('mst_periode_checklists.id', $id)
+                    ->groupBy('checklist_response.response')
+                    ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
+                    ->get()->toArray();
                 $data->point = $responsCounts;
             }
 
             foreach($datas as $datam){
                 $mandatoryCounts = ChecklistResponse::selectRaw('
-                    SUM(mst_checklists.mandatory_silver = 1 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as sgp,
-                    SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 1 AND mst_checklists.mandatory_platinum = 1) as gp,
-                    SUM(mst_checklists.mandatory_silver = 0 AND mst_checklists.mandatory_gold = 0 AND mst_checklists.mandatory_platinum = 1) as p
+                    SUM(mst_assign_checklists.ms = 1 AND mst_assign_checklists.mg = 1 AND mst_assign_checklists.mp = 1) as sgp,
+                    SUM(mst_assign_checklists.ms = 0 AND mst_assign_checklists.mg = 1 AND mst_assign_checklists.mp = 1) as gp,
+                    SUM(mst_assign_checklists.ms = 0 AND mst_assign_checklists.mg = 0 AND mst_assign_checklists.mp = 1) as p
                 ')
                 ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
                 ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
                 ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                ->join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-                ->join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-                ->where('mst_parent_checklists.type_checklist', $datam->type_checklist)
+                ->where('mst_assign_checklists.type_checklist', $data->type_checklist)
                 ->whereNot('checklist_response.response', 'Exist, Good')
                 ->where('mst_periode_checklists.id', $id)
                 ->get()->toArray();
@@ -187,12 +169,11 @@ class MstAssessorChecklistController extends Controller
         //file point
         $file_point = FileInputResponse::select(
             'file_input_response.*',
-            'mst_parent_checklists.parent_point_checklist as parent_point'
+            'trans_file_response.parent_point'
         )
         ->Join('trans_file_response', 'file_input_response.id_trans_file', 'trans_file_response.id')
         ->Join('mst_periode_checklists', 'trans_file_response.id_period', 'mst_periode_checklists.id')
-        ->Join('mst_parent_checklists', 'trans_file_response.id_parent', 'mst_parent_checklists.id')
-        ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
+        ->where('trans_file_response.type_checklist', $type->type_checklist)
         ->where('mst_periode_checklists.id', $type->id_periode)
         ->get();
 
@@ -202,23 +183,22 @@ class MstAssessorChecklistController extends Controller
             $query = MstAssignChecklists::select(
                 'mst_assign_checklists.id as id_assign', 
                 'mst_assign_checklists.id_periode_checklist as id_periode_checklist', 
-                'mst_checklists.*',
-                'mst_parent_checklists.path_guide_premises', 
-                'mst_parent_checklists.parent_point_checklist as parent_point', 
-                'mst_checklists.id as id_checklist', 
+                'mst_assign_checklists.*',
+                'mst_assign_checklists.path_guide_parent as path_guide_premises', 
+                'mst_assign_checklists.parent_point_checklist as parent_point', 
+                'mst_assign_checklists.id_mst_checklist as id_checklist', 
                 'checklist_jaringan.type_checklist',
             )
             ->Join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->Join('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            ->Join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            ->Join('checklist_jaringan', 'mst_periode_checklists.id', 'checklist_jaringan.id_periode')
+            ->Join('checklist_jaringan', 'mst_assign_checklists.id_periode_checklist', 'checklist_jaringan.id_periode')
             ->where('checklist_jaringan.id', $id)
-            ->where('mst_parent_checklists.type_checklist', $type->type_checklist)
+            ->where('mst_assign_checklists.type_checklist', $type->type_checklist)
             ->get();
 
             foreach ($query as $q) {
-                $response = ChecklistResponse::where('id_assign_checklist', $q->id_assign)->first()->response;
-                $q->response = $response;
+                $response = ChecklistResponse::where('id_assign_checklist', $q->id_assign)->first();
+                $q->response = $response->response;
+                $q->path_input_response = $response->path_input_response;
             }
 
             $data = DataTables::of($query)
@@ -235,6 +215,7 @@ class MstAssessorChecklistController extends Controller
         
         return view('assessor.review.index', compact('type'));
     }
+
     public function submitreview(Request $request, $id)
     {
         $id = decrypt($id);
@@ -477,8 +458,12 @@ class MstAssessorChecklistController extends Controller
 
         $period = MstPeriodeChecklists::where('id', $id)->first();
         $datas = FinishReviewLog::where('id_period', $id)->get();
+
+        //ForSortingBasedDropdown
+        $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
+        
         foreach($datas as $data){
-            $submitlog = SubmitReviewLog::where('id_finish_review', $data->id)->get();
+            $submitlog = SubmitReviewLog::where('id_finish_review', $data->id)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
             $data->submitlog = $submitlog;
         }
 

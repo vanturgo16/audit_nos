@@ -34,6 +34,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     //User
     Route::get('/user', [UserController::class, 'index'])->name('user.index')->middleware('role:Super Admin,Admin');
@@ -83,14 +84,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('employee/update/{id}', [MstEmployeeController::class, 'update'])->name('employee.update')->middleware('role:Super Admin,Admin');
 
     //Parent Checklist
-    Route::get('/parentchecklist', [MstParentChecklistController::class, 'index'])->name('parentchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/parentchecklist', [MstParentChecklistController::class, 'typechecklist'])->name('parentchecklist.typechecklist')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/parentchecklist/{type}', [MstParentChecklistController::class, 'index'])->name('parentchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('parentchecklist/create', [MstParentChecklistController::class, 'store'])->name('parentchecklist.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::get('/parentchecklist/info/{id}', [MstParentChecklistController::class, 'info'])->name('parentchecklist.info')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::get('/parentchecklist/edit/{id}', [MstParentChecklistController::class, 'edit'])->name('parentchecklist.edit')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('parentchecklist/update/{id}', [MstParentChecklistController::class, 'update'])->name('parentchecklist.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
 
     //Checklist
-    Route::get('/checklist', [MstChecklistController::class, 'index'])->name('checklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/checklist', [MstChecklistController::class, 'typechecklist'])->name('checklist.typechecklist')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
+    Route::get('/checklist/{type}', [MstChecklistController::class, 'index'])->name('checklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::get('/checklist/mappingparent/{name}', [MstChecklistController::class, 'mappingparent'])->name('mappingParent')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::get('/checklist/info/{id}', [MstChecklistController::class, 'info'])->name('checklist.info')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::get('/checklist/edit/{id}', [MstChecklistController::class, 'edit'])->name('checklist.edit')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
@@ -167,6 +170,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/area/ajax/mappingPostalCode/{subdistrict_id}', [AjaxMappingRegional::class, 'selectPostalCode'])->name('mappingPostalCode');
 
     //Mapping Json
+    Route::get('/mapping/dealer/{id}', [DashboardController::class, 'mappingdealer'])->name('mapping.dealer');
     Route::get('/json_position/{id}', [MstPositionController::class, 'json_position'])->name('json_position');
     Route::post('/check_email_employee', [MstEmployeeController::class, 'check_email'])->name('check_email_employee');
 });

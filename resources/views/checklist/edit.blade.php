@@ -10,12 +10,12 @@
                     <div class="page-title-left">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('checklist.index') }}">List Checklist</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('checklist.index', $parent->type_checklist) }}">List Checklist (Type: {{ $parent->type_checklist }})</a></li>
                             <li class="breadcrumb-item active">Edit</li>
                         </ol>
                     </div>
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('checklist.index') }}"
+                        <a id="backButton" type="button" href="{{ route('checklist.index', $parent->type_checklist) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
                             Back
@@ -37,9 +37,10 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <input type="hidden" name="type_checklist_before" value="{{ $parent->type_checklist }}">
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
-                                    <select class="form-select js-example-basic-single" name="type_checklist" required>
+                                    <select class="form-select js-example-basic-single" style="width: 100%" name="type_checklist" required>
                                         <option value="" selected>-- Select Type --</option>
                                         <option disabled>──────────</option>
                                         @foreach($type_checklist as $item)
@@ -48,10 +49,34 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
+                                    <div id="guidechceklist">
+                                        @if($parent->type_checklist == 'H1 Premises')
+                                            <label class="form-label">Update Guide Checklist (H1 Premises)</label>
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    @if($checklist->path_guide_checklist != null)
+                                                        <span>
+                                                            <a href="{{ url($checklist->path_guide_checklist) }}" type="button" class="btn btn-info waves-effect btn-label waves-light" target="_blank">
+                                                                <i class="mdi mdi-eye label-icon"></i> Show File Before
+                                                            </a>
+                                                        </span>
+                                                    @else
+                                                        <h5><span class="badge bg-secondary">Null File Before</span></h5>
+                                                    @endif
+                                                </div>
+                                                <div class="col-8">
+                                                    <input type="file" name="guide_checklist" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Guide">
+                                                </div>
+                                            </div>
+                                        @else
+                                            <label class="form-label">Guide Checklist (H1 Premises)</label><label style="color: darkred">*</label>
+                                            <input type="file" name="guide_checklist" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Guide" required>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="col-lg-6 mb-3">
-                                    <label class="form-label">Point</label><label style="color: darkred">*</label>
-                                    <select class="form-select js-example-basic-single" name="parent_point_checklist" id="parentPoint" required>
+                                    <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
+                                    <select class="form-select js-example-basic-single" style="width: 100%" name="parent_point_checklist" id="parentPoint" required>
                                         <option value="" selected>-- Select Parent --</option>
                                         <option disabled>──────────</option>
                                         @foreach( $type_parent as $item)
@@ -65,6 +90,15 @@
                                     // getParentList
                                     $('select[name="type_checklist"]').on('change', function() {
                                         var typeChecklist = $(this).find('option:selected').val();
+
+                                        if (typeChecklist === 'H1 Premises') {
+                                            $('#guidechceklist').show();
+                                            $('input[name="guide_checklist"]').attr("required", true);
+                                        } else {
+                                            $('#guidechceklist').hide();
+                                            $('input[name="guide_checklist"]').attr("required", false);
+                                        }
+
                                         var url = '{{ route("mappingParent", ":name") }}';
                                         url = url.replace(':name', typeChecklist);
                                         
@@ -113,7 +147,7 @@
                                     <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
                                 </div>
                                 <div class="col-lg-6 mb-3" id="newTumbnail">
-                                    <label class="form-label">Tumbnail</label><label style="color: darkred">*</label>
+                                    <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
                                     <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail">
                                     <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
                                 </div>
@@ -254,7 +288,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-12 align-right">
-                                    <a href="{{ route('checklist.index') }}" type="button" class="btn btn-light waves-effect btn-label waves-light">
+                                    <a href="{{ route('checklist.index', $parent->type_checklist) }}" type="button" class="btn btn-light waves-effect btn-label waves-light">
                                         <i class="mdi mdi-arrow-left-circle label-icon"></i>Back
                                     </a>
                                     <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb">

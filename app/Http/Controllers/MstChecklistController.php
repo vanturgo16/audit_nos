@@ -17,14 +17,41 @@ class MstChecklistController extends Controller
 {
     use AuditLogsTrait;
 
-    public function index(Request $request)
+    public function typechecklist(Request $request)
     {
-        // $datas=MstChecklists::get();
+        $datas = MstDropdowns::select('name_value')->where('category', 'Type Checklist')->get();
+
+        foreach($datas as $data){
+            $amount = MstChecklists::leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+                ->where('mst_parent_checklists.type_checklist', $data->name_value)
+                ->count();
+            $data->amount = $amount;
+        }
+
+        if ($request->ajax()) {
+            $data = DataTables::of($datas)
+            ->addColumn('action', function ($data) {
+                return view('checklist.type.action', compact('data'));
+            })
+            ->toJson();
+            return $data;
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List Type Checklist');
+        
+        return view('checklist.type.index');
+    }
+
+    public function index(Request $request, $type)
+    {
         $datas = MstChecklists::join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
-            ->select('mst_checklists.*', 'mst_parent_checklists.type_checklist', 'mst_parent_checklists.parent_point_checklist', 'mst_parent_checklists.path_guide_premises')
+            ->select('mst_checklists.*', 'mst_parent_checklists.type_checklist', 'mst_parent_checklists.parent_point_checklist')
+            ->where('mst_parent_checklists.type_checklist', $type)
+            ->orderby('mst_checklists.id_parent_checklist')
             ->get();
-        $type_checklist = MstDropdowns ::where('category', 'Type Checklist')->get();
-        $type_parent = MstParentChecklists ::get();
+        $type_checklist = MstDropdowns::where('category', 'Type Checklist')->get();
+        $type_parent = MstParentChecklists::where('type_checklist', $type)->get();
 
         if ($request->ajax()) {
             $data = DataTables::of($datas)
@@ -38,8 +65,9 @@ class MstChecklistController extends Controller
         //Audit Log
         $this->auditLogsShort('View List Mst Checklist');
         
-        return view('checklist.index',compact('datas', 'type_checklist', 'type_parent'));
+        return view('checklist.index',compact('datas', 'type', 'type_checklist', 'type_parent'));
     }
+
     public function mappingparent($name)
     {
         $parents = MstParentChecklists::where('type_checklist', $name)->get();
@@ -70,10 +98,29 @@ class MstChecklistController extends Controller
             'mandatory_silver' => 'required',
             'mandatory_gold' => 'required',
             'mandatory_platinum' => 'required',
+
+            'guide_checklist' => $request->type_checklist == 'H1 Premises' ? 'required|image|mimes:jpg,jpeg,png|max:3072' : '',
         ]);
 
         DB::beginTransaction();
         try{
+            // IF Create Checklist With Type H1 Premises (Conditional HardCode)
+            if($request->type_checklist == 'H1 Premises'){
+                $uploadfile = 1;
+                if($request->hasFile('guide_checklist')){
+                    $path_loc = $request->file('guide_checklist');
+                    $name = $path_loc->hashName();
+                    $path_loc->move(public_path('assets/images/guidechecklist'), $name);
+                    $url_guide_check = 'assets/images/guidechecklist/'.$name;
+                }else{
+                    $url_guide_check = null;
+                    return redirect()->back()->with(['fail' => 'Failed to Save File!']); 
+                }
+            } else {
+                $uploadfile = 0;
+                $url_guide_check = null;
+            }
+
             // Check Add New Parent or Not
             if($request->parent_point_checklist == "AddParent"){
                 // Store Image Tumbnail & Get Path URL
@@ -116,7 +163,8 @@ class MstChecklistController extends Controller
                 'mandatory_silver' => $request->mandatory_silver,
                 'mandatory_gold' => $request->mandatory_gold,
                 'mandatory_platinum' => $request->mandatory_platinum,
-                'upload_file' => 0
+                'upload_file' => $uploadfile,
+                'path_guide_checklist' => $url_guide_check,
             ]);
 
             //Audit Log
@@ -163,6 +211,42 @@ class MstChecklistController extends Controller
 
         DB::beginTransaction();
         try{
+            // Check Data Before H1 Premises or not
+            if($request->type_checklist_before == 'H1 Premises'){
+                $path_guide_checklist = MstChecklists::where('id', $id)->first()->path_guide_checklist;
+                // IF Update Checklist With Type H1 Pemises (Conditional HardCode)
+                if($request->type_checklist == 'H1 Premises'){
+                    $uploadfile = 1;
+                    if($request->hasFile('guide_checklist')){
+                        $path_loc = $request->file('guide_checklist');
+                        $name = $path_loc->hashName();
+                        $path_loc->move(public_path('assets/images/guidechecklist'), $name);
+                        $url_guide_check = 'assets/images/guidechecklist/'.$name;
+                    }else{
+                        $url_guide_check = $path_guide_checklist;
+                    }
+                } else {
+                    $uploadfile = 0;
+                    $url_guide_check = null;
+                }
+            } else {
+                if($request->type_checklist == 'H1 Premises'){
+                    $uploadfile = 1;
+                    if($request->hasFile('guide_checklist')){
+                        $path_loc = $request->file('guide_checklist');
+                        $name = $path_loc->hashName();
+                        $path_loc->move(public_path('assets/images/guidechecklist'), $name);
+                        $url_guide_check = 'assets/images/guidechecklist/'.$name;
+                    }else{
+                        $url_guide_check = null;
+                        return redirect()->back()->with(['fail' => 'Failed to Save File!']); 
+                    }
+                } else {
+                    $uploadfile = 0;
+                    $url_guide_check = null;
+                }
+            }
+
             // Check Add New Parent or Not
             if($request->parent_point_checklist == "AddParent"){
                 // Store Image Tumbnail & Get Path URL
@@ -205,9 +289,9 @@ class MstChecklistController extends Controller
             $databefore->mandatory_silver = $request->mandatory_silver;
             $databefore->mandatory_gold = $request->mandatory_gold;
             $databefore->mandatory_platinum = $request->mandatory_platinum;
+            $databefore->path_guide_checklist = $url_guide_check;
 
             if($databefore->isDirty()){
-                dd('berubah');
                 // Update Checklist
                 MstChecklists::where('id', $id)->update([
                     'id_parent_checklist' => $id_parent,
@@ -216,17 +300,19 @@ class MstChecklistController extends Controller
                     'indikator' => $request->indikator,
                     'mandatory_silver' => $request->mandatory_silver,
                     'mandatory_gold' => $request->mandatory_gold,
-                    'mandatory_platinum' => $request->mandatory_platinum
+                    'mandatory_platinum' => $request->mandatory_platinum,
+                    'upload_file' => $uploadfile,
+                    'path_guide_checklist' => $url_guide_check,
                 ]);
             } else {
-                return redirect()->route('checklist.index')->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
+                return redirect()->route('checklist.index', $request->type_checklist)->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
             }
 
             //Audit Log
-            $this->auditLogsShort('Update Checklist ID ('. $id . ')');
+            $this->auditLogsShort('Update Checklist ID ('. $id .')');
 
             DB::commit();
-            return redirect()->route('checklist.index')->with(['success' => 'Success Update Checklist']);
+            return redirect()->route('checklist.index', $request->type_checklist)->with(['success' => 'Success Update Checklist']);
         } catch (Exception $e) {
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Update Checklist!']);

@@ -14,7 +14,7 @@
     <!-- Responsive datatable examples -->
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" /> 
     <!-- preloader css -->
-    {{-- <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" /> --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" />
     <!-- Bootstrap Css -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
@@ -185,13 +185,13 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('parentchecklist.index') }}">
+                                <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
                                     <span>Master Parent Checklist</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('checklist.index') }}">
+                                <a href="{{ route('checklist.typechecklist') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
                                 </a>
@@ -305,13 +305,13 @@
                             </li>
                             
                             <li>
-                                <a href="{{ route('parentchecklist.index') }}">
+                                <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
                                     <span>Master Parent Checklist</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('checklist.index') }}">
+                                <a href="{{ route('checklist.typechecklist') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
                                 </a>
@@ -359,13 +359,13 @@
                             </li>
                             
                             <li>
-                                <a href="{{ route('parentchecklist.index') }}">
+                                <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
                                     <span>Master Parent Checklist</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('checklist.index') }}">
+                                <a href="{{ route('checklist.typechecklist') }}">
                                     <i class="mdi mdi-check-network"></i>
                                     <span>Master Checklist</span>
                                 </a>

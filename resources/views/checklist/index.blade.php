@@ -7,12 +7,14 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Checklist</h4>
+                    <h4 class="mb-sm-0 font-size-18">Master Checklist (Type : {{ $type }})</h4>
+                    
                     <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item active">List Checklist</li>
-                        </ol>
+                        <a id="backButton" type="button" href="{{ route('checklist.typechecklist') }}"
+                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
+                            Back
+                        </a>
                     </div>
                 </div>
             </div>
@@ -30,65 +32,35 @@
                             <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">Add New Checklist</h5>
+                                        <h5 class="modal-title" id="staticBackdropLabel">Add New Checklist (Type : {{ $type }})</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ route('checklist.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                             <div class="row">
-                                                <div class="col-lg-12">
-                                                    <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
-                                                </div>
-                                                <div class="col-lg-12 mb-3">
-                                                    <select class="form-select js-example-basic-single" name="type_checklist" required>
-                                                        <option value="" selected>-- Select Type --</option>
-                                                        <option disabled>──────────</option>
-                                                        @foreach($type_checklist as $item)
-                                                            <option value="{{ $item->name_value }}" {{ old('name_value') == $item->name_value ? 'selected' : '' }}> {{ $item->name_value }} </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="col-lg-6 mb-3">
-                                                    <label class="form-label">Point</label><label style="color: darkred">*</label>
-                                                    <select class="form-select js-example-basic-single" name="parent_point_checklist" id="parentPoint" required>
-                                                        <option value="" disabled selected>-- Select Parent --</option>
-                                                    </select>
-                                                </div>
-                                                <script>
-                                                    // getParentList
-                                                    $('select[name="type_checklist"]').on('change', function() {
-                                                        var typeChecklist = $(this).find('option:selected').val();
-                                                        var url = '{{ route("mappingParent", ":name") }}';
-                                                        url = url.replace(':name', typeChecklist);
-                                                        
-                                                        if (typeChecklist) {
-                                                            $.ajax({
-                                                                url: url,
-                                                                type: "GET",
-                                                                dataType: "json",
-                                                                success: function(data) {
-                                                                    $('select[id="parentPoint"]').empty();
-                                                                    $('select[id="parentPoint"]').append(
-                                                                        '<option value="" disabled selected>-- Select Parent --</option>'+
-                                                                        '<option disabled>──────────</option>'
-                                                                    );
+                                                <input type="hidden" name="type_checklist" value="{{ $type }}">
 
-                                                                    $.each(data, function(div, value) {
-                                                                        $('select[id="parentPoint"]').append(
-                                                                            '<option value="' + value.id + '">' + value.parent_point_checklist + '</option>');
-                                                                    });
-                                                                    $('select[id="parentPoint"]').append(
-                                                                        '<option disabled>──────────</option>' +
-                                                                        '<option class="font-weight-bold" value="AddParent">Add New Parent</option>'
-                                                                    );
-                                                                }
-                                                            });
-                                                        } else {
-                                                            $('select[id="parentPoint"]').empty();
-                                                        }
-                                                    });
-                                                </script>
+                                                @if($type == 'H1 Premises')
+                                                    <div class="col-lg-6 mb-3">
+                                                        <label class="form-label">Guide Checklist (H1 Premises)</label><label style="color: darkred">*</label>
+                                                        <input type="file" name="guide_checklist" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Guide" required>
+                                                    </div>
+                                                    <div class="col-lg-6 mb-3"></div>
+                                                @endif
+
+                                                <div class="col-lg-6 mb-3">
+                                                    <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
+                                                    <select class="form-select js-example-basic-single" style="width: 100%" name="parent_point_checklist" id="parentPoint" required>
+                                                        <option value="" disabled selected>-- Select Parent --</option>
+                                                        <option disabled>──────────</option>
+                                                        @foreach( $type_parent as $item)
+                                                            <option value="{{ $item->id }}" {{ old('parent_point_checklist') == $item->parent_point_checklist ? 'selected' : '' }}> {{ $item->parent_point_checklist }} </option>
+                                                        @endforeach
+                                                        <option disabled>──────────</option>
+                                                        <option class="font-weight-bold" value="AddParent">Add New Parent</option>
+                                                    </select>
+                                                </div>
 
                                                 <div class="col-lg-6 mb-3">
                                                     <label class="form-label d-block">Child Point ?<label style="color: darkred">*</label></label>
@@ -107,7 +79,7 @@
                                                     <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
                                                 </div>
                                                 <div class="col-lg-6 mb-3" id="newTumbnail">
-                                                    <label class="form-label">Tumbnail</label><label style="color: darkred">*</label>
+                                                    <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
                                                     <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail">
                                                     <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
                                                 </div>
@@ -265,7 +237,6 @@
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
-                                    <th class="align-middle text-center">Type Checklist</th>
                                     <th class="align-middle text-center">Parent Point</th>
                                     <th class="align-middle text-center">Child Point</th>
                                     <th class="align-middle text-center">Sub Point</th>
@@ -287,7 +258,7 @@
         $('#server-side-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{!! route('checklist.index') !!}',
+            ajax: '{!! route('checklist.index', $type) !!}',
             columns: [{
                 data: null,
                     render: function(data, type, row, meta) {
@@ -298,16 +269,10 @@
                     className: 'align-middle text-center',
                 },
                 {
-                    data: 'type_checklist',
-                    name: 'type_checklist',
-                    orderable: true,
-                    className: 'align-middle text-center text-bold'
-                },
-                {
                     data: 'parent_point_checklist',
                     name: 'parent_point_checklist',
                     orderable: true,
-                    className: 'align-middle text-center'
+                    className: 'align-middle text-bold'
                 },
                 {
                     data: 'child_point_checklist',

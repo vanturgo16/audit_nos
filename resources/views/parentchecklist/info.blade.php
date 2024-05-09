@@ -44,12 +44,12 @@
                     <div class="page-title-left">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('parentchecklist.index') }}">List Parent Checklist</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('parentchecklist.index', $parent->type_checklist) }}">List Parent Checklist (Type: {{ $parent->type_checklist }})</a></li>
                             <li class="breadcrumb-item active">Info</li>
                         </ol>
                     </div>
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('parentchecklist.index') }}"
+                        <a id="backButton" type="button" href="{{ route('parentchecklist.index', $parent->type_checklist) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
                             Back
@@ -90,7 +90,7 @@
                             @if($parent->path_guide_premises != null)
                                 <div class="col-lg-6 mb-3">
                                     <div class="form-group">
-                                        <div><span class="fw-bold">Guide Image :</span></div>
+                                        <div><span class="fw-bold">Guide Parent Point :</span></div>
                                         <div class="custom-image-container">
                                             <a href="{{ url($parent->path_guide_premises) }}" target="_blank">
                                                 <img src="{{ url($parent->path_guide_premises) }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{url('path_to_placeholder_image')}}'; this.alt='Image not found';">

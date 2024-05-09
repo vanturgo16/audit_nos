@@ -94,13 +94,15 @@
                                                         <span class="badge bg-danger text-white">Not Approved</span>
                                                     @endif      
                                                 </td>
-                                                <td class="align-middle text-center">
-                                                    @if($log->reason == null)
+                                                @if($log->reason == null)
+                                                    <td class="align-middle text-center">
                                                         <span class="badge bg-secondary text-white">Null</span>
-                                                    @else
-                                                        {{ $log->reason }}
-                                                    @endif      
-                                                </td>
+                                                    </td>
+                                                @else
+                                                    <td class="align-middle">
+                                                        <span>{!! $log->reason !!}</span>
+                                                    </td>
+                                                @endif      
                                             </tr>
                                         @endforeach
                                     </tbody>

@@ -14,7 +14,9 @@
                 @else
                     <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#notyetstart{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
                 @endif
-            @elseif(in_array($data->status, [0, 1, 5]))
+            @elseif($data->status == 0)
+                <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-update"></span> | Check / Update</a></li>
+            @elseif(in_array($data->status, [1, 5]))
                 <li><a class="dropdown-item drpdwn" href="{{ route('formchecklist.checklistform', encrypt($data->id)) }}"><span class="mdi mdi-update"></span> | Check / Update</a></li>
                 <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#result{{ $data->id }}"><span class="mdi mdi-dns-outline"></span> | All Result</a></li>
             @elseif(in_array($data->status, [2, 3, 4, 6, 7]))
@@ -279,5 +281,32 @@
                 </div>
             </div>
         </div>
+
+        {{-- Modal Not Approve --}}
+        @if($data->status == 5)
+        <div class="modal fade" id="notapprove{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Info Not Approve</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5><span class="fw-bold">Reason :</span></h5>
+                                <div class="card p-2" style="max-height: 47vh; overflow-y: auto;">
+                                    <span>{!! $data->last_reason !!}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 @endif

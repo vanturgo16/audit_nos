@@ -10,12 +10,12 @@
                     <div class="page-title-left">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('parentchecklist.index') }}">List Parent Checklist</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('parentchecklist.index', $parent->type_checklist) }}">List Parent Checklist (Type: {{ $parent->type_checklist }})</a></li>
                             <li class="breadcrumb-item active">Edit</li>
                         </ol>
                     </div>
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('parentchecklist.index') }}"
+                        <a id="backButton" type="button" href="{{ route('parentchecklist.index', $parent->type_checklist) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
                             Back
@@ -39,7 +39,7 @@
                             <div class="row">
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
-                                    <select class="form-select js-example-basic-single" name="type_checklist" required>
+                                    <select class="form-select js-example-basic-single" style="width: 100%" name="type_checklist" required>
                                         <option value="" selected>-- Select Type --</option>
                                         <option disabled>──────────</option>
                                         @foreach($type_checklist as $item)
@@ -56,7 +56,7 @@
                                 <div class="col-lg-6 mb-3">
                                 </div>
                                 <div class="col-lg-12">
-                                    <label class="form-label">Tumbnail</label>
+                                    <label class="form-label">Guide Parent Point</label>
                                 </div>
 
                                 <div class="col-lg-6 mb-3">
@@ -96,7 +96,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-12 align-right">
-                                    <a href="{{ route('parentchecklist.index') }}" type="button" class="btn btn-light waves-effect btn-label waves-light">
+                                    <a href="{{ route('parentchecklist.index', $parent->type_checklist) }}" type="button" class="btn btn-light waves-effect btn-label waves-light">
                                         <i class="mdi mdi-arrow-left-circle label-icon"></i>Back
                                     </a>
                                     <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb">
