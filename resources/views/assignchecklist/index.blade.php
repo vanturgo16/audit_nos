@@ -41,22 +41,29 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">: 
-                                @if($period->status == null)
-                                    <span class="badge bg-warning text-white">Expired</span>
-                                @elseif($period->status == 0)
-                                    <span class="badge bg-danger text-white">Inactive</span>
-                                @elseif($period->status == 1)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @elseif($period->status == 2)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @elseif($period->status == 3)
-                                    <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>
-                                @elseif($period->status == 4)
-                                    <span class="badge bg-success text-white">Assessor Approved</span>
-                                @elseif($period->status == 5)
-                                    <span class="badge bg-success text-white">Active</span>
-                                @elseif($period->status == 6)
-                                    <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
+                                @if($period->decisionpic == "0")
+                                    @if($period->status == null)
+                                        <span class="badge bg-warning text-white">Expired</span>
+                                    @endif
+                                    <span class="badge bg-danger text-white">PIC - Rejected</span>
+                                @else
+                                    @if($period->status == null)
+                                        <span class="badge bg-warning text-white">Expired</span>
+                                    @elseif($period->status == 0)
+                                        <span class="badge bg-danger text-white">Inactive</span>
+                                    @elseif($period->status == 1)
+                                        <span class="badge bg-success text-white">Active</span>
+                                    @elseif($period->status == 2)
+                                        <span class="badge bg-success text-white">Active</span>
+                                    @elseif($period->status == 3)
+                                        <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>
+                                    @elseif($period->status == 4)
+                                        <span class="badge bg-success text-white">Assessor Approved</span>
+                                    @elseif($period->status == 5)
+                                        <span class="badge bg-success text-white">Active</span>
+                                    @elseif($period->status == 6)
+                                        <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
+                                    @endif
                                 @endif
                             </td>
                         </tr>

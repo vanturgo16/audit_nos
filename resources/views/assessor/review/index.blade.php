@@ -80,7 +80,7 @@
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Decission</button>
                         {{-- Modal Finish --}}
                         <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-top" role="document">
+                            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="staticBackdropLabel">Decission Review</h5>
@@ -88,7 +88,7 @@
                                     </div>
                                     <form action="{{ route('assessor.submitreview', encrypt($type->id)) }}" id="formsubmit" method="POST">
                                         @csrf
-                                        <div class="modal-body">
+                                        <div class="modal-body" style="max-height: 67vh; overflow-y: auto;">
                                             <input type="hidden" name="idperiod" value="{{ $type->id_periode }}">
                                             <input type="hidden" name="typechecklist" value="{{ $type->type_checklist }}">
                                             <div class="row">
@@ -106,6 +106,19 @@
                                             </div>
                                             <div class="mt-2" id="reasonBox" style="display:none;">
                                                 <textarea class="form-control" name="reason" id="reason" placeholder="Reason Why Not Approved..." rows="3"></textarea>
+
+                                                <script>
+                                                    CKEDITOR.replace( 'reason', {
+                                                        toolbar: [
+                                                            { name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo' ] },
+                                                            { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Find', 'Replace' ] },
+                                                            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold' , 'Italic', 'Underline', '-', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ]},
+                                                            { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-'] },
+                                                            { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+                                                            { name: 'others', items: [ '-' ] },
+                                                        ]
+                                                    });
+                                                </script>
                                             </div>
                                         </div>
                                         <div class="modal-footer">

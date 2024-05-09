@@ -50,6 +50,12 @@ class UserController extends Controller
     {
         // dd($request->all());
 
+        //Prevent Create Role Super Admin, If Not Super Admin
+        $roleUser = auth()->user()->role;
+        if($roleUser != 'Super Admin' && $request->role == 'Super Admin'){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Do Not Have Access to Add Role as Super Admin']);
+        }
+
         $validate = Validator::make($request->all(),[
             'email' => 'required',
             'role' => 'required',

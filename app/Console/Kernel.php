@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('ReminderSubmitPeriodCommand')
             ->timezone('Asia/Jakarta')
             ->dailyAt('08:00');
-            // ->everyMinute()
+            // ->everyMinute();
             // ->sendOutputTo("storage/logs/LogReminderSubmit_".$now.".txt");
     }
 
