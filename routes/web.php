@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     //Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/detailresult/{id}', [DashboardController::class, 'detailresult'])->name('dashboard.detailresult');
 
     //User
     Route::get('/user', [UserController::class, 'index'])->name('user.index')->middleware('role:Super Admin,Admin');

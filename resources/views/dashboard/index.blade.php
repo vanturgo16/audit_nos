@@ -215,13 +215,13 @@
                                                     <th colspan="2" class="align-middle text-center">Indikator</th>
                                                     @foreach($typechecklist as $type)
                                                         <th class="align-middle text-center">
-                                                            <a href="{{ $type->id_checklist_jaringan }}"
+                                                            <a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank"
                                                                 type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">
                                                                 <i class="mdi mdi-information label-icon"></i>{{ $type->type_checklist }}
                                                             </a>
                                                         </th>
                                                     @endforeach
-                                                    <th class="align-middle text-center">Final Result</th>
+                                                    {{-- <th class="align-middle text-center">Final Result</th> --}}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -235,7 +235,7 @@
                                                             <td class="align-middle text-center">{{ $result->result_percentage }}%</th>
                                                         @endif
                                                     @endforeach
-                                                    <td></td>
+                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Status</td>
@@ -250,7 +250,7 @@
                                                             @endif
                                                         </th>
                                                     @endforeach
-                                                    <td></td>
+                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Result Audit</td>
@@ -261,7 +261,7 @@
                                                             <td class="align-middle text-center">{{ $result->audit_result }}</th>
                                                         @endif
                                                     @endforeach
-                                                    <td></td>
+                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Mandatory Item</td>
@@ -272,7 +272,7 @@
                                                             <td class="align-middle text-center">{{ $result->mandatory_item }}</th>
                                                         @endif
                                                     @endforeach
-                                                    <td></td>
+                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td></td>
@@ -283,7 +283,7 @@
                                                             <td class="align-middle text-center">{{ $result->graph_percentage }}%</th>
                                                         @endif
                                                     @endforeach
-                                                    <td></td>
+                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Result Final</td>
@@ -294,7 +294,7 @@
                                                             <td class="align-middle text-center">{{ $result->result_final }}</th>
                                                         @endif
                                                     @endforeach
-                                                    <td></td>
+                                                    {{-- <td></td> --}}
                                                 </tr>
                                             </tbody>
                                         </table>
