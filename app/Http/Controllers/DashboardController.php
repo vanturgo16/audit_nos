@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChecklistJaringan;
+use App\Models\MstAssignChecklists;
 use App\Models\MstDropdowns;
 use Illuminate\Http\Request;
 
@@ -82,5 +83,49 @@ class DashboardController extends Controller
         // Get List Period
         $periods = MstPeriodeChecklists::select('id', 'period')->where('id_branch', $idDealer)->get();
         return $periods;
+    }
+
+    public function detailresult($idcheckjaringan)
+    {
+        $id = decrypt($idcheckjaringan);
+        $checkjaringan = ChecklistJaringan::select('checklist_jaringan.id_periode', 'checklist_jaringan.type_checklist', 'mst_periode_checklists.period', 'mst_dealers.type', 'mst_dealers.dealer_name')
+            ->leftjoin('mst_periode_checklists', 'checklist_jaringan.id_periode', 'mst_periode_checklists.id')
+            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+            ->where('checklist_jaringan.id', $id)
+            ->first();
+
+        $data = MstAssignChecklists::select('parent_point_checklist')
+            ->where('id_periode_checklist', $checkjaringan->id_periode)
+            ->where('type_checklist', $checkjaringan->type_checklist)
+            ->groupBy('parent_point_checklist')
+            ->get();
+
+        foreach($data as $item){
+            $countparent = MstAssignChecklists::where('id_periode_checklist', $checkjaringan->id_periode)
+                ->where('type_checklist', $checkjaringan->type_checklist)
+                ->where('parent_point_checklist', $item->parent_point_checklist)
+                ->count();
+            $item->countparent = $countparent;
+        }
+        foreach($data as $item){
+            $counteg = MstAssignChecklists::leftjoin('checklist_response', 'mst_assign_checklists.id', 'checklist_response.id_assign_checklist')
+                ->where('mst_assign_checklists.type_checklist', $checkjaringan->type_checklist)
+                ->where('mst_assign_checklists.parent_point_checklist', $item->parent_point_checklist)
+                ->where('checklist_response.response', 'Exist, Good')
+                ->count();
+            $item->counteg = $counteg;
+        }
+        foreach($data as $item){
+            $countpercentage = ($item->counteg/$item->countparent)*100;
+            $countpercentage = round($countpercentage);
+            $countpercentage = intval($countpercentage);
+            $item->countpercentage = $countpercentage;
+        }
+        // dd($data);
+
+        $typeparentValues = $data->pluck('parent_point_checklist')->toArray();
+        $dataGraph = $data->pluck('countpercentage')->toArray();
+
+        return view('dashboard.detail', compact('checkjaringan', 'data', 'typeparentValues', 'dataGraph'));
     }
 }
