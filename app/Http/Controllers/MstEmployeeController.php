@@ -7,11 +7,11 @@ use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Traits\ApiRegionalTrait;
-use Browser;
+use Yajra\DataTables\Facades\DataTables;
 
 // Model
 use App\Models\MstEmployees;
-use App\Models\MstBranch;
+use App\Models\MstJaringan;
 use App\Models\MstDepartments;
 
 class MstEmployeeController extends Controller
@@ -19,35 +19,37 @@ class MstEmployeeController extends Controller
     use AuditLogsTrait;
     use ApiRegionalTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         // API
         $tokenregional = $this->getTokenRegional();
         $provinces = $this->getProvinceRegional($tokenregional);
 
-        // $datas=MstEmployees::get();
         $datas = MstEmployees::join('mst_dealers', 'mst_employees.id_dealer', '=', 'mst_dealers.id')
         ->join('mst_departments', 'mst_employees.id_dept', '=', 'mst_departments.id')
         ->join('mst_positions', 'mst_employees.id_position', '=', 'mst_positions.id')
         ->select('mst_employees.*', 'mst_dealers.dealer_name', 'mst_departments.department_name', 'mst_positions.position_name')
         ->get();
-        $dealer=MstBranch::get();
+        $dealer=MstJaringan::get();
         $department=MstDepartments::get();
 
+        if ($request->ajax()) {
+            $data = DataTables::of($datas)
+            ->addColumn('action', function ($data) use ($provinces, $dealer, $department) {
+                return view('employee.action', compact('data', 'provinces', 'dealer', 'department'));
+            })
+            ->toJson();
+            return $data;
+        }
+
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Employee';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst Employee');
         
         return view('employee.index',compact('datas', 'dealer', 'department', 'provinces'));
         // dd($datas);
     }
     public function store(Request $request)
     {
-
         $request->validate([
             'id_dealer' => 'required',
             'id_dept' => 'required',
@@ -84,17 +86,12 @@ class MstEmployeeController extends Controller
             ]);
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Create New Employee';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Create New Employee');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Create New Employee']);
-        } catch (\Exception $e) {
-            dd($e);
+        } catch (Exception $e) {
+            DB::rollBack();
             return redirect()->back()->with(['fail' => 'Failed to Create New Employee!']);
         }
     }
@@ -153,17 +150,12 @@ class MstEmployeeController extends Controller
                 ]);
 
                 //Audit Log
-                $username= auth()->user()->email; 
-                $ipAddress=$_SERVER['REMOTE_ADDR'];
-                $location='0';
-                $access_from=Browser::browserName();
-                $activity='Update Employee';
-                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                $this->auditLogsShort('Update Employee');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Update Employee']);
-            } catch (\Exception $e) {
-                dd($e);
+            } catch (Exception $e) {
+                DB::rollBack();
                 return redirect()->back()->with(['fail' => 'Failed to Update Employee!']);
             }
         } else {
@@ -174,7 +166,14 @@ class MstEmployeeController extends Controller
     public function check_email(Request $request)
     {
         $email = $request->input('email');
-        $isEmailUsed = MstEmployees::where('email', $email)->first();
+        $idList = $request->idList;
+
+        if($idList != null){
+            $isEmailUsed = MstEmployees::where('id', '!=', $idList)->where('email', $email)->first();
+        } else {
+            $isEmailUsed = MstEmployees::where('email', $email)->first();
+        }
+        
         if ($isEmailUsed) {
             return response()->json(['status' => 'used']);
         } else {

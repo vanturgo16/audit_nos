@@ -7,11 +7,15 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Dropdowns</h4>
+                    <h4 class="mb-sm-0 font-size-18">
+                        Master Dropdowns
+                    </h4>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item active">Dropdowns</li>
+                            <li class="breadcrumb-item active">
+                                Dropdowns
+                            </li>
                         </ol>
                     </div>
                 </div>
@@ -30,7 +34,7 @@
                             <div class="modal-dialog modal-dialog-top" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="staticBackdropLabel">Add New Dropdown</h5>
+                                        <h5 class="modal-title" id="staticBackdropLabel">Add New</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ route('dropdown.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
@@ -41,7 +45,7 @@
                                                     <label class="form-label">Category</label><label style="color: darkred">*</label>
                                                 </div>
                                                 <div class="col-lg-6 mb-3">
-                                                    <select class="form-select" name="category" required>
+                                                    <select class="form-select js-example-basic-single" style="width: 100%" name="category" required>
                                                         <option value="" selected>-- Select Category --</option>
                                                         <option disabled>──────────</option>
                                                         @foreach( $category as $item)
@@ -88,6 +92,7 @@
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                                             <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
                                         </div>
+
                                     </form>
                                     <script>
                                         document.getElementById('formadd').addEventListener('submit', function(event) {
@@ -144,12 +149,12 @@
                     orderable: true,
                     data: 'category',
                     name: 'category',
-                    className: 'align-middle text-center text-bold',
+                    className: 'align-middle text-bold',
                 },
                 {
-                    orderable: true,
                     data: 'name_value',
                     name: 'name_value',
+                    orderable: true,
                     className: 'align-middle text-center',
                 },
                 {
@@ -157,8 +162,8 @@
                     orderable: true,
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
-                        var html
-                        if(row.is_active == 1){
+                        var html;
+                        if (row.is_active == 1) {
                             html = '<span class="badge bg-success text-white">Active</span>';
                         } else {
                             html = '<span class="badge bg-danger text-white">Inactive</span>';
@@ -177,4 +182,5 @@
         });
     });
 </script>
+
 @endsection

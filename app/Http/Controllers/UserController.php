@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 // Model
 use App\Models\User;
@@ -48,6 +49,12 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
+
+        //Prevent Create Role Super Admin, If Not Super Admin
+        $roleUser = auth()->user()->role;
+        if($roleUser != 'Super Admin' && $request->role == 'Super Admin'){
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Do Not Have Access to Add Role as Super Admin']);
+        }
 
         $validate = Validator::make($request->all(),[
             'email' => 'required',

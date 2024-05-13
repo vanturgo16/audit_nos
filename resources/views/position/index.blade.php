@@ -39,7 +39,7 @@
                                             <div class="row">
                                                 <div class="col-6 mb-2">
                                                     <label class="form-label">Department</label><label style="color: darkred">*</label>
-                                                    <select class="form-select" name="id_department" required>
+                                                    <select class="form-select js-example-basic-single" style="width: 100%" name="id_department" required>
                                                         <option value="" selected>--Select Department--</option>
                                                         @foreach($departments as $item)
                                                             <option value="{{ $item->id }}">{{ $item->department_name }}</option>

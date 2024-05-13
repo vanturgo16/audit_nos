@@ -6,41 +6,43 @@ use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Traits\ApiRegionalTrait;
-use Browser;
+use Yajra\DataTables\Facades\DataTables;
 
 // Model
-use App\Models\MstBranch;
+use App\Models\MstJaringan;
 use App\Models\MstDropdowns;
 
-class MstBranchController extends Controller
+class MstJaringanController extends Controller
 {
     use AuditLogsTrait;
     use ApiRegionalTrait;
 
-    public function index()
+    public function index(Request $request)
     {
         // API
         $tokenregional = $this->getTokenRegional();
         $provinces = $this->getProvinceRegional($tokenregional);
 
-        $datas=MstBranch::get();
+        $datas=MstJaringan::get();
         $type_dealer = MstDropdowns ::where('category', 'Type Dealer')->get();
 
+        if ($request->ajax()) {
+            $data = DataTables::of($datas)
+            ->addColumn('action', function ($data) use ($provinces, $type_dealer) {
+                return view('dealer.action', compact('data', 'provinces', 'type_dealer'));
+            })
+            ->toJson();
+            return $data;
+        }
+
         //Audit Log
-        $username= auth()->user()->email; 
-        $ipAddress=$_SERVER['REMOTE_ADDR'];
-        $location='0';
-        $access_from=Browser::browserName();
-        $activity='View List Mst Dealer';
-        $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+        $this->auditLogsShort('View List Mst Dealer / Jaringan');
         
         return view('dealer.index',compact('datas','type_dealer', 'provinces'));
-        // $columns = DB::table('mst_dealers')->get()->first();
-        // dd(array_keys((array) $columns));
     }
+
     public function store(Request $request)
     {
-
         $request->validate([
             'type' => 'required',
             'dealer_name' => 'required',
@@ -56,7 +58,7 @@ class MstBranchController extends Controller
         DB::beginTransaction();
         try{
             
-            MstBranch::create([
+            MstJaringan::create([
                 'type' => $request->type,
                 'dealer_name' => $request->dealer_name,
                 'dealer_code' => $request->dealer_code,
@@ -69,23 +71,17 @@ class MstBranchController extends Controller
             ]);
 
             //Audit Log
-            $username= auth()->user()->email; 
-            $ipAddress=$_SERVER['REMOTE_ADDR'];
-            $location='0';
-            $access_from=Browser::browserName();
-            $activity='Create New Dealer';
-            $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+            $this->auditLogsShort('Create New Dealer / Jaringan');
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Create New Dealer']);
-        } catch (\Exception $e) {
-            dd($e);
-            return redirect()->back()->with(['fail' => 'Failed to Create New Dealer!']);
+            return redirect()->back()->with(['success' => 'Success Create New Dealer / Jaringan']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with(['fail' => 'Failed to Create New Dealer / Jaringan!']);
         }
     }
     public function update(Request $request, $id)
     {
-
         $id = decrypt($id);
 
         $request->validate([
@@ -100,7 +96,7 @@ class MstBranchController extends Controller
             // 'zipcode' => 'required'
         ]);
 
-        $databefore = MstBranch::where('id', $id)->first();
+        $databefore = MstJaringan::where('id', $id)->first();
         $databefore->type = $request->type;
         $databefore->dealer_name = $request->dealer_name;
         $databefore->dealer_code = $request->dealer_code;
@@ -114,7 +110,7 @@ class MstBranchController extends Controller
         if($databefore->isDirty()){
             DB::beginTransaction();
             try{
-                MstBranch::where('id', $id)->update([
+                MstJaringan::where('id', $id)->update([
                     'type' => $request->type,
                     'dealer_name' => $request->dealer_name,
                     'dealer_code' => $request->dealer_code,
@@ -127,18 +123,13 @@ class MstBranchController extends Controller
                 ]);
 
                 //Audit Log
-                $username= auth()->user()->email; 
-                $ipAddress=$_SERVER['REMOTE_ADDR'];
-                $location='0';
-                $access_from=Browser::browserName();
-                $activity='Update Dealer';
-                $this->auditLogs($username,$ipAddress,$location,$access_from,$activity);
+                $this->auditLogsShort('Update Dealer / Jaringan');
 
                 DB::commit();
-                return redirect()->back()->with(['success' => 'Success Update Dealer']);
-            } catch (\Exception $e) {
-                dd($e);
-                return redirect()->back()->with(['fail' => 'Failed to Update Dealer!']);
+                return redirect()->back()->with(['success' => 'Success Update Dealer / Jaringan']);
+            } catch (Exception $e) {
+                DB::rollBack();
+                return redirect()->back()->with(['fail' => 'Failed to Update Dealer / Jaringan!']);
             }
         } else {
             return redirect()->back()->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);

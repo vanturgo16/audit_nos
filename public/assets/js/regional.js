@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 this.options[this.selectedIndex].getAttribute("data-idProv");
             var url = "/area/ajax/mappingCity/" + idProv; // Replace with the correct route
             if (idProv) {
+                
                 fetch(url)
                     .then((response) => response.json())
                     .then((data) => {

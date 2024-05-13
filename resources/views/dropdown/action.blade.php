@@ -15,13 +15,13 @@
 </div>
 
 {{-- MODAL --}}
-<div class="left-align">
+<div class="left-align truncate-text">
     {{-- Modal Info --}}
     <div class="modal fade" id="info{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Info Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Info</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -84,7 +84,7 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Edit Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('dropdown.update', encrypt($data->id)) }}" id="formedit{{ $data->id }}" method="POST" enctype="multipart/form-data">
@@ -95,7 +95,7 @@
                                 <label class="form-label">Category</label><label style="color: darkred">*</label>
                             </div>
                             <div class="col-lg-6 mb-3">
-                                <select class="form-select" name="category" id="category{{ $data->id }}" required>
+                                <select class="form-select js-example-basic-single" style="width: 100%" name="category" id="category{{ $data->id }}" required>
                                     <option value="" selected>-- Select Category --</option>
                                     <option disabled>──────────</option>
                                     @foreach( $category as $item)
@@ -134,14 +134,14 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Activate Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Activate</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('dropdown.activate', encrypt($data->id)) }}" id="formactivate{{ $data->id }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="text-center">
-                            Are You Sure to <b>Activate</b> This Dropdown?
+                            Are You Sure to <b>Activate</b> This?
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -158,14 +158,14 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Deactivate Dropdown</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Deactivate</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('dropdown.deactivate', encrypt($data->id)) }}" id="formdeactivate{{ $data->id }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="text-center">
-                            Are You Sure to <b>Deactivate</b> This Dropdown?
+                            Are You Sure to <b>Deactivate</b> This?
                         </div>
                     </div>
                     <div class="modal-footer">
