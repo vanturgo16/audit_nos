@@ -597,7 +597,7 @@ class MstFormChecklistController extends Controller
             $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
             // Recepient Email
             if($development == 1){
-                $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
+                $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
                 $ccemail = null;
             } else {
                 $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
