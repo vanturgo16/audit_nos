@@ -47,7 +47,7 @@ class ReminderSubmitPeriodCommand extends Command
                 $periodinfo->count = $count;
                 // Recepient Email
                 if($development == 1){
-                    $toemail = MstRules::where('rule_name', 'Email Development')->first()->rule_value;
+                    $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
                 } else {
                     $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
                 }
