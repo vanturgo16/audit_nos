@@ -309,7 +309,8 @@ class MstAssessorChecklistController extends Controller
 
             // Update Period Status
             $update = MstPeriodeChecklists::where('id', $id)->update([
-                'status' => $status
+                'status' => $status,
+                'decisionpic' => null
             ]);
             
             // [ MAILING ]
