@@ -119,7 +119,7 @@
                         @if($detail->last_reason == null)
                             Null
                         @else 
-                            {{ $detail->last_reason }}
+                            {!! $detail->last_reason !!}
                         @endif
                     </span>
                 </td>
