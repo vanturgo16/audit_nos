@@ -225,6 +225,9 @@ class MstAssessorChecklistController extends Controller
             $status = 6;
             $reason = null;
         } else {
+            $request->validate([
+                'reason' => 'required',
+            ]);
             $status = 4;
             $reason = $request->reason;
         }
