@@ -135,12 +135,10 @@
 
                                             approvedRadio.addEventListener('change', function () {
                                                 reasonBox.style.display = 'none';
-                                                reasonInput.removeAttribute('required');
                                             });
 
                                             notApprovedRadio.addEventListener('change', function () {
                                                 reasonBox.style.display = 'block';
-                                                reasonInput.setAttribute('required', 'required');
                                             });
                                         });
 
