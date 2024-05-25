@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer']))
+                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC Dealers']))
                         @if(in_array($type->status, [2, 3]))
                         <h4 class="mb-sm-0 font-size-18">Review Checklist</h4>
                         @else
@@ -17,7 +17,7 @@
                         <h4 class="mb-sm-0 font-size-18">Detail Checklist</h4>
                     @endif
                     <div class="page-title-right">
-                        @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD']))
+                        @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD', 'PIC Dealers']))
                         <a id="backButton" type="button" href="{{ route('assessor.typechecklist', encrypt($type->id_periode)) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
@@ -75,7 +75,7 @@
 
             <div class="col-12">
                 <div class="card">
-                    @if($type->status == 2 && in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer']))
+                    @if($type->status == 2 && in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC Dealers']))
                     <div class="card-header d-flex justify-content-end">
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Decission</button>
                         {{-- Modal Finish --}}

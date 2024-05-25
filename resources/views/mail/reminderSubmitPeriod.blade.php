@@ -2,7 +2,7 @@
 <html>
 <body>
     <span>
-        Dear Assessor Team,
+        Dear PIC Dealers Team,
         <br> The Period Checklist You Have Initiated Has a Start Date <b>Today</b> & You Have Not Submit it!
         <br> Detail Period Checklist as below details
         <br>

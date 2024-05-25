@@ -100,7 +100,7 @@
                             <form action="{{ route('dashboard') }}" id="formsearch" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row justify-content-center">
-                                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD']))
+                                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD', 'PIC Dealers']))
                                         <div class="col-4">
                                             <label class="form-label">Jaringan</label>
                                             <select class="form-select js-example-basic-single" style="width: 100%" name="dealer_name" required>

@@ -340,8 +340,8 @@
                         </ul>
                     @endif
 
-                    {{-- Assessor Main Dealer --}}
-                    @if(Auth::user()->role == 'Assessor Main Dealer')
+                    {{-- PIC Dealers --}}
+                    @if(Auth::user()->role == 'PIC Dealers')
                         <ul class="metismenu list-unstyled" id="side-menu">
                             <li>
                                 <a href="{{ route('dashboard') }}">
@@ -390,13 +390,28 @@
                                 </a>
                             </li>
 
-                            <li class="menu-title" data-key="t-menu">Assessor Menu</li>
+                            <li class="menu-title" data-key="t-menu">Assign Checklist</li>
                             <li>
                                 <a href="{{ route('periodchecklist.index') }}">
                                     <i class="mdi mdi-check-underline-circle"></i>
                                     <span>Assign Period Checklist</span>
                                 </a>
                             </li>
+
+                        </ul>
+                    @endif
+
+                    {{-- Assessor Main Dealer --}}
+                    @if(Auth::user()->role == 'Assessor Main Dealer')
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title" data-key="t-menu">Assessor Menu</li>
                             <li>
                                 <a href="{{ route('assessor.listjaringan') }}">
                                     <i class="mdi mdi-clipboard-check"></i>

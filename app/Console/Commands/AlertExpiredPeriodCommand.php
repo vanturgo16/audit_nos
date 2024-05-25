@@ -59,7 +59,7 @@ class AlertExpiredPeriodCommand extends Command
                         ->where('mst_periode_checklists.id', $expired->id)
                         ->where('users.role', 'Internal Auditor Dealer')
                         ->pluck('mst_employees.email')->toArray();
-                    $ccemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
+                    $ccemail = User::where('role', 'PIC Dealers')->pluck('email')->toArray();
                 }
                 // Mail Content
                 $mailInstance = new AlertExpiredPeriod($periodinfo);

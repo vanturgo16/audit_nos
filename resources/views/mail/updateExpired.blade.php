@@ -90,7 +90,7 @@
         <br>
         <br>
         <br> {{ $emailsubmitter }}
-        <br> [Person In Charge Assessor] <br>
+        <br> [Person In Charge Dealers] <br>
 
     </span>
 </body>

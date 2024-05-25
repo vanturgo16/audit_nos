@@ -63,7 +63,7 @@
             </tr>
         </table>
 
-        <br> Please Contact Your Assessor For The Further Action
+        <br> Please Contact Your PIC Dealers For The Further Action
         
         <br>
         <br> [Dashboard AUDIT NOS] <br>
