@@ -1,4 +1,5 @@
-@if(Auth::user()->role == 'Assessor Main Dealer')
+
+@if(in_array(Auth::user()->role, ['Assessor Main Dealer', 'PIC Dealers']))
     @if($data->status == 2)
         <a href="{{ route('assessor.review', encrypt($data->id)) }}"
             type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">

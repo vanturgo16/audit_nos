@@ -139,7 +139,7 @@
                     </div>
                     @endif
 
-                    @if($check == 0 && in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer']))
+                    @if($check == 0 && in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC Dealers']))
                     <div class="card-header d-flex justify-content-end">
                         <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Finish Review</button>
                         {{-- Modal Finish --}}

@@ -18,7 +18,7 @@ class DashboardController extends Controller
     {
         $roleUser = auth()->user()->role;
 
-        if(in_array($roleUser, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD'])){
+        if(in_array($roleUser, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD', 'PIC Dealers'])){
             $dealers = MstJaringan::select('id', 'dealer_name')->get();
             $periods = [];
         } else {
