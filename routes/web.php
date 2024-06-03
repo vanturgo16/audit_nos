@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('user/create', [UserController::class, 'store'])->name('user.store')->middleware('role:Super Admin,Admin');
     Route::post('user/update/{id}', [UserController::class, 'update'])->name('user.update')->middleware('role:Super Admin,Admin');
     Route::post('user/activate/{id}', [UserController::class, 'activate'])->name('user.activate')->middleware('role:Super Admin,Admin');
+    Route::post('user/reset/{id}', [UserController::class, 'reset'])->name('user.reset')->middleware('role:Super Admin,Admin');
     Route::post('user/deactivate/{id}', [UserController::class, 'deactivate'])->name('user.deactivate')->middleware('role:Super Admin,Admin');
     Route::post('user/delete/{id}', [UserController::class, 'delete'])->name('user.delete')->middleware('role:Super Admin,Admin');
     Route::post('user/check_email_employee', [UserController::class, 'check_email'])->name('user.check_email_employee')->middleware('role:Super Admin,Admin');
