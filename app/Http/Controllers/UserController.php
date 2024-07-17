@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\SendEmailPassword;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Models\MstDropdowns;
 use App\Models\MstEmployees;
+use App\Models\MstRules;
 
 class UserController extends Controller
 {
@@ -44,6 +46,16 @@ class UserController extends Controller
             ->toJson();
 
         return $data;
+    }
+
+    private function generateRandomPassword($length = 8) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomPassword = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomPassword .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomPassword;
     }
 
     public function store(Request $request)
@@ -77,14 +89,31 @@ class UserController extends Controller
             return redirect()->back()->with('warning','Email Was Already Registered As User');
         } else {
             DB::beginTransaction();
+            $password = $this->generateRandomPassword();
+
             try{
                 $users = User::create([
                     'name' => $name,
                     'email' => $request->email,
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make($password),
                     'is_active' => '1',
                     'role' => $request->role
                 ]);
+
+                // [ MAILING ]
+                // Initiate Variable
+                $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
+                $type = 'New';
+                // Recepient Email
+                if($development == 1){
+                    $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
+                } else {
+                    $toemail = $request->email;
+                }
+                // Mail Content
+                $mailInstance = new SendEmailPassword($type, $name, $request->email, $password);
+                // Send Email
+                Mail::to($toemail)->send($mailInstance);
 
                 //Audit Log
                 $this->auditLogsShort('Create New User ('. $request->email . ')');
@@ -95,6 +124,49 @@ class UserController extends Controller
                 DB::rollback();
                 return redirect()->back()->with(['fail' => 'Failed to Create New User!']);
             }
+        }
+    }
+
+    public function reset($id)
+    {
+        $id = decrypt($id);
+        // dd($id);
+        DB::beginTransaction();
+        try{
+            $data = User::where('id', $id)->update([
+                'is_active' => 1
+            ]);
+
+            $name = User::where('id', $id)->first();
+            
+            $password = $this->generateRandomPassword();
+            User::where('id', $id)->update([
+                'password' => Hash::make($password),
+            ]);
+
+            // [ MAILING ]
+            // Initiate Variable
+            $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
+            $type = 'Reset';
+            // Recepient Email
+            if($development == 1){
+                $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
+            } else {
+                $toemail = $name->email;
+            }
+            // Mail Content
+            $mailInstance = new SendEmailPassword($type, $name->name, $name->email, $password);
+            // Send Email
+            Mail::to($toemail)->send($mailInstance);
+
+            //Audit Log
+            $this->auditLogsShort('Reset Password User ('. $name->email . ')');
+
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Success Reset Password User, New Password Has Been Send to Email: ' . $name->email]);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with(['fail' => 'Failed to Reset Password User ' . $name->email .'!']);
         }
     }
 
