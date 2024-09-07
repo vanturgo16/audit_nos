@@ -79,12 +79,13 @@
 
                     <!-- Role-->
                     @if(Auth::check() && Auth::user()->role == null)
-                        // Code to destroy authentication session
+                        {{-- Code to destroy authentication session --}}
                         <?php Auth::logout(); ?>
                     @endif
                     <form class="app-search d-none d-lg-block">
                         <div class="position-relative">
-                            <h3><span class="badge bg-info text-white">{{ Auth::user()->role }}</span></h3>
+                            <h3 class="d-inline-block me-2"><span class="badge bg-info text-white">{{ Auth::user()->role }}</span></h3>
+                            <h5 class="d-inline-block"> | Form Checklist H1 Premises ( Quartal III )</h5>
                         </div>
                     </form>
                 </div>
