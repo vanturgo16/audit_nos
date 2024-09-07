@@ -276,7 +276,8 @@ class MstFormChecklistController extends Controller
         $this->auditLogsShort('View Checklist Form:', $id);
         // dd($type->type_checklist);
         if($type->type_checklist == 'H1 Premises'){
-            return view('formchecklist.checklist_h1premises_form',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
+            return view('formchecklist.form_h1_premises',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
+            // return view('formchecklist.checklist_h1premises_form',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
         } else {
             return view('formchecklist.checklistform',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
         }
