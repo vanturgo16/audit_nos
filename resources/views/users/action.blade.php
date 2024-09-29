@@ -5,6 +5,7 @@
     </button>
     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
         <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#edit-user{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit</a></li>
+        <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#reset{{ $data->id }}"><span class="mdi mdi-update"></span> | Reset Password</a></li>
         @if($data->is_active == 0)
             <li><a class="dropdown-item drpdwn-scs" href="#" data-bs-toggle="modal" data-bs-target="#activate{{ $data->id }}"><span class="mdi mdi-check-circle"></span> | Activate</a></li>
         @else
@@ -55,6 +56,43 @@
                             } else {
                                 $('#sb-edit' + userId).attr("disabled", "disabled");
                                 $('#sb-edit' + userId).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Reset --}}
+    <div class="modal fade" id="reset{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-top" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Reset Password User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('user.reset', encrypt($data->id)) }}" id="formreset{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="text-center">
+                            Are You Sure to <b>Reset Password</b> This User?
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-reset{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Reset</button>
+                    </div>
+                </form>
+                <script>
+                    $(document).ready(function() {
+                        let idList = "{{ $data->id }}";
+                        $('#formreset' + idList).submit(function(e) {
+                            if (!$('#formreset' + idList).valid()){
+                                e.preventDefault();
+                            } else {
+                                $('#sb-reset' + idList).attr("disabled", "disabled");
+                                $('#sb-reset' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
                             }
                         });
                     });

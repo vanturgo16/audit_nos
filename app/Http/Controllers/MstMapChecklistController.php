@@ -47,7 +47,11 @@ class MstMapChecklistController extends Controller
             ->groupBy('mst_parent_checklists.type_checklist')
             ->selectRaw('COUNT(*) as count')
             ->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")
-            ->get();
+            ->get()
+            ->map(function ($item, $key) {
+                $item->id = $key + 1;
+                return $item;
+            });
 
         $type_checklist = MstDropdowns::select('type_checklist as name_value')
             ->where('mst_dropdowns.category', 'Type Checklist')
