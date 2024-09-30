@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\File;
 use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
 use App\Models\MstParentChecklists;
+use App\Traits\OrderTrait;
 
 class MstParentChecklistController extends Controller
 {
-    use AuditLogsTrait;
+    use AuditLogsTrait, OrderTrait;
 
     public function typechecklist(Request $request)
     {
@@ -44,7 +45,10 @@ class MstParentChecklistController extends Controller
 
     public function index(Request $request, $type)
     {
-        $datas = MstParentChecklists::where('type_checklist', $type)->get();
+        $datas = MstParentChecklists::where('type_checklist', $type)
+            ->orderBy('type_checklist','asc')
+            ->orderBy('order_no','asc')
+            ->get();
 
         if ($request->ajax()) {
             $data = DataTables::of($datas)
@@ -75,7 +79,7 @@ class MstParentChecklistController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
+        //dd($request->all());
         $request->validate([
             'type_checklist' => 'required',
             'add_parent' => 'required',
@@ -95,7 +99,13 @@ class MstParentChecklistController extends Controller
                 return redirect()->back()->with(['fail' => 'Failed to Save File!']); 
             }
             // Store New Parent
+
+            //cek last order no first
+            $last_order_no = MstParentChecklists::where('type_checklist',$request->type_checklist)->orderBy('order_no', 'desc')->first();
+            $order_no = $last_order_no->order_no + 1;
+
             MstParentChecklists::create([
+                'order_no' => $order_no,
                 'type_checklist' => $request->type_checklist,
                 'parent_point_checklist' => $request->add_parent,
                 'path_guide_premises' => $url_thumb
@@ -118,17 +128,19 @@ class MstParentChecklistController extends Controller
 
         $parent = MstParentChecklists::where('id', $id)->first();
         $type_checklist = MstDropdowns::where('category', 'Type Checklist')->get();
+        $orders = MstParentChecklists::where('type_checklist', $parent->type_checklist)
+            ->orderBy('order_no','asc')
+            ->get();
         
         //Audit Log
         $this->auditLogsShort('View Edit Parent Checklist ID ('. $id . ')');
 
-        return view('parentchecklist.edit',compact('parent', 'type_checklist'));
+        return view('parentchecklist.edit',compact('parent', 'type_checklist','orders'));
     }
 
     public function update(Request $request, $id)
     {
-        // dd($request->all());
-        $id = decrypt($id);
+       $id = decrypt($id);
 
         $request->validate([
             'type_checklist' => 'required',
@@ -138,7 +150,7 @@ class MstParentChecklistController extends Controller
         DB::beginTransaction();
         try{
             $databefore = MstParentChecklists::where('id', $id)->first();
-
+            
             // Store Image Tumbnail & Get Path URL if exist
             if($request->hasFile('thumbnail')){
                 //Delete File Before
@@ -158,17 +170,54 @@ class MstParentChecklistController extends Controller
                 $url_thumb = $databefore->path_guide_premises;
             }
 
+            $databefore->order_no = $request->order_no;
             $databefore->type_checklist = $request->type_checklist;
             $databefore->parent_point_checklist = $request->add_parent;
             $databefore->path_guide_premises = $url_thumb;
-
             if($databefore->isDirty()){
                 // Update Parent
-                MstParentChecklists::where('id', $id)->update([
-                    'type_checklist' => $request->type_checklist,
-                    'parent_point_checklist' => $request->add_parent,
-                    'path_guide_premises' => $url_thumb
-                ]);
+                $req_order_no = $request->order_no;
+                if ($req_order_no == '0' || $req_order_no == '99999') { //kalau pilih sebagai awal atau akhir
+                    // update dengan order no baru
+                    MstParentChecklists::where('id', $id)->update([
+                        'order_no' => $req_order_no,
+                        'type_checklist' => $request->type_checklist,
+                        'parent_point_checklist' => $request->add_parent,
+                        'path_guide_premises' => $url_thumb
+                    ]);
+                }
+                else{
+                    //parent point checklist di tukar
+                    $parentPoint_target = MstParentChecklists::where('type_checklist', $request->type_checklist)
+                        ->where('order_no', $req_order_no)
+                        ->first();
+
+                    //cari checklist dengan order number dituju
+                    MstParentChecklists::where('id', $parentPoint_target->id)
+                        ->update([
+                            'order_no' => $request->order_current
+                        ]);
+                    
+                    // update dengan order no baru
+                    MstParentChecklists::where('id', $id)->update([
+                        'order_no' => $req_order_no,
+                        'type_checklist' => $request->type_checklist,
+                        'parent_point_checklist' => $request->add_parent,
+                        'path_guide_premises' => $url_thumb
+                    ]);
+
+                    // update dengan order no baru
+                    MstParentChecklists::where('id', $id)->update([
+                        'order_no' => $req_order_no,
+                        'type_checklist' => $request->type_checklist,
+                        'parent_point_checklist' => $request->add_parent,
+                        'path_guide_premises' => $url_thumb
+                    ]);
+                }
+                
+                //reindex supaya gak ada order no yg skip
+                $this->reindexParentPoint($request->type_checklist);
+                $this->reindexParentPoint($request->type_checklist_current);
             } else {
                 return redirect()->route('parentchecklist.index', $request->type_checklist)->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
             }
@@ -182,5 +231,12 @@ class MstParentChecklistController extends Controller
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Update Parent Checklist!']);
         }
+    }
+
+    public function mappingOrderNo($type_checklist){
+        $orders = MstParentChecklists::where('type_checklist', $type_checklist)
+            ->orderBy('order_no','asc')
+            ->get();
+        return response()->json($orders);
     }
 }

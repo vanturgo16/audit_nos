@@ -39,7 +39,7 @@
                             <div class="row">
                                 <div class="col-lg-6 mb-3">
                                     <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
-                                    <select class="form-select js-example-basic-single" style="width: 100%" name="type_checklist" required>
+                                    <select class="form-select js-example-basic-single" style="width: 100%" name="type_checklist" id="type_checklist" required>
                                         <option value="" selected>-- Select Type --</option>
                                         <option disabled>──────────</option>
                                         @foreach($type_checklist as $item)
@@ -48,6 +48,18 @@
                                     </select>
                                 </div>
                                 <div class="col-lg-6 mb-3">
+                                    <label class="form-label">Exchange Order Number</label>
+                                    <select class="form-select js-example-basic-single" style="width: 100%" name="order_no" id="order_no">
+                                            <option value="0">Change order to First</option>
+                                            <option value="99999">Change order to Last</option>
+                                        @foreach($orders as $order)
+                                            <option value="{{ $order->order_no }}" @if($parent->order_no == $order->order_no) selected="selected" @endif> {{ $order->order_no . "-" . $order->parent_point_checklist }} </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <input type="hidden" name="order_current" value="{{ $parent->order_no }}">
+                                    <input type="text" name="type_checklist_current" value="{{ $parent->type_checklist }}">
                                 </div>
                                 <div class="col-lg-6 mb-3" id="newParent">
                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
@@ -111,6 +123,34 @@
         </form>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {    
+        $('#type_checklist').change(function() {
+            var typeChekclist = $(this).val();
+            var url = '{{ route("mappingOrderNo", ":id") }}';
+            url = url.replace(':id', typeChekclist);
+            if(typeChekclist) {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        //console.log("AJAX Success Data:", gedungId); // Debugging
+                        $('#order_no').empty();
+                        $('#order_no').append('<option value="0">Change order to First</option>');
+                        $('#order_no').append('<option value="99999">Change order to Last</option>');
+                        $.each(data, function(key, value) {
+                            $('#order_no').append('<option value="' + value.order_no + '">' + value.order_no + ' - ' + value.parent_point_checklist + '</option>');
+                        });
+                    }
+                });
+            } else {
+                $('#order_no').empty();
+            }
+        });
+    })
+</script>
 
 {{-- Validation Form --}}
 <script>

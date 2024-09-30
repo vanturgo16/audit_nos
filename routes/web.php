@@ -92,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/parentchecklist/info/{id}', [MstParentChecklistController::class, 'info'])->name('parentchecklist.info')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::get('/parentchecklist/edit/{id}', [MstParentChecklistController::class, 'edit'])->name('parentchecklist.edit')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('parentchecklist/update/{id}', [MstParentChecklistController::class, 'update'])->name('parentchecklist.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
+    Route::get('/parentchecklist/order-no/{type_checklist}', [MstParentChecklistController::class, 'mappingOrderNo'])->name('mappingOrderNo')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers'); //untuk ajax orderno
 
     //Checklist
     Route::get('/checklist', [MstChecklistController::class, 'typechecklist'])->name('checklist.typechecklist')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
