@@ -236,7 +236,7 @@
                         <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
                                 <tr>
-                                    <th class="align-middle text-center">No</th>
+                                    <th class="align-middle text-center">Order No</th>
                                     <th class="align-middle text-center">Parent Point</th>
                                     <th class="align-middle text-center">Child Point</th>
                                     <th class="align-middle text-center">Sub Point</th>
@@ -260,10 +260,11 @@
             serverSide: true,
             ajax: '{!! route('checklist.index', $type) !!}',
             columns: [{
-                data: null,
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
-                    },
+                    data: 'order_no',
+                    name: 'order_no',
+                    // render: function(data, type, row, meta) {
+                    //     return meta.row + meta.settings._iDisplayStart + 1;
+                    // },
                     orderable: false,
                     searchable: false,
                     className: 'align-middle text-center',

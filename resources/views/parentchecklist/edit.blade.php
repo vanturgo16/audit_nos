@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <input type="hidden" name="order_current" value="{{ $parent->order_no }}">
-                                    <input type="text" name="type_checklist_current" value="{{ $parent->type_checklist }}">
+                                    <input type="hidden" name="type_checklist_current" value="{{ $parent->type_checklist }}">
                                 </div>
                                 <div class="col-lg-6 mb-3" id="newParent">
                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>

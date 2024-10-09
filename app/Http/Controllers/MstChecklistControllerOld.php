@@ -66,7 +66,7 @@ class MstChecklistController extends Controller
                 $url_thumb = null;
                 return redirect()->back()->with(['fail' => 'Failed to Save File!']); 
             }
-// dd($url_thumb);
+        // dd($url_thumb);
             // $image = Image::make($request->file('thumbnail')->getRealPath());
             // $extension = $request->file('thumbnail')->getClientOriginalExtension();
             // $image->stream($extension, 80);
@@ -286,5 +286,4 @@ class MstChecklistController extends Controller
         }
         
     }
-
 }
