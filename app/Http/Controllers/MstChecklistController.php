@@ -12,10 +12,11 @@ use Yajra\DataTables\Facades\DataTables;
 use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
 use App\Models\MstParentChecklists;
+use App\Traits\OrderTrait;
 
 class MstChecklistController extends Controller
 {
-    use AuditLogsTrait;
+    use AuditLogsTrait, OrderTrait;
 
     public function typechecklist(Request $request)
     {
@@ -49,6 +50,8 @@ class MstChecklistController extends Controller
             ->select('mst_checklists.*', 'mst_parent_checklists.type_checklist', 'mst_parent_checklists.parent_point_checklist')
             ->where('mst_parent_checklists.type_checklist', $type)
             ->orderby('mst_checklists.id_parent_checklist')
+            ->orderby('mst_parent_checklists.parent_point_checklist')
+            ->orderby('mst_checklists.order_no')
             ->get();
         $type_checklist = MstDropdowns::where('category', 'Type Checklist')->get();
         $type_parent = MstParentChecklists::where('type_checklist', $type)->get();
@@ -154,8 +157,13 @@ class MstChecklistController extends Controller
                 $child_checklist = $request->child_checklist;
             }
 
+            //cek last order no first
+            $last_order_no = MstChecklists::where('id_parent_checklist',$id_parent)->orderBy('order_no', 'desc')->first();
+            $order_no = $last_order_no->order_no + 1;
+
             // Store Checklist
             MstChecklists::create([
+                'order_no' => $order_no,
                 'id_parent_checklist' => $id_parent,
                 'child_point_checklist' => $child_checklist,
                 'sub_point_checklist' => $request->sub_point_checklist,
@@ -402,4 +410,86 @@ class MstChecklistController extends Controller
         
     }
 
+    public function exchangeOrder($id)
+    {
+        $id = decrypt($id);
+        $checklist = MstChecklists::select(
+                'mst_checklists.*',
+                'mst_parent_checklists.type_checklist',
+                'mst_parent_checklists.parent_point_checklist'
+            )
+            ->where('mst_checklists.id', $id)
+            ->leftJoin('mst_parent_checklists','mst_checklists.id_parent_checklist','mst_parent_checklists.id')
+            ->first();
+        
+        //dd($checklist);
+        $parent = MstParentChecklists::where('id', $checklist->id_parent_checklist)->first();
+        
+        $type_checklist = MstDropdowns::where('category', 'Type Checklist')->get();
+        $type_parent = MstParentChecklists::where('type_checklist', $parent->type_checklist)->get();
+
+        $orders = MstChecklists::select(
+                'mst_checklists.order_no',
+                'sub_point_checklist'
+            )
+            ->leftJoin('mst_parent_checklists','mst_checklists.id_parent_checklist','mst_parent_checklists.id')
+            ->where('parent_point_checklist', $checklist->parent_point_checklist)
+            ->orderBy('order_no','asc')
+            ->get();
+        //Audit Log
+        $this->auditLogsShort('View Exchange Order Number ('. $id . ')');
+
+        return view('checklist.exc_order',compact('checklist', 'parent', 'type_checklist', 'type_parent','orders'));
+    }
+
+    public function exchangeOrderUpdate(Request $request, $id){
+        $id = decrypt($id);
+        $req_order_no = $request->order_no;
+        //dd($request->all(),$id);
+        if ($req_order_no == '0' || $req_order_no == '99999') { //kalau pilih sebagai awal atau akhir
+            // update dengan order no baru
+            MstChecklists::where('id', $id)->update([
+                'order_no' => $req_order_no
+            ]);
+        }
+        else{
+            //parent point checklist di tukar
+            $parentPoint_target = MstChecklists::where('id_parent_checklist', $request->parent_point_checklist)
+            ->where('order_no', $req_order_no)
+            ->first();
+
+            //cari checklist dengan order number dituju
+            MstChecklists::where('id', $parentPoint_target->id)
+                ->update([
+                    'order_no' => $request->order_current,
+                    'id_parent_checklist' => $request->parent_point_checklist_current
+                ]);
+            
+            // update dengan order no baru
+            MstChecklists::where('id', $id)
+                ->update([
+                    'order_no' => $req_order_no,
+                    'id_parent_checklist' => $request->parent_point_checklist
+                ]);
+        }
+        
+        //reindex supaya gak ada order no yg skip
+        $this->reindexSubPoint($request->parent_point_checklist);
+        $this->reindexSubPoint($request->parent_point_checklist_current);
+
+        return redirect()->route('checklist.index', $request->type_checklist)->with(['success' => 'Success Exchange Order Number']);
+    }
+
+    public function mappingOrderNo($parentPoint,$typeChecklist){
+        //dd($parentPoint,$typeChecklist);
+        $orders = MstChecklists::join('mst_parent_checklists', 'mst_checklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
+            ->select('mst_checklists.*', 'mst_parent_checklists.type_checklist', 'mst_parent_checklists.parent_point_checklist')
+            ->where('mst_parent_checklists.type_checklist', $typeChecklist)
+            ->where('id_parent_checklist', $parentPoint)
+            ->orderby('mst_checklists.id_parent_checklist')
+            ->orderby('mst_parent_checklists.parent_point_checklist')
+            ->orderby('mst_checklists.order_no')
+            ->get();
+        return response()->json($orders);
+    }
 }
