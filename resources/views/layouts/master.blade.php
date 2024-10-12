@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard NOS | AHASS BANTEN</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 

@@ -92,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/parentchecklist/info/{id}', [MstParentChecklistController::class, 'info'])->name('parentchecklist.info')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::get('/parentchecklist/edit/{id}', [MstParentChecklistController::class, 'edit'])->name('parentchecklist.edit')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('parentchecklist/update/{id}', [MstParentChecklistController::class, 'update'])->name('parentchecklist.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
+    Route::get('/parentchecklist/order-no/{type_checklist}', [MstParentChecklistController::class, 'mappingOrderNo'])->name('mappingOrderNo')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers'); //untuk ajax orderno
 
     //Checklist
     Route::get('/checklist', [MstChecklistController::class, 'typechecklist'])->name('checklist.typechecklist')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
@@ -104,6 +105,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/checklist/mark/{id}', [MstChecklistController::class, 'mark'])->name('checklist.mark')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('checklist/createmark/{id}', [MstChecklistController::class, 'markstore'])->name('checklist.markstore')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('checklist/deletemark/{id}', [MstChecklistController::class, 'markdelete'])->name('checklist.markdelete')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
+    Route::get('checklist/exc-order/{id}', [MstChecklistController::class, 'exchangeOrder'])->name('checklist.exchange')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
+    Route::post('checklist/exc-order/update/{id}', [MstChecklistController::class, 'exchangeOrderUpdate'])->name('checklist.exc_order.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
+    Route::get('/checklist/order-no/{parentPoint}/{typeChecklist}', [MstChecklistController::class, 'mappingOrderNo'])->name('mappingOrderNoChecklist')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers'); //untuk ajax orderno
 
     //Mapping Checklist
     Route::get('/mapchecklist', [MstMapChecklistController::class, 'index'])->name('mapchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');

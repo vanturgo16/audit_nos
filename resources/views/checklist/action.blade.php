@@ -7,6 +7,7 @@
         <li><a class="dropdown-item drpdwn" href="{{ route('checklist.info', encrypt($data->id)) }}"><span class="mdi mdi-information"></span> | Info</a></li>
         <li><a class="dropdown-item drpdwn" href="{{ route('checklist.edit', encrypt($data->id)) }}"><span class="mdi mdi-file-edit"></span> | Edit</a></li>
         <li><a class="dropdown-item drpdwn" href="{{ route('checklist.mark', encrypt($data->id)) }}"><span class="mdi mdi-file-eye"></span> | Mark</a></li>
+        <li><a class="dropdown-item drpdwn" href="{{ route('checklist.exchange', encrypt($data->id)) }}"><span class="mdi mdi-file-edit"></span> | Exchange Order No.</a></li>
     </ul>
 </div>
 
