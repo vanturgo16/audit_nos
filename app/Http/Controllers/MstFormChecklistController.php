@@ -5,18 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\ChecklistResponse;
 use App\Models\FileInputResponse;
 use App\Models\MstAssignChecklists;
-use App\Models\MstChecklistDetails;
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
-// use Intervention\Image\Facades\Image;
-use Browser;
 
 //model
-use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
 use App\Models\MstEmployees;
 use App\Models\MstGrading;
@@ -28,38 +24,30 @@ use App\Models\MstRules;
 use App\Models\User;
 use App\Models\ChecklistJaringan;
 use Carbon\Carbon;
-use DateTime;
 
 // Mail
 use App\Mail\SubmitChecklist;
-
-use function PHPUnit\Framework\isEmpty;
+use App\Models\ChecklistResponses;
+use Mockery\Undefined;
 
 class MstFormChecklistController extends Controller
 {
     use AuditLogsTrait;
-    public function form()
-    {
-        return view('formchecklist.form');
-    }
-    public function index(Request $request)
-    {
-        $datas = MstJaringan::get();
 
+    public function jaringanList(Request $request)
+    {
         if ($request->ajax()) {
-            $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) {
+            $datas = MstJaringan::get();
+            $data = DataTables::of($datas)->addColumn('action', function ($data) {
                 return view('formchecklist.action.index', compact('data'));
-            })
-            ->toJson();
-
+            })->toJson();
             return $data;
         }
 
         //Audit Log
         $this->auditLogsShort('View Jaringan Checklist');
         
-        return view('formchecklist.index',compact('datas'));
+        return view('formchecklist.jaringan_list');
     }
 
     public function auditor(Request $request)
@@ -83,108 +71,88 @@ class MstFormChecklistController extends Controller
         return view('formchecklist.periode',compact('datas', 'id', 'jaringan'));
     }
 
-    public function periode_jaringan(Request $request, $id)
+    public function periodList(Request $request, $id)
     {
         $id = decrypt($id);
-        $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
-        ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-        ->orderBy('mst_periode_checklists.created_at')
-        ->where('mst_dealers.id', $id)
-        ->where('mst_periode_checklists.is_active', '1')
-        ->get();
-
-        $jaringan = MstJaringan::where('id', $id)->first()->dealer_name;
 
         if ($request->ajax()) {
-            $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) {
+            $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->orderBy('mst_periode_checklists.created_at')
+                ->where('mst_dealers.id', $id)
+                ->where('mst_periode_checklists.is_active', '1')
+                ->get();
+            $data = DataTables::of($datas)->addColumn('action', function ($data) {
                 return view('formchecklist.action.period', compact('data'));
-            })
-            ->toJson();
-
+            })->toJson();
             return $data;
         }
+        $jaringan = MstJaringan::where('id', $id)->first()->dealer_name;
 
         //Audit Log
         $this->auditLogsShort('View Periode Form Checklist');
 
-        return view('formchecklist.periode',compact('datas', 'id', 'jaringan'));
-
+        return view('formchecklist.period_list',compact('id', 'jaringan'));
     }
 
-    public function typechecklist(Request $request, $id)
+    public function typeChecklistList(Request $request, $id)
     {
-        $id = decrypt($id);//id Period
+        $id = decrypt($id); // ID Period
 
-        //ForSortingBasedDropdown
+        $grading = MstGrading::all();
+        $period = MstPeriodeChecklists::where('id', $id)->first();
+        
         $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
         $datas = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
-
-        $period = MstPeriodeChecklists::where('id', $id)->first();
-        $id_jaringan = MstPeriodeChecklists::where('id', $id)->first()->id_branch;
-
-        foreach($datas as $data){
+        foreach($datas as $item){
             $responsCounts = ChecklistResponse::select('checklist_response.response as response')
                 ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
                 ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
                 ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                ->where('mst_assign_checklists.type_checklist', $data->type_checklist)
+                ->where('mst_assign_checklists.type_checklist', $item->type_checklist)
                 ->where('mst_periode_checklists.id', $id)
                 ->groupBy('checklist_response.response')
                 ->selectRaw('checklist_response.response as type_response, COUNT(*) as count')
                 ->get()->toArray();
-            $data->point = $responsCounts;
-        }
-
-        foreach($datas as $datam){
             $mandatoryCounts = ChecklistResponse::selectRaw('
-                SUM(mst_assign_checklists.ms = 1 AND mst_assign_checklists.mg = 1 AND mst_assign_checklists.mp = 1) as sgp,
-                SUM(mst_assign_checklists.ms = 0 AND mst_assign_checklists.mg = 1 AND mst_assign_checklists.mp = 1) as gp,
-                SUM(mst_assign_checklists.ms = 0 AND mst_assign_checklists.mg = 0 AND mst_assign_checklists.mp = 1) as p
-            ')
-            ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
-            ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            ->where('mst_assign_checklists.type_checklist', $data->type_checklist)
-            ->whereNot('checklist_response.response', 'Exist, Good')
-            ->where('mst_periode_checklists.id', $id)
-            ->get()->toArray();
-            $datam->mandatory = $mandatoryCounts;
-            $datam->decisionpic = $period->decisionpic;
+                    SUM(mst_assign_checklists.ms = 1 AND mst_assign_checklists.mg = 1 AND mst_assign_checklists.mp = 1) as sgp,
+                    SUM(mst_assign_checklists.ms = 0 AND mst_assign_checklists.mg = 1 AND mst_assign_checklists.mp = 1) as gp,
+                    SUM(mst_assign_checklists.ms = 0 AND mst_assign_checklists.mg = 0 AND mst_assign_checklists.mp = 1) as p
+                ')
+                ->join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
+                ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+                ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->where('mst_assign_checklists.type_checklist', $item->type_checklist)
+                ->whereNot('checklist_response.response', 'Exist, Good')
+                ->where('mst_periode_checklists.id', $id)
+                ->get()->toArray();
+            $item->point = $responsCounts;
+            $item->mandatory = $mandatoryCounts;
+            $item->decisionpic = $period->decisionpic;
         }
 
-        $grading = MstGrading::all();
-        $statusperiod = $period->status;
-
-        $today = Carbon::today();
-        $today = $today->format('Y-m-d');
-        $startdate = $period->start_date;
+        // Get Status
+        $hasStatusFive = $datas->contains('status', 5);
+        $hasStatusOne = $datas->contains('status', 1);
+        $hasOtherStatuses = $datas->contains(function($item) {
+            return !in_array($item['status'], [1, 5]) && $item['status'] >= 0 && $item['status'] <= 9;
+        }); $status = $hasStatusFive || ($hasStatusOne && !$hasOtherStatuses);
 
         if ($request->ajax()) {
-            $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) use ($grading, $statusperiod, $today, $startdate) {
-                return view('formchecklist.action.typechecklist', compact('data', 'grading', 'statusperiod', 'today', 'startdate'));
-            })
-            ->toJson();
-
+            $today = Carbon::today()->format('Y-m-d');
+            $data = DataTables::of($datas)->addColumn('action', function ($data) use ($grading, $period, $today) {
+                return view('formchecklist.action.typechecklist', compact('data', 'grading', 'period', 'today'));
+            })->toJson();
             return $data;
         }
 
-        // $status = $datas->every(function ($item, $key) {
-
-        //     return $item['status'] == 1;
-        // });
-        //kita cek apakah ada disalah satu angka 5, kalau ya true, 
-        //kalau gak masuk ke kondisi kedua kalau ada satu dan tidak ada selain 1,5
-        $status = $datas->contains('status', 5) || ($datas->contains('status', 1) && !$datas->contains(fn($item) => !in_array($item['status'], [1, 5]) && $item['status'] >= 0 && $item['status'] <= 9));
-        // dd($status);
         // Audit Log
         $this->auditLogsShort('View Data Checklist, Period: ', $id);
 
-        return view('formchecklist.typechecklist',compact('datas', 'period', 'grading', 'status', 'id', 'id_jaringan'));
+        return view('formchecklist.typechecklist_list',compact('id', 'period', 'status'));
     }
 
-    public function startchecklist($id)
+    public function startChecklist($id)
     {
         $id = decrypt($id);
         
@@ -203,83 +171,306 @@ class MstFormChecklistController extends Controller
             dd($e);
             return redirect()->back()->with(['fail' => 'Failed to Start Checklist!']);
         }
-        
     }
 
-    public function checklistform($id, Request $request)
+    public function checklistForm($id, Request $request)
     {
-        $id = decrypt($id); // id_checklist Jaringan
-
-        $type = ChecklistJaringan::where('id', $id)->first();
-        $datas = MstAssignChecklists::select(
-                'mst_assign_checklists.id as id_assign', 
-                'mst_assign_checklists.*', 
-                'mst_assign_checklists.path_guide_parent as path_guide_premises', 
-                'mst_assign_checklists.parent_point_checklist as parent_point', 
-                'mst_assign_checklists.id_mst_checklist as id_checklist', 
-                'checklist_jaringan.type_checklist',
-            )
-            ->Join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->Join('checklist_jaringan', 'mst_periode_checklists.id', 'checklist_jaringan.id_periode')
-            ->where('checklist_jaringan.id', $id)
-            ->where('mst_assign_checklists.type_checklist', $type->type_checklist)
-            ->get();
-
-        $id_period = $type->id_periode;
-
-        $point = MstAssignChecklists::select('parent_point_checklist as parent_point', 'path_guide_parent')
-        ->where('id_periode_checklist', $id_period)
-        ->where('type_checklist', $type->type_checklist)
-        ->groupBy('parent_point_checklist', 'path_guide_parent')
-        ->get();
-
-        $period = MstPeriodeChecklists::where('id', $id_period)->first()->period;
-
-        //Respons cheklist
-        $respons = ChecklistResponse::select('checklist_response.*', 'mst_assign_checklists.parent_point_checklist as parent_point')
-            ->Join('mst_assign_checklists', 'checklist_response.id_assign_checklist', 'mst_assign_checklists.id')
-            ->where('mst_assign_checklists.type_checklist', $type->type_checklist)
-            ->where('mst_assign_checklists.id_periode_checklist', $id_period)
-            ->get();
-
-        //file point
-        $file_point = FileInputResponse::select(
-            'file_input_response.*',
-            'trans_file_response.parent_point'
-        )
-        ->Join('trans_file_response', 'file_input_response.id_trans_file', 'trans_file_response.id')
-        ->Join('mst_periode_checklists', 'trans_file_response.id_period', 'mst_periode_checklists.id')
-        ->where('trans_file_response.type_checklist', $type->type_checklist)
-        ->where('mst_periode_checklists.id', $id_period)
-        ->get();
-
-
-        //kita dapatkan parent_pointnya dengan kita count juga
-        $parentCountsSoal = $datas->pluck('parent_point')->countBy();
-        $parentCountsRespons = $respons->pluck('parent_point')->countBy();
-
-        // Kita Coba Filter hanya parent yang ada dan nilai yang sama
-        $ansfull = $parentCountsSoal->intersectAssoc($parentCountsRespons)->keys()->all();
-
-        // tab
-        $lastindex = 0;
-        if($request->session()->has('tabo')){
-            $tabo = intval($request->session()->get('tabo')) + 1;
-            if($request->session()->has('additionalVariable')){
-                $lastindex = 1;
-            }
-        }else{
-            $tabo = 1;
-        }
-
+        $id = decrypt($id);
+        $period = ChecklistJaringan::where('id', $id)->first();
+        $typeChecklist = $period->type_checklist;
+        $idPeriod = $period->id_periode;
+        
         //Auditlog
         $this->auditLogsShort('View Checklist Form:', $id);
-        // dd($type->type_checklist);
-        if($type->type_checklist == 'H1 Premises'){
-            return view('formchecklist.form_h1_premises',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
-            // return view('formchecklist.checklist_h1premises_form',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
-        } else {
-            return view('formchecklist.checklistform',compact('datas', 'id_period', 'type', 'id', 'point', 'period', 'respons', 'file_point', 'tabo', 'lastindex', 'ansfull'));
+
+        // $view = $typeChecklist == 'H1 Premises' ? 'formchecklist.form_check_h1p' : 'formchecklist.form_check';
+        // return view($view, compact('id', 'idPeriod'));
+
+
+        return view('formchecklist.form_check', compact('id', 'idPeriod'));
+    }
+
+    public function getChecklistForm(Request $request, $id)
+    {
+        // id_checklist Jaringan
+        $id = decrypt($id); 
+
+        // Save Response 
+        if($request->responseAns != null){
+            $statusResp = ($request->responseAns == 'N/A') ? 1 
+                : (ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('path_input_response')->exists() ? 1 : null);
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['response' => $request->responseAns, 'status_response' => $statusResp]
+            );
+        }
+        
+        $type = ChecklistJaringan::where('id', $id)->first();
+        $idPeriod = $type->id_periode;
+
+        $assigns = MstAssignChecklists::select('mst_assign_checklists.id', 'mst_assign_checklists.parent_point_checklist')
+            ->where('id_periode_checklist', $idPeriod)
+            ->where('type_checklist', $type->type_checklist)
+            ->orderBy('mst_assign_checklists.id')
+            ->get();
+        $tabParentAct = $request->tabParent == null ? $assigns->first()->parent_point_checklist : $request->tabParent;
+        $idQuestionAct = $request->idQuestion == null ? intval($assigns->first()->id) : intval($request->idQuestion);
+
+        $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response')
+            ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
+            ->where('id_periode_checklist', $idPeriod)
+            ->where('type_checklist', $type->type_checklist)->orderBy('mst_assign_checklists.id')->get()->groupBy('parent_point_checklist')
+            ->map(function ($group) {
+                $responses = $group->pluck('status_response')->toArray(); $isFullFilled = in_array(null, $responses) ? 0 : 1;
+                return [ 'parent_point_checklist' => $group->first()->parent_point_checklist, 'firstIdQuestion' => $group->first()->id, 'isFullFilled' => $isFullFilled ];
+            })
+            ->sortBy('firstIdQuestion')
+            ->values();
+        $points = MstAssignChecklists::select('mst_assign_checklists.id', 'checklist_responses.status_response')
+            ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
+            ->where('id_periode_checklist', $idPeriod)
+            ->where('type_checklist', $type->type_checklist)
+            ->where('parent_point_checklist', $tabParentAct)
+            ->orderBy('mst_assign_checklists.id')
+            ->get();
+        $question = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.path_input_response')
+            ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
+            ->where('mst_assign_checklists.id', $idQuestionAct)
+            ->first();
+        $options = collect(json_decode($question->mark, true));
+
+        // Convert the collection to an array
+        $assignsArray = $assigns->toArray();
+        $tabParentPrev = $idQuestionPrev = $tabParentNext = $idQuestionNext = $currentIndex = null;
+        foreach ($assignsArray as $index => $assign) {
+            if ($assign['id'] == $idQuestionAct && $assign['parent_point_checklist'] == $tabParentAct) {
+                $currentIndex = $index;
+                break;
+            }
+        }
+        // Get previous and next values if available
+        if ($currentIndex !== null) {
+            if (isset($assignsArray[$currentIndex - 1])) {
+                $tabParentPrev = $assignsArray[$currentIndex - 1]['parent_point_checklist'];
+                $idQuestionPrev = $assignsArray[$currentIndex - 1]['id'];
+            }
+            if (isset($assignsArray[$currentIndex + 1])) {
+                $tabParentNext = $assignsArray[$currentIndex + 1]['parent_point_checklist'];
+                $idQuestionNext = $assignsArray[$currentIndex + 1]['id'];
+            }
+        }
+
+        $response = [
+            'id' => $id, 'idPeriod' => $idPeriod, 'assigns' => $assigns, 'tabLists' => $tabLists,
+            'points' => $points, 'question' => $question, 'options' => $options,
+            'tabParentPrev' => $tabParentPrev, 'idQuestionPrev' => $idQuestionPrev,
+            'tabParentAct' => $tabParentAct, 'idQuestionAct' => $idQuestionAct,
+            'tabParentNext' => $tabParentNext, 'idQuestionNext' => $idQuestionNext,
+        ];
+        return response()->json($response);
+    }
+    public function storeChecklistFile(Request $request)
+    {
+        // Validation Format File Upload Image Max 2mb
+        $request->validate([
+            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        // Save Response 
+        if($request->responseFile != null){
+            $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+            if($exist) {
+                if (File::exists($exist->path_input_response)) {
+                    File::delete($exist->path_input_response);
+                }
+            }
+            $file = $request->file('responseFile');
+            $name = $file ->hashName();
+            $file->move(public_path('assets/images/response_checklist'), $name);
+            $url = 'assets/images/response_checklist/'.$name;
+
+            $statusResp = ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('response')->exists() ? 1 : null;
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['path_input_response' => $url, 'status_response' => $statusResp]
+            );
+        }
+    }
+    public function finishChecklist(Request $request)
+    {
+        // Validation Format File Upload Image Max 2mb
+        $request->validate([
+            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        // Save Response 
+        if($request->has('responseAns') && !is_null($request->responseAns) && $request->responseAns !== 'undefined'){
+            $statusResp = ($request->responseAns == 'N/A') ? 1 
+                : (ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('path_input_response')->exists() ? 1 : null);
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['response' => $request->responseAns, 'status_response' => $statusResp]
+            );
+        }
+        if($request->hasFile('responseFile')){
+            $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+            if($exist) {
+                if (File::exists($exist->path_input_response)) {
+                    File::delete($exist->path_input_response);
+                }
+            }
+            $file = $request->file('responseFile');
+            $name = $file ->hashName();
+            $file->move(public_path('assets/images/response_checklist'), $name);
+            $url = 'assets/images/response_checklist/'.$name;
+
+            $statusResp = ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('response')->exists() ? 1 : null;
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['path_input_response' => $url, 'status_response' => $statusResp]
+            );
+        }
+    }
+
+    public function getChecklistFormH1P(Request $request, $id)
+    {
+        // id_checklist Jaringan
+        $id = decrypt($id); 
+
+        // Save Response 
+        if($request->responseAns != null){
+            $statusResp = ($request->responseAns == 'N/A') ? 1 
+                : (ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('path_input_response')->exists() ? 1 : null);
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['response' => $request->responseAns, 'status_response' => $statusResp]
+            );
+        }
+        
+        $type = ChecklistJaringan::where('id', $id)->first();
+        $idPeriod = $type->id_periode;
+
+        $assigns = MstAssignChecklists::select('mst_assign_checklists.id', 'mst_assign_checklists.parent_point_checklist')
+            ->where('id_periode_checklist', $idPeriod)
+            ->where('type_checklist', $type->type_checklist)
+            ->orderBy('mst_assign_checklists.id')
+            ->get();
+        $tabParentAct = $request->tabParent == null ? $assigns->first()->parent_point_checklist : $request->tabParent;
+        $idQuestionAct = $request->idQuestion == null ? intval($assigns->first()->id) : intval($request->idQuestion);
+
+        $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response')
+            ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
+            ->where('id_periode_checklist', $idPeriod)
+            ->where('type_checklist', $type->type_checklist)->orderBy('mst_assign_checklists.id')->get()->groupBy('parent_point_checklist')
+            ->map(function ($group) {
+                $responses = $group->pluck('status_response')->toArray(); $isFullFilled = in_array(null, $responses) ? 0 : 1;
+                return [ 'parent_point_checklist' => $group->first()->parent_point_checklist, 'firstIdQuestion' => $group->first()->id, 'isFullFilled' => $isFullFilled ];
+            })
+            ->sortBy('firstIdQuestion')
+            ->values();
+        $points = MstAssignChecklists::select('mst_assign_checklists.id', 'checklist_responses.status_response')
+            ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
+            ->where('id_periode_checklist', $idPeriod)
+            ->where('type_checklist', $type->type_checklist)
+            ->where('parent_point_checklist', $tabParentAct)
+            ->orderBy('mst_assign_checklists.id')
+            ->get();
+        $question = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.path_input_response')
+            ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
+            ->where('mst_assign_checklists.id', $idQuestionAct)
+            ->first();
+        $options = collect(json_decode($question->mark, true));
+
+        // Convert the collection to an array
+        $assignsArray = $assigns->toArray();
+        $tabParentPrev = $idQuestionPrev = $tabParentNext = $idQuestionNext = $currentIndex = null;
+        foreach ($assignsArray as $index => $assign) {
+            if ($assign['id'] == $idQuestionAct && $assign['parent_point_checklist'] == $tabParentAct) {
+                $currentIndex = $index;
+                break;
+            }
+        }
+        // Get previous and next values if available
+        if ($currentIndex !== null) {
+            if (isset($assignsArray[$currentIndex - 1])) {
+                $tabParentPrev = $assignsArray[$currentIndex - 1]['parent_point_checklist'];
+                $idQuestionPrev = $assignsArray[$currentIndex - 1]['id'];
+            }
+            if (isset($assignsArray[$currentIndex + 1])) {
+                $tabParentNext = $assignsArray[$currentIndex + 1]['parent_point_checklist'];
+                $idQuestionNext = $assignsArray[$currentIndex + 1]['id'];
+            }
+        }
+
+        $response = [
+            'id' => $id, 'idPeriod' => $idPeriod, 'assigns' => $assigns, 'tabLists' => $tabLists,
+            'points' => $points, 'question' => $question, 'options' => $options,
+            'tabParentPrev' => $tabParentPrev, 'idQuestionPrev' => $idQuestionPrev,
+            'tabParentAct' => $tabParentAct, 'idQuestionAct' => $idQuestionAct,
+            'tabParentNext' => $tabParentNext, 'idQuestionNext' => $idQuestionNext,
+        ];
+        return response()->json($response);
+    }
+    public function storeChecklistFileH1P(Request $request)
+    {
+        // Validation Format File Upload Image Max 2mb
+        $request->validate([
+            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        // Save Response 
+        if($request->responseFile != null){
+            $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+            if($exist) {
+                if (File::exists($exist->path_input_response)) {
+                    File::delete($exist->path_input_response);
+                }
+            }
+            $file = $request->file('responseFile');
+            $name = $file ->hashName();
+            $file->move(public_path('assets/images/response_checklist'), $name);
+            $url = 'assets/images/response_checklist/'.$name;
+
+            $statusResp = ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('response')->exists() ? 1 : null;
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['path_input_response' => $url, 'status_response' => $statusResp]
+            );
+        }
+    }
+    public function finishChecklistH1P(Request $request)
+    {
+        // Validation Format File Upload Image Max 2mb
+        $request->validate([
+            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        // Save Response 
+        if($request->has('responseAns') && !is_null($request->responseAns) && $request->responseAns !== 'undefined'){
+            $statusResp = ($request->responseAns == 'N/A') ? 1 
+                : (ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('path_input_response')->exists() ? 1 : null);
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['response' => $request->responseAns, 'status_response' => $statusResp]
+            );
+        }
+        if($request->hasFile('responseFile')){
+            $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+            if($exist) {
+                if (File::exists($exist->path_input_response)) {
+                    File::delete($exist->path_input_response);
+                }
+            }
+            $file = $request->file('responseFile');
+            $name = $file ->hashName();
+            $file->move(public_path('assets/images/response_checklist'), $name);
+            $url = 'assets/images/response_checklist/'.$name;
+
+            $statusResp = ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('response')->exists() ? 1 : null;
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['path_input_response' => $url, 'status_response' => $statusResp]
+            );
         }
     }
 

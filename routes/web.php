@@ -141,16 +141,37 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/assignchecklist/type/{id}/{type}', [MstAssignChecklistController::class, 'type'])->name('assignchecklist.type')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
 
     //Form Checklist 
+    Route::post('/checklist/save', [MstFormChecklistController::class, 'saveResponses'])->name('checklist.saveResponses');
+
     Route::get('/form', [MstFormChecklistController::class, 'form'])->name('formchecklist.form')->middleware('role:Super Admin,Admin');
-    Route::get('/formchecklist', [MstFormChecklistController::class, 'index'])->name('formchecklist.index')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    // Route::get('/formchecklist', [MstFormChecklistController::class, 'index'])->name('formchecklist.index')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
     Route::get('/formchecklist/auditor', [MstFormChecklistController::class, 'auditor'])->name('formchecklist.auditor')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
-    Route::get('/formchecklist/periode/{id}', [MstFormChecklistController::class, 'periode_jaringan'])->name('formchecklist.periode')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
-    Route::get('/formchecklist/periode/typechecklist/{id}', [MstFormChecklistController::class, 'typechecklist'])->name('formchecklist.typechecklist')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
-    Route::post('/formchecklist/periode/typechecklist/start/{id}', [MstFormChecklistController::class, 'startchecklist'])->name('formchecklist.start')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
-    Route::get('/formchecklist/periode/typechecklist/checklistform/{id}', [MstFormChecklistController::class, 'checklistform'])->name('formchecklist.checklistform')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    // Route::get('/formchecklist/periode/{id}', [MstFormChecklistController::class, 'periode_jaringan'])->name('formchecklist.periode')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    // Route::get('/formchecklist/periode/typechecklist/{id}', [MstFormChecklistController::class, 'typechecklist'])->name('formchecklist.typechecklist')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    // Route::post('/formchecklist/periode/typechecklist/start/{id}', [MstFormChecklistController::class, 'startchecklist'])->name('formchecklist.start')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    // Route::get('/formchecklist/periode/typechecklist/checklistform/{id}', [MstFormChecklistController::class, 'checklistform'])->name('formchecklist.checklistform')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
     Route::post('/formchecklist/periode/typechecklist/checklistform/store/{id}', [MstFormChecklistController::class, 'store'])->name('formchecklist.store')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
     Route::post('/formchecklist/periode/typechecklist/submitchecklist/{id}', [MstFormChecklistController::class, 'submitchecklist'])->name('formchecklist.submitchecklist')->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
     Route::get('/checklistform/detail/{id}', [MstAssessorChecklistController::class, 'review'])->name('checklistform.detail');
+
+    Route::controller(MstFormChecklistController::class)->group(function () {
+        Route::prefix('form')->group(function () {
+            Route::get('/', 'form')->name('formchecklist.form');
+            Route::get('/jaringan-list', 'jaringanList')->name('formchecklist.jaringanList');
+            Route::get('/period-list/{id}', 'periodList')->name('formchecklist.periodList');
+            Route::get('/type-checklist-list/{id}', 'typeChecklistList')->name('formchecklist.typeChecklistList');
+            Route::post('/start-checklist/{id}', 'startChecklist')->name('formchecklist.start');
+            Route::get('/checklist/{id}', 'checklistForm')->name('formchecklist.checklistform');
+
+            Route::get('/get-checklist/{id}', 'getChecklistForm')->name('formchecklist.getChecklistForm');
+            Route::post('/store-checklist-file', 'storeChecklistFile')->name('formchecklist.storeChecklistFile');
+            Route::post('/finish-checklist', 'finishChecklist')->name('formchecklist.finishChecklist');
+            
+            Route::get('/get-checklist-h1p/{id}', 'getChecklistFormH1P')->name('formchecklist.getChecklistFormH1P');
+            Route::post('/store-checklist-file-h1p', 'storeChecklistFileH1P')->name('formchecklist.storeChecklistFileH1P');
+            Route::post('/finish-checklist-h1p', 'finishChecklistH1P')->name('formchecklist.finishChecklistH1P');
+        });
+    })->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
     
     // Checklist Assessor
     Route::get('/assessor/jaringan', [MstAssessorChecklistController::class, 'listjaringan'])->name('assessor.listjaringan')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');

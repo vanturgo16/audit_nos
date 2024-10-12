@@ -1,5 +1,5 @@
 
-@if($statusperiod == null)
+@if($period->status == null)
     <span class="badge bg-warning text-white">Expired</span>
 @else
     <div class="btn-group" role="group">
@@ -9,7 +9,7 @@
         </button>
         <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
             @if($data->status == "")
-                @if($today >= $startdate)
+                @if($today >= $period->start_date)
                     <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#start{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
                 @else
                     <li><button class="dropdown-item drpdwn" data-bs-toggle="modal" data-bs-target="#notyetstart{{ $data->id }}"><span class="mdi mdi-check-underline-circle"></span> | Start</button></li>
@@ -271,7 +271,7 @@
                             <div class="col-12 text-center">
                                 <h1><span class="mdi mdi-information" style="color: #FFA500;"></span></h1>
                                 <h5>Checklist Filling Period Hasn't Started Yet</h5>
-                                <p>Will Be Able To Start On Date <b><u>{{ $startdate }}</u></b> Onwards</p>
+                                <p>Will Be Able To Start On Date <b><u>{{ $period->start_date }}</u></b> Onwards</p>
                             </div>
                         </div>
                     </div>

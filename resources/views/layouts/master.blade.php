@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Dashboard NOS | AHASS BANTEN</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
@@ -85,7 +87,6 @@
                     <form class="app-search d-none d-lg-block">
                         <div class="position-relative">
                             <h3 class="d-inline-block me-2"><span class="badge bg-info text-white">{{ Auth::user()->role }}</span></h3>
-                            <h5 class="d-inline-block"> | Form Checklist H1 Premises ( Quartal III )</h5>
                         </div>
                     </form>
                 </div>
@@ -230,7 +231,7 @@
                                 </a>
                             </li> --}}
                             <li>
-                                <a href="{{ route('formchecklist.index') }}">
+                                <a href="{{ route('formchecklist.jaringanList') }}">
                                     <i class="mdi mdi-file-check"></i>
                                     <span>Form Checklist</span>
                                 </a>

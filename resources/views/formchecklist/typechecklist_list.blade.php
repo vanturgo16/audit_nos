@@ -9,7 +9,7 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0 font-size-18">List Type Checklist - Period ( {{ $period->period }} )</h4>
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('formchecklist.periode', encrypt($id_jaringan)) }}"
+                        <a id="backButton" type="button" href="{{ route('formchecklist.periodList', encrypt($period->id_branch)) }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
                             <i class="mdi mdi-arrow-left-circle label-icon"></i>
                             Back
@@ -76,7 +76,7 @@
                 <div class="card">
                     <div class="card-header">
                         @if($period->status != null)
-                            @if($status == true)
+                            @if($status)
                                 <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
                                 {{-- Modal Submit --}}
                                 <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -144,13 +144,11 @@
 </div>
 
 <script>
-    var grading = <?php echo json_encode($grading); ?>;
-    
     $(function() {
         $('#server-side-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{!! route('formchecklist.typechecklist', encrypt($id)) !!}',
+            ajax: '{!! route('formchecklist.typeChecklistList', encrypt($id)) !!}',
             columns: [{
                 data: null,
                     render: function(data, type, row, meta) {
