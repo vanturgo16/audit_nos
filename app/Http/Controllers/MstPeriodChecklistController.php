@@ -305,4 +305,23 @@ class MstPeriodChecklistController extends Controller
             return redirect()->back()->with(['fail' => 'Failed to Deactivate Period Checklist ' . $name->period .'!']);
         }
     }
+
+    public function delete($id){
+        $id = decrypt($id);
+
+        DB::beginTransaction();
+        try{
+            MstPeriodeChecklists::where('id', $id)->delete();
+
+            //Audit Log
+            $this->auditLogsShort('Delete Period Checklist');
+
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Success Delete Period Checklist ']);
+        } catch (Exception $e) {
+            DB::rollback();
+            $name = MstPeriodeChecklists::where('id', $id)->first();
+            return redirect()->back()->with(['fail' => 'Failed to Delete Period Checklist ' . $name->period .'!']);
+        }
+    }
 }
