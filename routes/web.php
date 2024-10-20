@@ -131,6 +131,7 @@ Route::middleware(['auth'])->group(function () {
     //Period Checklist
     Route::get('/periodchecklist', [MstPeriodChecklistController::class, 'index'])->name('periodchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('periodchecklist/create', [MstPeriodChecklistController::class, 'store'])->name('periodchecklist.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
+    Route::post('periodchecklist/delete/{id}', [MstPeriodChecklistController::class, 'delete'])->name('periodchecklist.delete')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('periodchecklist/update/{id}', [MstPeriodChecklistController::class, 'update'])->name('periodchecklist.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('periodchecklist/updateexpired/{id}', [MstPeriodChecklistController::class, 'updateexpired'])->name('periodchecklist.updateexpired')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('periodchecklist/activate/{id}', [MstPeriodChecklistController::class, 'activate'])->name('periodchecklist.activate')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
