@@ -148,7 +148,7 @@
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
-                                    <th class="align-middle text-center">Type Checklist</th>
+                                    {{-- <th class="align-middle text-center">Type Checklist</th> --}}
                                     <th class="align-middle text-center">Parent Point</th>
                                     <th class="align-middle text-center">Child Point</th>
                                     <th class="align-middle text-center">Sub Point</th>
@@ -179,13 +179,13 @@
                     searchable: false,
                     className: 'align-middle text-center',
                 },
-                {
-                    orderable: true,
-                    searchable: true,
-                    data: 'type_checklist',
-                    name: 'type_checklist',
-                    className: 'align-middle text-center',
-                },
+                // {
+                //     orderable: true,
+                //     searchable: true,
+                //     data: 'type_checklist',
+                //     name: 'type_checklist',
+                //     className: 'align-middle text-center',
+                // },
                 {
                     orderable: true,
                     searchable: true,

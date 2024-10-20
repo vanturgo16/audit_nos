@@ -74,10 +74,10 @@ class MstAssignChecklistController extends Controller
             } else {
                 // If Has Assign Take From Assign Checklist
                 $count_check = MstAssignChecklists::where('id_periode_checklist', $period->id)->where('type_checklist', $type->name_value)->count();
-                $count = MstAssignChecklists::where('id_periode_checklist', $period->id)->where('type_checklist', $type->name_value)
-                    ->groupBy('parent_point_checklist')
-                    ->select('parent_point_checklist', \DB::raw('COUNT(*) as count'))
-                    ->count();
+                $count = MstAssignChecklists::where('id_periode_checklist', $period->id)
+                    ->where('type_checklist', $type->name_value)
+                    ->distinct('parent_point_checklist')
+                    ->count('parent_point_checklist');
             }
 
             $type->count_check = $count_check;
@@ -107,17 +107,20 @@ class MstAssignChecklistController extends Controller
             ->get();
 
         if($period->is_active == 0){
-            $query = MstAssignChecklists::select('mst_assign_checklists.id as id_assign_checklist', 'mst_assign_checklists.*', 'mst_periode_checklists.period', 'mst_checklists.*', 'mst_parent_checklists.*')
-            ->leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-            ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
-            ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
-            ->where('mst_periode_checklists.id', $id)
-            ->where('mst_parent_checklists.type_checklist', $type)
-            ->orderBy('mst_assign_checklists.created_at')
-            ->get();
+            $query = MstAssignChecklists::select('mst_assign_checklists.id as id_assign_checklist', 'mst_assign_checklists.*', 'mst_checklists.*', 'mst_parent_checklists.*', 'mst_periode_checklists.period', 'mst_parent_checklists.order_no as order_no_parent',  'mst_checklists.order_no as order_no_checklist')
+                ->leftjoin('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
+                ->leftjoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+                ->leftjoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
+                ->where('mst_periode_checklists.id', $id)
+                ->where('mst_parent_checklists.type_checklist', $type)
+                ->orderBy('mst_parent_checklists.order_no')
+                ->orderBy('mst_checklists.order_no')
+                ->get();
         } else {
             $query = MstAssignChecklists::select('mst_assign_checklists.ms as mandatory_silver','mst_assign_checklists.mg as mandatory_gold','mst_assign_checklists.mp as mandatory_platinum', 'mst_assign_checklists.*')
             ->where('id_periode_checklist', $id)->where('type_checklist', $type)
+            ->orderBy('mst_assign_checklists.order_no_parent')
+            ->orderBy('mst_assign_checklists.order_no_checklist')
             ->get();
         }
 
@@ -224,7 +227,7 @@ class MstAssignChecklistController extends Controller
         try{
             // Update Assign Checklist With Detail Checklist, (So, When Master Checklist Update This Assign Not Affect)
             foreach($assignchecklist as $assign){
-                $detailchecklist = MstAssignChecklists::select('mst_checklists.id as id_checklist', 'mst_parent_checklists.*', 'mst_checklists.*')
+                $detailchecklist = MstAssignChecklists::select('mst_checklists.id as id_checklist', 'mst_parent_checklists.*', 'mst_checklists.*', 'mst_parent_checklists.order_no as order_no_parent',  'mst_checklists.order_no as order_no_checklist')
                     ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
                     ->leftJoin('mst_parent_checklists', 'mst_checklists.id_parent_checklist', 'mst_parent_checklists.id')
                     ->where('mst_checklists.id', $assign->id_mst_checklist)
@@ -236,6 +239,8 @@ class MstAssignChecklistController extends Controller
                 }
                 // Update Assign Master
                 $update_assign = MstAssignChecklists::where('id', $assign->id)->update([
+                    'order_no_parent' => $detailchecklist->order_no_parent,
+                    'order_no_checklist' => $detailchecklist->order_no_checklist,
                     'type_checklist' => $detailchecklist->type_checklist,
                     'parent_point_checklist' => $detailchecklist->parent_point_checklist,
                     'path_guide_parent' => $detailchecklist->path_guide_premises,

@@ -183,11 +183,10 @@ class MstFormChecklistController extends Controller
         //Auditlog
         $this->auditLogsShort('View Checklist Form:', $id);
 
-        // $view = $typeChecklist == 'H1 Premises' ? 'formchecklist.form_check_h1p' : 'formchecklist.form_check';
-        // return view($view, compact('id', 'idPeriod'));
+        $view = $typeChecklist == 'H1 Premises' ? 'formchecklist.form_check_h1p' : 'formchecklist.form_check';
+        return view($view, compact('id', 'idPeriod'));
 
-
-        return view('formchecklist.form_check', compact('id', 'idPeriod'));
+        // return view('formchecklist.form_check', compact('id', 'idPeriod'));
     }
 
     public function getChecklistForm(Request $request, $id)
@@ -208,30 +207,32 @@ class MstFormChecklistController extends Controller
         $type = ChecklistJaringan::where('id', $id)->first();
         $idPeriod = $type->id_periode;
 
-        $assigns = MstAssignChecklists::select('mst_assign_checklists.id', 'mst_assign_checklists.parent_point_checklist')
+        $assigns = MstAssignChecklists::select('mst_assign_checklists.id', 'mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.order_no_parent', 'mst_assign_checklists.order_no_checklist')
             ->where('id_periode_checklist', $idPeriod)
             ->where('type_checklist', $type->type_checklist)
-            ->orderBy('mst_assign_checklists.id')
+            ->orderByRaw('CAST(mst_assign_checklists.order_no_parent AS UNSIGNED)')
+            ->orderByRaw('CAST(mst_assign_checklists.order_no_checklist AS UNSIGNED)')
             ->get();
         $tabParentAct = $request->tabParent == null ? $assigns->first()->parent_point_checklist : $request->tabParent;
         $idQuestionAct = $request->idQuestion == null ? intval($assigns->first()->id) : intval($request->idQuestion);
 
-        $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response')
+        $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response', 'mst_assign_checklists.order_no_parent')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
             ->where('id_periode_checklist', $idPeriod)
-            ->where('type_checklist', $type->type_checklist)->orderBy('mst_assign_checklists.id')->get()->groupBy('parent_point_checklist')
+            ->where('type_checklist', $type->type_checklist)->orderBy('mst_assign_checklists.order_no_parent')->get()->groupBy('parent_point_checklist')
             ->map(function ($group) {
                 $responses = $group->pluck('status_response')->toArray(); $isFullFilled = in_array(null, $responses) ? 0 : 1;
-                return [ 'parent_point_checklist' => $group->first()->parent_point_checklist, 'firstIdQuestion' => $group->first()->id, 'isFullFilled' => $isFullFilled ];
+                return [ 'parent_point_checklist' => $group->first()->parent_point_checklist, 'firstIdQuestion' => $group->first()->id, 'isFullFilled' => $isFullFilled, 'order' => $group->first()->order_no_parent ];
             })
-            ->sortBy('firstIdQuestion')
+            ->sortBy('order')
             ->values();
-        $points = MstAssignChecklists::select('mst_assign_checklists.id', 'checklist_responses.status_response')
+
+        $points = MstAssignChecklists::select('mst_assign_checklists.id', 'checklist_responses.status_response', 'mst_assign_checklists.order_no_checklist')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
             ->where('id_periode_checklist', $idPeriod)
             ->where('type_checklist', $type->type_checklist)
             ->where('parent_point_checklist', $tabParentAct)
-            ->orderBy('mst_assign_checklists.id')
+            ->orderByRaw('CAST(mst_assign_checklists.order_no_checklist AS UNSIGNED)')
             ->get();
         $question = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.path_input_response')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
