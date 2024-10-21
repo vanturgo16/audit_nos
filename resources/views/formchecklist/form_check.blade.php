@@ -106,8 +106,8 @@
                                                     <table class="table table-bordered w-100" style="font-size: 10px;">
                                                         <thead>
                                                             <tr>
-                                                                <th style="padding: 4px; width: 25%;"><b>Panduan Parent</b></th>
-                                                                <th style="padding: 4px; width: 50%;"><b>Upload</b></th>
+                                                                <th style="padding: 4px; width: 25%;"><b>Panduan</b></th>
+                                                                <th style="padding: 4px; width: 50%;"><b>${response.question.path_input_response ? `Update` : `Upload`}</b></th>
                                                                 <th style="padding: 4px; width: 25%;"><b>Uploaded</b></th>
                                                             </tr>
                                                         </thead>
@@ -115,7 +115,7 @@
                                                             <tr>
                                                                 <td style="padding: 4px;">
                                                                     ${response.question.path_guide_parent ? `
-                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuideImg" class="btn btn-sm btn-info">
+                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuide" class="btn btn-sm btn-info">
                                                                         <i class="mdi mdi-eye label-icon"></i> View
                                                                     </a>` : 'Tidak Ada Panduan'}
                                                                 </td>
@@ -123,7 +123,10 @@
                                                                     <input class="form-control me-auto" type="file" name="file_checklist" style="height: 30px; font-size: 10px;">
                                                                 </td>
                                                                 <td style="padding: 4px;">
-                                                                    -
+                                                                    ${response.question.path_input_response ? `
+                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailResp" class="btn btn-sm btn-info">
+                                                                        <i class="mdi mdi-eye label-icon"></i> View
+                                                                    </a>` : '-'}
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -132,6 +135,44 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <!-- Modals -->
+                                    ${response.question.path_guide_parent ? `
+                                    <div class="modal fade" id="detailGuide" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="staticBackdropLabel">Panduan</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
+                                                    <div class="row">
+                                                        <img src="{{ url('${response.question.path_guide_parent}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                    ${response.question.path_input_response ? `
+                                    <div class="modal fade" id="detailResp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="staticBackdropLabel">File Anda</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
+                                                    <div class="row">
+                                                        <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ` : ''}
                                     
                                     <div class="row">
                                         <div class="col-12">
@@ -211,43 +252,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Modals -->
-                    ${response.question.path_guide_checklist ? `
-                    <div class="modal fade" id="detailGuideImg" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="staticBackdropLabel">Gambar Panduan</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
-                                    <div class="row">
-                                        <img src="{{ url('${response.question.path_guide_checklist}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
-                                    </div>
-                                </div>
-                                <div class="modal-footer"></div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
-                    ${response.question.path_input_response ? `
-                    <div class="modal fade" id="detailRspImg" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="staticBackdropLabel">Gambar Anda</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
-                                    <div class="row">
-                                        <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
-                                    </div>
-                                </div>
-                                <div class="modal-footer"></div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
                     `;
                     // Append the form HTML into the #buildForm div
                     $('#buildForm').html(formHtml);
