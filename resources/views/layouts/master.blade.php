@@ -3,12 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dashboard NOS | AHASS BANTEN</title>
+    {{-- <title>Dashboard NOS | AHASS BANTEN</title> --}}
+    <title>Laravel</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
+    {{-- <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}"> --}}
     <!-- plugin css -->
     <link href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
     <!-- DataTables -->
@@ -57,7 +58,7 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="index.html" class="logo logo-dark">
+                        {{-- <a href="index.html" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/LOGO_MSK_PUTIH_VERTIKAL.jpg') }}" alt="" height="50">
                             </span>
@@ -73,7 +74,7 @@
                             <span class="logo-lg">
                                 <img src="{{ asset('assets/images/logosamping.png') }}" alt="" height="50">
                             </span>
-                        </a>
+                        </a> --}}
                     </div>
 
                     <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">

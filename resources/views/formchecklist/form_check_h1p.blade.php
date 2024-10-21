@@ -267,21 +267,24 @@
         $(document).on('click', '#nextBtn', function (e) { handleEvent(e, this); });
         // Function to handle action logic
         function handleEvent(e, btnType) {
+            btnType.disabled = true;
             e.preventDefault();
             var tabParent = $(btnType).attr('dataTab');
             var idQuestion = $(btnType).attr('dataQuest');
             var idActive = $('input[name="idActive"]').val();
+            var idCheckJar = '{{ $id }}';
             var responseAns = $('input[name="options"]:checked').val();
             var responseFile = $('input[name="file_checklist"]')[0].files[0];
 
-            uploadResponseFile(idActive, responseFile, function(success) {
+            uploadResponseFile(idCheckJar, idActive, responseFile, function(success) {
                 if (success) { loadForm(tabParent, idQuestion, idActive, responseAns);
                 } else { $('#errorModal').modal('show'); }
             });
         }
-        function uploadResponseFile(idActive, responseFile, callback) {
+        function uploadResponseFile(idCheckJar, idActive, responseFile, callback) {
             if (responseFile) {
                 var formData = new FormData();
+                formData.append('idCheckJar', idCheckJar);
                 formData.append('idActive', idActive);
                 formData.append('responseFile', responseFile);
                 $.ajax({
@@ -323,12 +326,14 @@
                 button.disabled = false;
             }, 2000);
 
+            var idCheckJar = '{{ $id }}';
             var idActive = $('input[name="idActive"]').val();
             var responseAns = $('input[name="options"]:checked').val();
             var responseFile = $('input[name="file_checklist"]')[0].files.length > 0 
                 ? $('input[name="file_checklist"]')[0].files[0] : '';
 
             var formData = new FormData();
+            formData.append('idCheckJar', idCheckJar);
             formData.append('idActive', idActive);
             formData.append('responseAns', responseAns);
             formData.append('responseFile', responseFile);

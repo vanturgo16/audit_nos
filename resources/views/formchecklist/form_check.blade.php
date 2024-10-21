@@ -99,17 +99,40 @@
                                             </div>
                                             <!-- Question -->
                                         </div>
-                                        <div class="col-2 text-end">
-                                            <label>${response.question.path_input_response ? 'Perbaharui' : 'Upload'} :</label>
-                                        </div>
-                                        <div class="col-3">
-                                            <input class="form-control me-auto" type="file" name="file_checklist">
-                                            ${response.question.path_input_response ? `
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#detailRspImg" class="mt-1 btn btn-sm btn-info waves-effect waves-light loadButton">
-                                                <i class="mdi mdi-eye label-icon"></i> | Preview File Anda
-                                            </a>` : ''}
+
+                                        <div class="col-5">
+                                            <div class="row">
+                                                <div class="col-12 mt-2">
+                                                    <table class="table table-bordered w-100" style="font-size: 10px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="padding: 4px; width: 25%;"><b>Panduan Parent</b></th>
+                                                                <th style="padding: 4px; width: 50%;"><b>Upload</b></th>
+                                                                <th style="padding: 4px; width: 25%;"><b>Uploaded</b></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="padding: 4px;">
+                                                                    ${response.question.path_guide_parent ? `
+                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuideImg" class="btn btn-sm btn-info">
+                                                                        <i class="mdi mdi-eye label-icon"></i> View
+                                                                    </a>` : 'Tidak Ada Panduan'}
+                                                                </td>
+                                                                <td style="padding: 4px;">
+                                                                    <input class="form-control me-auto" type="file" name="file_checklist" style="height: 30px; font-size: 10px;">
+                                                                </td>
+                                                                <td style="padding: 4px;">
+                                                                    -
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                    
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="table-responsive" style="max-height: 70vh;">
@@ -121,28 +144,10 @@
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="width: 80%;">
+                                                            <td style="width: 100%;">
                                                                 <div style="height: 15vh; overflow-y: auto; width: 100%; overflow-x-auto;">
                                                                     ${response.question.indikator}
                                                                 </div>
-                                                            </td>
-                                                            <td rowspan="2" style="border-left: double 4px black; width: 20%;">
-                                                                ${response.question.path_guide_checklist ? `
-                                                                <div class="row">
-                                                                    <div class="col-12">
-                                                                        <label>Gambar Panduan</label>
-                                                                        <div class="custom-image-container">
-                                                                            <div class="card">
-                                                                                <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuideImg">
-                                                                                    <img src="{{ url('${response.question.path_guide_checklist}') }}" style="width: 100%; height: auto;" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
-                                                                                    <div class="custom-overlay">
-                                                                                        <div class="custom-text mt-4">Lihat Gambar</div>
-                                                                                    </div>
-                                                                                </a>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>` : ''}
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -202,7 +207,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                </div
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -262,21 +267,24 @@
         $(document).on('click', '#nextBtn', function (e) { handleEvent(e, this); });
         // Function to handle action logic
         function handleEvent(e, btnType) {
+            btnType.disabled = true;
             e.preventDefault();
             var tabParent = $(btnType).attr('dataTab');
             var idQuestion = $(btnType).attr('dataQuest');
             var idActive = $('input[name="idActive"]').val();
+            var idCheckJar = '{{ $id }}';
             var responseAns = $('input[name="options"]:checked').val();
             var responseFile = $('input[name="file_checklist"]')[0].files[0];
 
-            uploadResponseFile(idActive, responseFile, function(success) {
+            uploadResponseFile(idCheckJar, idActive, responseFile, function(success) {
                 if (success) { loadForm(tabParent, idQuestion, idActive, responseAns);
                 } else { $('#errorModal').modal('show'); }
             });
         }
-        function uploadResponseFile(idActive, responseFile, callback) {
+        function uploadResponseFile(idCheckJar, idActive, responseFile, callback) {
             if (responseFile) {
                 var formData = new FormData();
+                formData.append('idCheckJar', idCheckJar);
                 formData.append('idActive', idActive);
                 formData.append('responseFile', responseFile);
                 $.ajax({
@@ -318,12 +326,14 @@
                 button.disabled = false;
             }, 2000);
 
+            var idCheckJar = '{{ $id }}';
             var idActive = $('input[name="idActive"]').val();
             var responseAns = $('input[name="options"]:checked').val();
             var responseFile = $('input[name="file_checklist"]')[0].files.length > 0 
                 ? $('input[name="file_checklist"]')[0].files[0] : '';
 
             var formData = new FormData();
+            formData.append('idCheckJar', idCheckJar);
             formData.append('idActive', idActive);
             formData.append('responseAns', responseAns);
             formData.append('responseFile', responseFile);
