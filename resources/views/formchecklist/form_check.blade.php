@@ -33,7 +33,7 @@
                         <div class="row py-4">
                             <div class="col-12 text-center">
                                 File Format Or Size Not Accepted, <br>
-                                Accepted Format <b>(jpeg,png,jpg) Max 2MB</b>
+                                Accepted Format <b>(jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar) Max 2MB</b>
                             </div>
                         </div>
                     </div>
@@ -65,6 +65,40 @@
                 success: function (response) {
                     // Clear the #buildForm content
                     $('#buildForm').html('');
+
+                    // Extract file path and extension
+                    var guideFilePath = response.question.path_guide_parent;
+                    var responseFilePath = response.question.path_input_response;
+                    var guideExtension = guideFilePath ? guideFilePath.split('.').pop().toLowerCase() : null;
+                    var responseExtension = responseFilePath ? responseFilePath.split('.').pop().toLowerCase() : null;
+
+                    // Helper function to determine media type for the modal content
+                    function getModalContent(filePath, extension) {
+                        let fullPath = `{{ url('${filePath}') }}`;
+                        if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+                            return `<img src="${fullPath}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">`;
+                        } else if (['mp4', 'webm', 'ogg'].includes(extension)) {
+                            return `<video controls class="custom-video-thumbnail"><source src="${fullPath}" type="video/${extension}">Your browser does not support the video tag.</video>`;
+                        } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
+                            return `<div class="row py-4">
+                                        <div class="col-12 text-center">
+                                            Preview
+                                        </div>
+                                        <div class="col-12 mt-2 text-center">
+                                            <audio controls class="custom-audio-thumbnail"><source src="${fullPath}" type="audio/${extension}">Your browser does not support the audio element.</audio>
+                                        </div>
+                                    </div>`;
+                        } else {
+                            return `<div class="row py-4">
+                                        <div class="col-12 text-center">
+                                            Preview Not Available
+                                        </div>
+                                        <div class="col-12 mt-2 text-center">
+                                            <a href="${fullPath}" class="btn btn-primary" download>Download File</a>
+                                        </div>
+                                    </div>`;
+                        }
+                    }
 
                     // Build the form dynamically with the response data
                     var formHtml = `
@@ -136,8 +170,8 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Modals -->
-                                    ${response.question.path_guide_parent ? `
+                                    <!-- Modals for Guide and Response -->
+                                    ${guideFilePath ? `
                                     <div class="modal fade" id="detailGuide" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-lg modal-dialog-top" role="document">
                                             <div class="modal-content">
@@ -147,15 +181,14 @@
                                                 </div>
                                                 <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
                                                     <div class="row">
-                                                        <img src="{{ url('${response.question.path_guide_parent}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
+                                                        ${getModalContent(guideFilePath, guideExtension)}
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer"></div>
                                             </div>
                                         </div>
-                                    </div>
-                                    ` : ''}
-                                    ${response.question.path_input_response ? `
+                                    </div>` : ''}
+
+                                    ${responseFilePath ? `
                                     <div class="modal fade" id="detailResp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                         <div class="modal-dialog modal-lg modal-dialog-top" role="document">
                                             <div class="modal-content">
@@ -165,14 +198,12 @@
                                                 </div>
                                                 <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
                                                     <div class="row">
-                                                        <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
+                                                        ${getModalContent(responseFilePath, responseExtension)}
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer"></div>
                                             </div>
                                         </div>
-                                    </div>
-                                    ` : ''}
+                                    </div>` : ''}
                                     
                                     <div class="row">
                                         <div class="col-12">
@@ -271,6 +302,8 @@
         $(document).on('click', '#nextBtn', function (e) { handleEvent(e, this); });
         // Function to handle action logic
         function handleEvent(e, btnType) {
+            $('#processing').removeClass('hidden');
+
             btnType.disabled = true;
             e.preventDefault();
             var tabParent = $(btnType).attr('dataTab');
@@ -282,7 +315,7 @@
 
             uploadResponseFile(idCheckJar, idActive, responseFile, function(success) {
                 if (success) { loadForm(tabParent, idQuestion, idActive, responseAns);
-                } else { $('#errorModal').modal('show'); }
+                } else { $('#errorModal').modal('show'); $('#processing').addClass('hidden');}
             });
         }
         function uploadResponseFile(idCheckJar, idActive, responseFile, callback) {
@@ -357,6 +390,7 @@
                 error: function (error) {
                     console.log(error); 
                     $('#errorModal').modal('show');
+                    $('#processing').addClass('hidden');
                 }
             });
         });

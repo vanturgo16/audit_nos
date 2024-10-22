@@ -222,7 +222,7 @@
                                 </div>
                                 <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
                                     <div class="row">
-                                        <img src="{{ url('${response.question.path_guide_checklist}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
+                                        <img src="{{ url('${response.question.path_guide_checklist}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
                                     </div>
                                 </div>
                                 <div class="modal-footer"></div>
@@ -240,7 +240,7 @@
                                 </div>
                                 <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
                                     <div class="row">
-                                        <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
+                                        <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
                                     </div>
                                 </div>
                                 <div class="modal-footer"></div>
@@ -267,6 +267,8 @@
         $(document).on('click', '#nextBtn', function (e) { handleEvent(e, this); });
         // Function to handle action logic
         function handleEvent(e, btnType) {
+            $('#processing').removeClass('hidden');
+
             btnType.disabled = true;
             e.preventDefault();
             var tabParent = $(btnType).attr('dataTab');
@@ -278,7 +280,7 @@
 
             uploadResponseFile(idCheckJar, idActive, responseFile, function(success) {
                 if (success) { loadForm(tabParent, idQuestion, idActive, responseAns);
-                } else { $('#errorModal').modal('show'); }
+                } else { $('#errorModal').modal('show'); $('#processing').addClass('hidden');}
             });
         }
         function uploadResponseFile(idCheckJar, idActive, responseFile, callback) {
@@ -353,6 +355,7 @@
                 error: function (error) {
                     console.log(error); 
                     $('#errorModal').modal('show');
+                    $('#processing').addClass('hidden');
                 }
             });
         });

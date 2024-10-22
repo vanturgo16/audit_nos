@@ -309,8 +309,11 @@ class MstFormChecklistController extends Controller
     public function storeChecklistFile(Request $request)
     {
         // Validation Format File Upload Image Max 2mb
+        // $request->validate([
+        //     'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        // ]);
         $request->validate([
-            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'responseFile' => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar|max:20480'
         ]);
 
         // Save Response 
@@ -342,8 +345,11 @@ class MstFormChecklistController extends Controller
     public function finishChecklist(Request $request)
     {
         // Validation Format File Upload Image Max 2mb
+        // $request->validate([
+        //     'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        // ]);
         $request->validate([
-            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'responseFile' => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar|max:20480'
         ]);
 
         // Save Response 
