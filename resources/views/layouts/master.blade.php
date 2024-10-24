@@ -246,6 +246,12 @@
                                     <span>Checklist</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('assessor.listperiod.assigned') }}">
+                                    <i class="mdi mdi-message-draw"></i>
+                                    <span>Review Checklist</span>
+                                </a>
+                            </li>
 
                             <li class="menu-title" data-key="t-menu">Logs</li>
                             <li>

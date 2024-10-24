@@ -32,18 +32,49 @@ class MstAssessorChecklistController extends Controller
 {
     use AuditLogsTrait;
 
+    public function allListAssignedPeriod(Request $request)
+    {
+        $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+            ->whereNotNull('mst_periode_checklists.status')
+            ->where('mst_periode_checklists.status', '!=', 0)
+            ->get();
+
+        if ($request->ajax()) {
+            return DataTables::of($query)
+            ->addColumn('action', function ($data) {
+                return view('assessor.periodAssigned.action', compact('data'));
+            })
+            ->toJson();
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List Period in Assessor Checklist');
+        
+        return view('assessor.periodAssigned.index');
+    }
+
     public function listjaringan(Request $request)
     {
-        if ($request->ajax()) {
-            $query = MstJaringan::get();
+        $query = MstJaringan::select('mst_dealers.id', 'mst_dealers.dealer_name', 'mst_dealers.type')
+            ->leftJoin('mst_periode_checklists', function($join) {
+                $join->on('mst_dealers.id', '=', 'mst_periode_checklists.id_branch')
+                    ->whereIn('mst_periode_checklists.created_at', function($query) {
+                        $query->selectRaw('MAX(created_at)')
+                            ->from('mst_periode_checklists')
+                            ->where('status', '!=', 0)
+                            ->groupBy('id_branch');
+                    });
+            })
+            ->addSelect('mst_periode_checklists.period as latest_period', 'mst_periode_checklists.status as latest_status')
+            ->get();
 
-            $data = DataTables::of($query)
+        if ($request->ajax()) {
+            return DataTables::of($query)
             ->addColumn('action', function ($data) {
                 return view('assessor.listjaringan.action', compact('data'));
             })
             ->toJson();
-
-            return $data;
         }
 
         //Audit Log

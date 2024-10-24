@@ -46,28 +46,28 @@ Route::middleware(['auth'])->group(function () {
     Route::post('user/deactivate/{id}', [UserController::class, 'deactivate'])->name('user.deactivate')->middleware('role:Super Admin,Admin');
     Route::post('user/delete/{id}', [UserController::class, 'delete'])->name('user.delete')->middleware('role:Super Admin,Admin');
     Route::post('user/check_email_employee', [UserController::class, 'check_email'])->name('user.check_email_employee')->middleware('role:Super Admin,Admin');
-    
+
     //Dropdown
     Route::get('/dropdown', [MstDropdownController::class, 'index'])->name('dropdown.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('dropdown/create', [MstDropdownController::class, 'store'])->name('dropdown.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('dropdown/update/{id}', [MstDropdownController::class, 'update'])->name('dropdown.update')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('dropdown/activate/{id}', [MstDropdownController::class, 'activate'])->name('dropdown.activate')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
     Route::post('dropdown/deactivate/{id}', [MstDropdownController::class, 'deactivate'])->name('dropdown.deactivate')->middleware('role:Super Admin,Admin,Assessor Main Dealer');
-    
+
     //Rule
     Route::get('/rule', [MstRuleController::class, 'index'])->name('rule.index')->middleware('role:Super Admin');
     Route::post('rule/create', [MstRuleController::class, 'store'])->name('rule.store')->middleware('role:Super Admin');
     Route::post('rule/update/{id}', [MstRuleController::class, 'update'])->name('rule.update')->middleware('role:Super Admin');
     Route::post('rule/activate/{id}', [MstRuleController::class, 'activate'])->name('rule.activate')->middleware('role:Super Admin');
     Route::post('rule/deactivate/{id}', [MstRuleController::class, 'deactivate'])->name('rule.deactivate')->middleware('role:Super Admin');
-    
+
     //Department
     Route::get('/department', [MstDepartmentController::class, 'index'])->name('department.index')->middleware('role:Super Admin,Admin');
     Route::post('department/create', [MstDepartmentController::class, 'store'])->name('department.store')->middleware('role:Super Admin,Admin');
     Route::post('department/update/{id}', [MstDepartmentController::class, 'update'])->name('department.update')->middleware('role:Super Admin,Admin');
     Route::post('department/activate/{id}', [MstDepartmentController::class, 'activate'])->name('department.activate')->middleware('role:Super Admin,Admin');
     Route::post('department/deactivate/{id}', [MstDepartmentController::class, 'deactivate'])->name('department.deactivate')->middleware('role:Super Admin,Admin');
-    
+
     //Position
     Route::get('/position', [MstPositionController::class, 'index'])->name('position.index')->middleware('role:Super Admin,Admin');
     Route::post('position/create', [MstPositionController::class, 'store'])->name('position.store')->middleware('role:Super Admin,Admin');
@@ -120,7 +120,7 @@ Route::middleware(['auth'])->group(function () {
 
     //Grading
     Route::get('/grading', [MstGradingController::class, 'index'])->name('grading.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
-    
+
     //Naming Period
     Route::get('/periodname', [MstPeriodNameController::class, 'index'])->name('periodname.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('periodname/create', [MstPeriodNameController::class, 'store'])->name('periodname.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
@@ -136,7 +136,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('periodchecklist/updateexpired/{id}', [MstPeriodChecklistController::class, 'updateexpired'])->name('periodchecklist.updateexpired')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('periodchecklist/activate/{id}', [MstPeriodChecklistController::class, 'activate'])->name('periodchecklist.activate')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('periodchecklist/deactivate/{id}', [MstPeriodChecklistController::class, 'deactivate'])->name('periodchecklist.deactivate')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
-    
+
     //Assign Checklist
     Route::get('/assignchecklist/{id}', [MstAssignChecklistController::class, 'index'])->name('assignchecklist.index')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
     Route::post('assignchecklist/create/{id}', [MstAssignChecklistController::class, 'store'])->name('assignchecklist.store')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC Dealers');
@@ -171,13 +171,13 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/get-checklist/{id}', 'getChecklistForm')->name('formchecklist.getChecklistForm');
             Route::post('/store-checklist-file', 'storeChecklistFile')->name('formchecklist.storeChecklistFile');
             Route::post('/finish-checklist', 'finishChecklist')->name('formchecklist.finishChecklist');
-            
+
             Route::get('/get-checklist-h1p/{id}', 'getChecklistFormH1P')->name('formchecklist.getChecklistFormH1P');
             Route::post('/store-checklist-file-h1p', 'storeChecklistFileH1P')->name('formchecklist.storeChecklistFileH1P');
             Route::post('/finish-checklist-h1p', 'finishChecklistH1P')->name('formchecklist.finishChecklistH1P');
         });
     })->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
-    
+
     // Checklist Assessor
     Route::get('/assessor/jaringan', [MstAssessorChecklistController::class, 'listjaringan'])->name('assessor.listjaringan')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
     Route::get('assessor/period/{id}', [MstAssessorChecklistController::class, 'listperiod'])->name('assessor.listperiod')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
@@ -187,6 +187,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('assessor/finishreview/{id}', [MstAssessorChecklistController::class, 'finishreview'])->name('assessor.finishreview')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
     Route::post('assessor/closedapproved/{id}', [MstAssessorChecklistController::class, 'closedapproved'])->name('assessor.closedapproved')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
     Route::get('assessor/history/{id}', [MstAssessorChecklistController::class, 'history'])->name('assessor.history')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
+
+    Route::controller(MstAssessorChecklistController::class)->group(function () {
+        Route::prefix('assessor')->group(function () {
+            Route::get('list-assigned-period', [MstAssessorChecklistController::class, 'allListAssignedPeriod'])->name('assessor.listperiod.assigned')->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
+        });
+    })->middleware('role:Super Admin,Admin,Assessor Main Dealer,PIC NOS MD');
 
     //Audit Log
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog')->middleware('role:Super Admin,Admin');
