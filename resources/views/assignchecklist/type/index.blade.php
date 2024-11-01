@@ -29,7 +29,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    @if($period->is_active == 0)
+                    @if($period->is_active == 1 && $period->status == 0)
                         <div class="card-header">
                             <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Assign Checklist</button>
                             {{-- Modal Add --}}
@@ -44,7 +44,7 @@
                                             @csrf
                                             <div class="modal-body">
                                                 <div class="row">
-                                                    <div class="col-12 mb-2">
+                                                    <div class="col-12 mb-3">
                                                         <label class="form-label">Master Checklist</label><label style="color: darkred">*</label>
                                                         <select class="form-select js-example-basic-single" name="id_mst_checklist" id="id_mst_checklist" style="width: 100%" required>
                                                             <option value="" selected>--Select Checklist--</option>
@@ -59,26 +59,51 @@
                                                             @endforeach
                                                         </select>
                                                     </div>
-                                                    <div class="col-12 mb-2">
+                                                    <div class="col-12 mb-3">
                                                         <label class="form-label">Indikator</label>
                                                         <textarea class="form-control" id="indikator" rows="5" placeholder="Auto Fill.." readonly>Select Checklist</textarea>
                                                     </div>
-                                                    <div class="col-6 mb-2">
+                                                    <div class="col-6 mb-3">
                                                         <label class="form-label">Mandatory</label>
                                                         <div id="mandatory">
                                                             <span class="badge bg-secondary text-white">Select Checklist</span>
-                                                            {{-- <span class="badge bg-success text-white">S</span>
-                                                            <span class="badge bg-success text-white">G</span>
-                                                            <span class="badge bg-success text-white">P</span> --}}
                                                         </div>
                                                     </div>
-                                                    <div class="col-6 mb-2">
-                                                        <label class="form-label">File Upload</label>
-                                                        <div id="fileupload">
-                                                            <span class="badge bg-secondary text-white">Select Checklist</span>
-                                                            {{-- <span class="badge bg-success text-white">Yes</span> --}}
-                                                        </div>
-                                                    </div>
+                                                    <script>
+                                                        $(document).ready(function(){
+                                                            $('#id_mst_checklist').change(function(){
+                                                                var id = $(this).val();
+                                                                if(id == ""){
+                                                                    $('#indikator').html('Select Checklist');
+                                                                    $('#mandatory').html('<span class="badge bg-secondary text-white">Select Checklist</span>');
+                                                                    $('#fileupload').html('<span class="badge bg-secondary text-white">Select Checklist</span>');
+                                                                } else {
+                                                                    $.ajax({
+                                                                        url: '{{ route('searchchecklist', ':id') }}'.replace(':id', id),
+                                                                        type: 'GET',
+                                                                        success: function(data) {
+                                                                            var strippedHtml = $('<div>').html(data.indikator).text();
+                                                                            $('#indikator').html(strippedHtml);
+                                                                            var html = ''
+                                                                            if(data.mandatory_silver == 1){
+                                                                                html += '<span class="badge bg-success text-white">S</span>';
+                                                                            }
+                                                                            if(data.mandatory_gold == 1){
+                                                                                html += '<span class="badge bg-success text-white">G</span>';
+                                                                            }
+                                                                            if(data.mandatory_platinum == 1){
+                                                                                html += '<span class="badge bg-success text-white">P</span>';
+                                                                            }
+                                                                            $('#mandatory').html(html);
+                                                                            if(data.mandatory_silver != 1 && data.mandatory_gold != 1 && data.mandatory_platinum != 1){
+                                                                                $('#mandatory').html('<span class="badge bg-secondary text-white">Null</span>');
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }
+                                                            });
+                                                        });
+                                                    </script>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -97,46 +122,6 @@
                                                 submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
                                                 return true; // Allow form submission
                                             });
-
-                                            $(document).ready(function(){
-                                                $('#id_mst_checklist').change(function(){
-                                                    var id = $(this).val();
-                                                    if(id == ""){
-                                                        $('#indikator').html('Select Checklist');
-                                                        $('#mandatory').html('<span class="badge bg-secondary text-white">Select Checklist</span>');
-                                                        $('#fileupload').html('<span class="badge bg-secondary text-white">Select Checklist</span>');
-                                                    } else {
-                                                        $.ajax({
-                                                            url: '/searchchecklist/' + id,
-                                                            type: 'GET',
-                                                            success: function(data) {
-                                                                var strippedHtml = $('<div>').html(data.indikator).text();
-                                                                $('#indikator').html(strippedHtml);
-                                                                console.log(data)
-                                                                var html = ''
-                                                                if(data.mandatory_silver == 1){
-                                                                    html += '<span class="badge bg-success text-white">S</span>';
-                                                                }
-                                                                if(data.mandatory_gold == 1){
-                                                                    html += '<span class="badge bg-success text-white">G</span>';
-                                                                }
-                                                                if(data.mandatory_platinum == 1){
-                                                                    html += '<span class="badge bg-success text-white">P</span>';
-                                                                }
-                                                                $('#mandatory').html(html);
-                                                                if(data.mandatory_silver != 1 && data.mandatory_gold != 1 && data.mandatory_platinum != 1){
-                                                                    $('#mandatory').html('<span class="badge bg-secondary text-white">Null</span>');
-                                                                }
-                                                                if(data.upload_file == 1){
-                                                                    $('#fileupload').html('<span class="badge bg-success text-white">Yes</span>');
-                                                                } else {
-                                                                    $('#fileupload').html('<span class="badge bg-danger text-white">No</span>');
-                                                                }
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            });
                                         </script>
                                     </div>
                                 </div>
@@ -148,7 +133,6 @@
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
-                                    {{-- <th class="align-middle text-center">Type Checklist</th> --}}
                                     <th class="align-middle text-center">Parent Point</th>
                                     <th class="align-middle text-center">Child Point</th>
                                     <th class="align-middle text-center">Sub Point</th>
@@ -166,54 +150,53 @@
 
 <script>
     $(function() {
-        $('#server-side-table').DataTable({
+        var table = $('#server-side-table').DataTable({
             processing: true,
             serverSide: true,
             ajax: '{!! route('assignchecklist.type', ['id' => encrypt($period->id), 'type' => $type]) !!}',
-            columns: [{
-                data: null,
+            columns: [
+                {
+                    data: null,
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
-                // {
-                //     orderable: true,
-                //     searchable: true,
-                //     data: 'type_checklist',
-                //     name: 'type_checklist',
-                //     className: 'align-middle text-center',
-                // },
                 {
-                    orderable: true,
-                    searchable: true,
                     data: 'parent_point_checklist',
                     name: 'parent_point_checklist',
-                    className: 'align-middle text-center',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top',
                 },
                 {
                     data: 'child_point_checklist',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle text-center',
+                    className: 'align-top',
                     render: function(data, type, row) {
-                        var html
-                        if(row.child_point_checklist == null){
-                            html = '<span class="badge bg-secondary text-white">Null</span>';
-                        } else {
-                            html = row.child_point_checklist;
-                        }
-                        return html;
+                        return row.child_point_checklist
+                            ? row.child_point_checklist
+                            : '-';
                     },
                 },
                 {
-                    orderable: true,
-                    searchable: true,
                     data: 'sub_point_checklist',
                     name: 'sub_point_checklist',
-                    className: 'align-middle text-center',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top',
+                    render: function(data, type, row) {
+                        if (data) {
+                            var words = data.split(' ');
+                            var limitedText = words.length > 15 ? words.slice(0, 15).join(' ') + '...' : data;
+                            return limitedText;
+                        } else {
+                            return '';
+                        }
+                    },
                 },
                 {
                     data: 'action',
@@ -223,8 +206,32 @@
                     className: 'align-middle text-center',
                 },
             ],
+            drawCallback: function(settings) {
+                var api = this.api();
+                var rows = api.rows({ page: 'current' }).nodes();
+                var lastParent = null;
+                var rowspan = 1;
+
+                api.column(1, { page: 'current' }).data().each(function(parent, i) {
+                    if (lastParent === parent) {
+                        rowspan++;
+                        $(rows).eq(i).find('td:eq(1)').remove(); // Remove duplicate cells in the `parent_point_checklist` column
+                    } else {
+                        if (lastParent !== null) {
+                            $(rows).eq(i - rowspan).find('td:eq(1)').attr('rowspan', rowspan); // Set rowspan for previous group
+                        }
+                        lastParent = parent;
+                        rowspan = 1;
+                    }
+                });
+
+                // Apply rowspan for the last group
+                if (lastParent !== null) {
+                    $(rows).eq(api.column(1, { page: 'current' }).data().length - rowspan).find('td:eq(1)').attr('rowspan', rowspan);
+                }
+            }
         });
     });
-
 </script>
+
 @endsection

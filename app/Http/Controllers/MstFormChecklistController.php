@@ -34,6 +34,33 @@ class MstFormChecklistController extends Controller
 {
     use AuditLogsTrait;
 
+    public function periodList(Request $request)
+    {
+        $branchs = MstJaringan::get();
+
+        $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id');
+
+        if ($request->has('filterBranch') && $request->filterBranch != '' && $request->filterBranch != 'All') {
+            $query->where('mst_periode_checklists.id_branch', $request->filterBranch);
+        }
+
+        $query = $query->orderBy('mst_periode_checklists.created_at', 'desc')->get();
+
+        if ($request->ajax()) {
+            return DataTables::of($query)
+                ->addColumn('action', function ($data) use ($branchs) {
+                    return view('auditor.period.action', compact('data', 'branchs', 'period_name'));
+                })
+                ->toJson();
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View List Assign Period Checklist Auditor');
+
+        return view('auditor.period.index', compact('branchs'));
+    }
+
     public function jaringanList(Request $request)
     {
         if ($request->ajax()) {
@@ -54,6 +81,7 @@ class MstFormChecklistController extends Controller
     {
         $email_user = auth()->user()->email;
         $id = MstEmployees::where('email', $email_user)->first()->id_dealer;
+        dd($id);
 
         $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
@@ -71,29 +99,29 @@ class MstFormChecklistController extends Controller
         return view('formchecklist.periode', compact('datas', 'id', 'jaringan'));
     }
 
-    public function periodList(Request $request, $id)
-    {
-        $id = decrypt($id);
+    // public function periodList(Request $request, $id)
+    // {
+    //     $id = decrypt($id);
 
-        if ($request->ajax()) {
-            $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
-                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                ->orderBy('mst_periode_checklists.created_at')
-                ->where('mst_dealers.id', $id)
-                ->where('mst_periode_checklists.is_active', '1')
-                ->get();
-            $data = DataTables::of($datas)->addColumn('action', function ($data) {
-                return view('formchecklist.action.period', compact('data'));
-            })->toJson();
-            return $data;
-        }
-        $jaringan = MstJaringan::where('id', $id)->first()->dealer_name;
+    //     if ($request->ajax()) {
+    //         $datas = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
+    //             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+    //             ->orderBy('mst_periode_checklists.created_at')
+    //             ->where('mst_dealers.id', $id)
+    //             ->where('mst_periode_checklists.is_active', '1')
+    //             ->get();
+    //         $data = DataTables::of($datas)->addColumn('action', function ($data) {
+    //             return view('formchecklist.action.period', compact('data'));
+    //         })->toJson();
+    //         return $data;
+    //     }
+    //     $jaringan = MstJaringan::where('id', $id)->first()->dealer_name;
 
-        //Audit Log
-        $this->auditLogsShort('View Periode Form Checklist');
+    //     //Audit Log
+    //     $this->auditLogsShort('View Periode Form Checklist');
 
-        return view('formchecklist.period_list', compact('id', 'jaringan'));
-    }
+    //     return view('formchecklist.period_list', compact('id', 'jaringan'));
+    // }
 
     public function typeChecklistList(Request $request, $id)
     {

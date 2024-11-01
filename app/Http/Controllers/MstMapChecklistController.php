@@ -21,83 +21,65 @@ class MstMapChecklistController extends Controller
         $datas = MstDropdowns::where('category', 'Type Dealer')->get();
 
         if ($request->ajax()) {
-            $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) {
-                return view('mapchecklist.action', compact('data'));
-            })
-            ->toJson();
-            return $data;
+            return DataTables::of($datas)
+                ->addColumn('action', function ($data) {
+                    return view('mapchecklist.action', compact('data'));
+                })->toJson();
         }
 
         //Audit Log
         $this->auditLogsShort('View List Type Jaringan Mst MapChecklist');
-        
+
         return view('mapchecklist.index', compact('datas'));
     }
-    
+
     public function type(Request $request, $type)
     {
         $type = decrypt($type);
-        
-        //ForSortingBasedDropdown
-        $sortdropdown = MstDropdowns::where('category', 'Type Checklist')->orderby('created_at')->pluck('name_value')->toArray();
-        $datas = MstMapChecklists::select('type_checklist as type')
-            ->where('mst_mapchecklists.type_jaringan', $type)
-            ->join('mst_parent_checklists', 'mst_mapchecklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
-            ->groupBy('mst_parent_checklists.type_checklist')
-            ->selectRaw('COUNT(*) as count')
-            ->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")
-            ->get()
-            ->map(function ($item, $key) {
-                $item->id = $key + 1;
-                return $item;
-            });
 
-        $type_checklist = MstDropdowns::select('type_checklist as name_value')
-            ->where('mst_dropdowns.category', 'Type Checklist')
-            ->join('mst_parent_checklists', 'mst_dropdowns.name_value', '=', 'mst_parent_checklists.type_checklist')
-            ->whereNotIn('mst_parent_checklists.id', function($query) use ($type) {
-                $query->select('id_parent_checklist')
-                    ->from('mst_mapchecklists')
-                    ->where('type_jaringan', $type);
-            })
+        $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
+        $dataTypeMaps = MstMapChecklists::select('mst_parent_checklists.type_checklist', DB::raw('COUNT(mst_mapchecklists.id) as countMap'))
+            ->leftjoin('mst_parent_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_mapchecklists.type_jaringan', $type)
             ->groupBy('mst_parent_checklists.type_checklist')
+            ->orderByRaw("FIELD(mst_parent_checklists.type_checklist, '" . $sortOrder->implode("','") . "')")
             ->get();
+        $dataTypeMaps->each(function ($item, $index) {
+            $item->idUnique = $index + 1;
+        });
+        $typeCheckExisting = $dataTypeMaps->pluck('type_checklist');
+
+        $mstTypeChecks = MstDropdowns::select('name_value')
+            ->where('category', 'Type Checklist')
+            ->whereNotIn('name_value', $typeCheckExisting)
+            ->orderBy('created_at')->get();
 
         if ($request->ajax()) {
-            $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) use ($type) {
-                return view('mapchecklist.typechecklist.action', compact('data', 'type'));
-            })
-            ->toJson();
-            return $data;
+            return DataTables::of($dataTypeMaps)
+                ->addColumn('action', function ($data) use ($type) {
+                    return view('mapchecklist.typechecklist.action', compact('data', 'type'));
+                })->toJson();
         }
 
         //Audit Log
         $this->auditLogsShort('View List Type Checklist Mst Mapping Checklist');
-        
-        return view('mapchecklist.typechecklist.index', compact('datas', 'type_checklist', 'type'));
+
+        return view('mapchecklist.typechecklist.index', compact('mstTypeChecks', 'type'));
     }
 
     public function addtype($type, Request $request)
     {
-        $type = decrypt($type);
+        $type = decrypt($type); // type jaringan
+        $typeChecks = $request->type_checklist; // selected type checklist
 
         DB::beginTransaction();
-        try{
-            // menggunakan perulangan untuk input data
-            foreach ($request->type_checklist as $type_checklist) {
-                // disini kita cari parent dengan type checklist yang diinputkan
-                $parent = MstParentChecklists::where('type_checklist', $type_checklist)->get();
-                foreach($parent as $par){
-                    $check = MstMapChecklists::where('id_parent_checklist', $par->id)
-                        ->where('type_jaringan', $type)->first();
-                    
-                    if(!$check){
-                        MstMapChecklists::create([
-                            'id_parent_checklist' => $par->id,
-                            'type_jaringan' => $type
-                        ]);
+        try {
+            foreach ($typeChecks as $item) {
+                $mstParents = MstParentChecklists::select('id')->where('type_checklist', $item)->get();
+                foreach ($mstParents as $parent) {
+                    $check = MstMapChecklists::where('id_parent_checklist', $parent->id)->where('type_jaringan', $type)->first();
+                    if ($check == null) {
+                        MstMapChecklists::create(['id_parent_checklist' => $parent->id, 'type_jaringan' => $type]);
                     }
                 }
             }
@@ -110,29 +92,26 @@ class MstMapChecklistController extends Controller
         } catch (Exception $e) {
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Add New Type Checklist!']);
-        } 
+        }
     }
 
-    public function deletetype($type)
+    public function deletetype(Request $request, $type)
     {
         $type = decrypt($type);
-        $parent = MstParentChecklists::where('type_checklist', $type)->get();
+        $idParent = MstParentChecklists::where('type_checklist', $type)->pluck('id');
 
         DB::beginTransaction();
-        try{
-            // menggunakan perulangan untuk delete data
-            foreach ($parent as $par) {
-                MstMapChecklists::where('id_parent_checklist', $par['id'])->delete();
-            }
-            
+        try {
+            MstMapChecklists::where('type_jaringan', $request->typeJaringan)->whereIn('id_parent_checklist', $idParent)->delete();
+
             //Audit Log
             $this->auditLogsShort('Delete Type Checklist Mst MapChecklist');
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Delete Type Checklist : '.$type]);
+            return redirect()->back()->with(['success' => 'Success Delete Type Checklist : ' . $type]);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Delete Type Checklist! : '.$type]);
+            return redirect()->back()->with(['fail' => 'Failed to Delete Type Checklist! : ' . $type]);
         }
     }
 
@@ -141,44 +120,43 @@ class MstMapChecklistController extends Controller
         $type = decrypt($type); // type jaringan
         $typecheck = decrypt($typecheck); // type checklist
 
-        //disini kita ambil semua parent yang sesuai dengan type checklist
-        $parent = MstParentChecklists::where('type_checklist', $typecheck)
-            ->whereNotIn('mst_parent_checklists.id', function($query) use ($type) {
-                $query->select('id_parent_checklist')
-                    ->from('mst_mapchecklists')
-                    ->where('type_jaringan', $type);
-            })
-            ->get();
+        $dataMaps = MstMapChecklists::select('mst_mapchecklists.id as idMap', 'mst_parent_checklists.id as idParent', 'mst_parent_checklists.parent_point_checklist')
+            ->leftjoin('mst_parent_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_parent_checklists.id')
+            ->where('mst_mapchecklists.type_jaringan', $type)
+            ->where('mst_parent_checklists.type_checklist', $typecheck)
+            ->orderBy('mst_parent_checklists.order_no', 'asc');
+        $idParent = $dataMaps->pluck('idParent');
+        $dataMaps = $dataMaps->get();
 
-        $datas = MstMapChecklists::join('mst_parent_checklists', 'mst_mapchecklists.id_parent_checklist', '=', 'mst_parent_checklists.id')
-            ->orderBy('mst_parent_checklists.id', 'asc')
+        $mstParents = MstParentChecklists::select('id', 'parent_point_checklist')
             ->where('type_checklist', $typecheck)
+            ->whereNotIn('id', $idParent)
+            ->orderBy('order_no', 'asc')
             ->get();
 
         if ($request->ajax()) {
-            $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) {
-                return view('mapchecklist.typechecklist.parentcheck.action', compact('data'));
-            })
-            ->toJson();
-            return $data;
+            return DataTables::of($dataMaps)
+                ->addColumn('action', function ($data) {
+                    return view('mapchecklist.typechecklist.parentcheck.action', compact('data'));
+                })->toJson();
         }
 
         //Audit Log
         $this->auditLogsShort('View List Parent Type Checklist Mst MapChecklist');
 
-        return view('mapchecklist.typechecklist.parentcheck.index', compact('parent', 'datas', 'typecheck', 'type'));
+        return view('mapchecklist.typechecklist.parentcheck.index', compact('mstParents', 'type', 'typecheck'));
     }
 
-    public function addparent($type, Request $request)
+    public function addparent(Request $request, $type)
     {
         $type = decrypt($type); // type jaringan
+        $idParents = $request->id_parent; // selected id parent
+
         DB::beginTransaction();
-        try{
-            // menggunakan perulangan untuk input data
-            foreach ($request->id_parent as $id_parent) {
+        try {
+            foreach ($idParents as $item) {
                 MstMapChecklists::create([
-                    'id_parent_checklist' => $id_parent,
+                    'id_parent_checklist' => $item,
                     'type_jaringan' => $type
                 ]);
             }
@@ -191,7 +169,7 @@ class MstMapChecklistController extends Controller
         } catch (Exception $e) {
             DB::rollback();
             return redirect()->back()->with(['fail' => 'Failed to Add Parent Checklist!']);
-        } 
+        }
     }
 
     public function deleteparent($id)
@@ -199,9 +177,8 @@ class MstMapChecklistController extends Controller
         $id = decrypt($id);
 
         DB::beginTransaction();
-        try{
-            // menggunakan perulangan untuk delete data
-            MstMapChecklists::where('id_parent_checklist', $id)->delete();
+        try {
+            MstMapChecklists::where('id', $id)->delete();
 
             //Audit Log
             $this->auditLogsShort('Delete Parent Mst MapChecklist');
@@ -212,6 +189,5 @@ class MstMapChecklistController extends Controller
             dd($e);
             return redirect()->back()->with(['fail' => 'Failed to Delete Parent Checklist!']);
         }
-        
     }
 }

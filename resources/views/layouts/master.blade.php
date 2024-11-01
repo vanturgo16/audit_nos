@@ -40,6 +40,7 @@
     {{-- select 2 --}}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="{{ asset('assets/css/customselect2.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     
     {{-- Highchart --}}
     <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -47,6 +48,9 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    {{-- MDI Icon --}}
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -58,7 +62,7 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        {{-- <a href="index.html" class="logo logo-dark">
+                        <a href="index.html" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="{{ asset('assets/images/LOGO_MSK_PUTIH_VERTIKAL.jpg') }}" alt="" height="50">
                             </span>
@@ -74,7 +78,7 @@
                             <span class="logo-lg">
                                 <img src="{{ asset('assets/images/logosamping.png') }}" alt="" height="50">
                             </span>
-                        </a> --}}
+                        </a>
                     </div>
 
                     <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
@@ -214,6 +218,7 @@
                             </li>
 
                             <li class="menu-title" data-key="t-menu">Checklist Audit</li>
+
                             <li>
                                 <a href="{{ route('periodname.index') }}">
                                     <i class="mdi mdi-clipboard-text-clock"></i>
@@ -227,31 +232,29 @@
                                 </a>
                             </li>
                             {{-- <li>
-                                <a href="{{ route('formchecklist.form') }}">
-                                    <i class="mdi mdi-check-underline-circle"></i>
-                                    <span>Contoh Form Checklist</span>
-                                </a>
-                            </li> --}}
-                            <li>
-                                <a href="{{ route('formchecklist.jaringanList') }}">
-                                    <i class="mdi mdi-file-check"></i>
-                                    <span>Form Checklist</span>
-                                </a>
-                            </li>
-
-                            <li class="menu-title" data-key="t-menu">Assessor Menu</li>
-                            <li>
                                 <a href="{{ route('assessor.listjaringan') }}">
                                     <i class="mdi mdi-check-underline-circle"></i>
                                     <span>Checklist</span>
                                 </a>
+                            </li> --}}
+
+                            <li class="menu-title" data-key="t-menu">Auditor Menu</li>
+                            <li>
+                                <a href="{{ route('auditor.periodList') }}">
+                                    <i class="mdi mdi-file-check"></i>
+                                    <span>Assigned Checklist</span>
+                                </a>
                             </li>
+
+                            
+                            <li class="menu-title" data-key="t-menu">Assessor Menu</li>
                             <li>
                                 <a href="{{ route('assessor.listperiod.assigned') }}">
                                     <i class="mdi mdi-message-draw"></i>
                                     <span>Review Checklist</span>
                                 </a>
                             </li>
+
 
                             <li class="menu-title" data-key="t-menu">Logs</li>
                             <li>
@@ -423,7 +426,7 @@
 
                             <li class="menu-title" data-key="t-menu">Assessor Menu</li>
                             <li>
-                                <a href="{{ route('assessor.listjaringan') }}">
+                                <a href="{{ route('assessor.periodList') }}">
                                     <i class="mdi mdi-clipboard-check"></i>
                                     <span>Result Checklist</span>
                                 </a>
@@ -465,9 +468,9 @@
 
                             <li class="menu-title" data-key="t-menu">Auditor Menu</li>
                             <li>
-                                <a href="{{ route('formchecklist.auditor') }}">
+                                <a href="{{ route('auditor.periodList') }}">
                                     <i class="mdi mdi-file-check"></i>
-                                    <span>Form Checklist</span>
+                                    <span>Assigned Checklist</span>
                                 </a>
                             </li>
 
@@ -725,6 +728,20 @@
     <script src="{{ asset('assets/js/custom.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+
+    {{-- Default Dark --}}
+    {{-- <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Set default theme to dark
+            document.body.setAttribute("data-bs-theme", "dark");
+            document.body.setAttribute("data-topbar", "dark");
+            document.body.setAttribute("data-sidebar", "dark");
+
+            // Ensure icons for dark mode display correctly
+            document.querySelector(".layout-mode-dark").classList.add("d-none");
+            document.querySelector(".layout-mode-light").classList.remove("d-none");
+        });
+    </script> --}}
 </body>
 
 </html>

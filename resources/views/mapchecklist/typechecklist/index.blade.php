@@ -44,19 +44,12 @@
                                                     <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
                                                 </div>
                                                 <div class="col-lg-12 mb-3">
-                                                    <select class="form-control js-example-basic-single" name="type_checklist[]"
-                                                            id="type_checklist"
-                                                            multiple required>
+                                                    <select class="form-control js-example-basic-single" name="type_checklist[]" id="type_checklist" multiple required>
                                                         <option value="" disabled>-- Select Type Checklist --</option>
-                                                        @foreach($type_checklist as $type_check)
-                                                        <option value="{{ $type_check->name_value }}">{{ $type_check->name_value }}</option>
+                                                        @foreach($mstTypeChecks as $item)
+                                                            <option value="{{ $item->name_value }}">{{ $item->name_value }}</option>
                                                         @endforeach
                                                     </select>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-lg-6 mb-3">
-                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -85,9 +78,9 @@
                         <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
                                 <tr>
-                                    <th class="align-middle text-center">No</th>
+                                    <th class="align-middle text-center">No.</th>
                                     <th class="align-middle text-center">Type Checklist</th>
-                                    <th class="align-middle text-center">Total Parent Point</th>
+                                    <th class="align-middle text-center">Total Parent Point Mapped</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -105,7 +98,8 @@
             processing: true,
             serverSide: true,
             ajax: '{!! route('mapchecklist.type', encrypt($type)) !!}',
-            columns: [{
+            columns: [
+                {
                 data: null,
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
@@ -115,22 +109,21 @@
                     className: 'align-middle text-center',
                 },
                 {
-                    data: 'type',
-                    name: 'type',
+                    data: 'type_checklist',
+                    name: 'type_checklist',
                     orderable: true,
-                    className: 'align-middle text-center text-bold'
+                    className: 'align-top text-bold'
                 },
                 {
-                    data: 'count',
+                    data: 'countMap',
                     orderable: true,
                     className: 'align-middle text-center',
                     render: function(data, type, row) {
                         var html;
-                        if (row.hasOwnProperty('count')) {
-                            html = '<h5><span class="badge bg-success text-white">' + row.count + '</span></h5>';
+                        if (row.hasOwnProperty('countMap')) {
+                            html = '<h5><span class="badge bg-success text-white">' + row.countMap + '</span></h5>';
                         } else {
-                            // Handle the case where count does not exist
-                            html = '<h5><span class="badge bg-secondary text-white">Count Not Available</span></h5>';
+                            html = '-';
                         }
                         return html;
                     },

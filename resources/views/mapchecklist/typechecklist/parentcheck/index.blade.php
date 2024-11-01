@@ -44,19 +44,12 @@
                                                     <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
                                                 </div>
                                                 <div class="col-lg-12 mb-3">
-                                                    <select class="form-control js-example-basic-single" name="id_parent[]"
-                                                            id="id_parent"
-                                                            multiple required>
+                                                    <select class="form-control js-example-basic-single" name="id_parent[]" id="id_parent" multiple required>
                                                         <option value="" disabled>-- Select Parent Checklist --</option>
-                                                        @foreach($parent as $par)
-                                                            <option value="{{$par->id}}">{{$par->parent_point_checklist}}</option>
+                                                        @foreach($mstParents as $item)
+                                                            <option value="{{$item->id}}">{{$item->parent_point_checklist}}</option>
                                                         @endforeach
                                                     </select>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-lg-6 mb-3">
-                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -111,13 +104,13 @@
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
                 {
                     data: 'parent_point_checklist',
                     name: 'parent_point_checklist',
                     orderable: true,
-                    className: 'align-middle text-center text-bold'
+                    className: 'align-top text-bold'
                 },
                 {
                     data: 'action',

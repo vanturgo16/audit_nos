@@ -13,24 +13,19 @@ class SubmitAssignChecklist extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $periodinfo;
-    public $checklistdetail;
-    public $emailsubmitter;
+    public $periodInfo;
+    public $groupTypeChecks;
+    public $emailSubmitter;
 
-    public function __construct($periodinfo, $checklistdetail, $emailsubmitter)
+    public function __construct($periodInfo, $groupTypeChecks, $emailSubmitter)
     {
-        $this->periodinfo = $periodinfo;
-        $this->checklistdetail = $checklistdetail;
-        $this->emailsubmitter = $emailsubmitter;
+        $this->periodInfo = $periodInfo;
+        $this->groupTypeChecks = $groupTypeChecks;
+        $this->emailSubmitter = $emailSubmitter;
     }
 
     public function build()
     {
-        //SUBJECT NAME
-        $subject = "[SUBMIT ASSIGN CHECKLIST - ASSESSOR]";
-
-        $email = $this->view('mail.submitAssignChecklist')->subject($subject);
-
-        return $email;
+        return $this->view('mail.submitAssignChecklist')->subject("[SUBMIT ASSIGN CHECKLIST - ASSESSOR]");
     }
 }

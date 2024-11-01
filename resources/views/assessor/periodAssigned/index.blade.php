@@ -16,8 +16,6 @@
                                     <th class="align-middle text-center">Period Checklist</th>
                                     <th class="align-middle text-center">Jaringan</th>
                                     <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Assessor<br>Decision</th>
-                                    <th class="align-middle text-center">PIC MD<br>Decision</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>

@@ -1,4 +1,4 @@
-@if($period->is_active == 0)
+@if($period->is_active == 1 && $period->status == 0)
     <a href="{{ route('assignchecklist.type', ['id' => encrypt($period->id), 'type' => $data->name_value]) }}"
         type="button" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
         <i class="mdi mdi-checkbox-marked-circle-plus-outline label-icon"></i> Add Checklist

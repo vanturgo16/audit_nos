@@ -236,8 +236,8 @@
                         <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
                                 <tr>
-                                    <th class="align-middle text-center">Order No</th>
                                     <th class="align-middle text-center">Parent Point</th>
+                                    <th class="align-middle text-center">Order No</th>
                                     <th class="align-middle text-center">Child Point</th>
                                     <th class="align-middle text-center">Sub Point</th>
                                     <th class="align-middle text-center">Mandatory</th>
@@ -259,32 +259,30 @@
             processing: true,
             serverSide: true,
             ajax: '{!! route('checklist.index', $type) !!}',
-            columns: [{
-                    data: 'order_no',
-                    name: 'order_no',
-                    // render: function(data, type, row, meta) {
-                    //     return meta.row + meta.settings._iDisplayStart + 1;
-                    // },
-                    orderable: false,
-                    searchable: false,
-                    className: 'align-middle text-center',
-                },
+            columns: [
                 {
                     data: 'parent_point_checklist',
                     name: 'parent_point_checklist',
                     orderable: true,
-                    className: 'align-middle text-bold'
+                    className: 'align-top text-bold'
+                },
+                {
+                    data: 'order_no',
+                    name: 'order_no',
+                    orderable: false,
+                    searchable: false,
+                    className: 'align-top text-center',
                 },
                 {
                     data: 'child_point_checklist',
                     orderable: true,
-                    className: 'align-middle text-center',
+                    className: 'align-top',
                     render: function(data, type, row) {
                         var html
                         if(row.child_point_checklist){
                             html = row.child_point_checklist;
                         } else {
-                            html = '<span class="badge bg-secondary text-white">Not Set</span>';
+                            html = '-';
                         }
                         return html;
                     },
@@ -293,7 +291,16 @@
                     data: 'sub_point_checklist',
                     name: 'sub_point_checklist',
                     orderable: true,
-                    className: 'align-middle text-center'
+                    className: 'align-top',
+                    render: function(data, type, row) {
+                        if (data) {
+                            var words = data.split(' ');
+                            var limitedText = words.length > 10 ? words.slice(0, 10).join(' ') + '...' : data;
+                            return limitedText;
+                        } else {
+                            return '';
+                        }
+                    },
                 },
                 {
                     data: 'mandatory_silver',
@@ -326,6 +333,31 @@
                     className: 'align-middle text-center',
                 },
             ],
+            order: [1, 'asc'],
+            drawCallback: function(settings) {
+                var api = this.api();
+                var rows = api.rows({ page: 'current' }).nodes();
+                var lastParent = null;
+                var rowspan = 0;
+
+                api.column(0, { page: 'current' }).data().each(function(parent, i) {
+                    if (lastParent === parent) {
+                        rowspan++;
+                        $(rows).eq(i).find('td:eq(0)').remove(); // Remove duplicate cells in the `parent_point_checklist` column
+                    } else {
+                        if (lastParent !== null) {
+                            $(rows).eq(i - rowspan).find('td:eq(0)').attr('rowspan', rowspan); // Set rowspan for previous group
+                        }
+                        lastParent = parent;
+                        rowspan = 1; // Reset rowspan for the new parent
+                    }
+                });
+
+                // Apply rowspan for the last group if necessary
+                if (lastParent !== null) {
+                    $(rows).eq(api.column(0, { page: 'current' }).data().length - rowspan).find('td:eq(0)').attr('rowspan', rowspan);
+                }
+            }
         });
     });
 </script>

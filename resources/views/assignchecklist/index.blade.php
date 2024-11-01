@@ -27,7 +27,7 @@
                 <table class="table table-bordered dt-responsive nowrap w-100">
                     <tbody>
                         <tr>
-                            <td class="align-middle"><b>Period</b></td>
+                            <td class="align-middle"><b>Period Name</b></td>
                             <td class="align-middle">: {{ $period->period }}</td>
                         </tr>
                         <tr>
@@ -41,29 +41,22 @@
                         <tr>
                             <td class="align-middle"><b>Status</b></td>
                             <td class="align-middle">: 
-                                @if($period->decisionpic == "0")
-                                    @if($period->status == null)
-                                        <span class="badge bg-warning text-white">Expired</span>
-                                    @endif
-                                    <span class="badge bg-danger text-white">PIC - Rejected</span>
+                                @php
+                                    $statusLabels = [
+                                        0 => '<span class="badge bg-secondary text-white"><i class="mdi mdi-play-box-edit-outline label-icon"></i> Initiate</span>',
+                                        1 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Assigned - Checklist Process</span>',
+                                        2 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Revision - Checklist Process</span>',
+                                        3 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review Assessor</span>',
+                                        4 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review PIC MD</span>',
+                                        5 => '<span class="badge bg-success text-white"><i class="mdi mdi-check-all label-icon"></i> Approved - Done</span>',
+                                        'default' => '<span class="badge bg-secondary text-white">Null</span>',
+                                    ];
+                                @endphp
+
+                                @if($period->is_active == 1)
+                                    {!! $statusLabels[$period->status] ?? $statusLabels['default'] !!}
                                 @else
-                                    @if($period->status == null)
-                                        <span class="badge bg-warning text-white">Expired</span>
-                                    @elseif($period->status == 0)
-                                        <span class="badge bg-danger text-white">Inactive</span>
-                                    @elseif($period->status == 1)
-                                        <span class="badge bg-success text-white">Active</span>
-                                    @elseif($period->status == 2)
-                                        <span class="badge bg-success text-white">Active</span>
-                                    @elseif($period->status == 3)
-                                        <span class="badge bg-success text-white">Active</span> <span class="badge bg-info text-white">Complete</span>
-                                    @elseif($period->status == 4)
-                                        <span class="badge bg-success text-white">Assessor Approved</span>
-                                    @elseif($period->status == 5)
-                                        <span class="badge bg-success text-white">Active</span>
-                                    @elseif($period->status == 6)
-                                        <span class="badge bg-success text-white"><i class="mdi mdi-check-underline-circle label-icon"></i> Approved</span>
-                                    @endif
+                                    <span class="badge bg-warning text-white"><i class="mdi mdi-timer-alert-outline label-icon"></i> Expired</span>
                                 @endif
                             </td>
                         </tr>
@@ -73,9 +66,9 @@
 
             <div class="col-12">
                 <div class="card">
-                    @if($period->is_active == 0 && $check == 1)
+                    @if($period->is_active == 1 && $period->status == 0 && $check == 1)
                         <div class="card-header d-flex justify-content-end">
-                            <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Submit</button>
+                            <button type="button" class="btn btn-success waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#submit"><i class="mdi mdi-check-bold label-icon"></i> Assign To Internal Auditor</button>
                             {{-- Modal Submit --}}
                             <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-top" role="document">
@@ -117,6 +110,7 @@
                             </div>
                         </div>
                     @endif
+
                     <div class="card-body">
                         <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
                             <thead>
@@ -140,16 +134,22 @@
 <script>
     $(function() {
         $('#server-side-table').DataTable({
+            bLengthChange: false, // Hide the "Show entries" dropdown
+            bFilter: false,       // Hide the search box
+            paging: false,        // Hide the pagination
+            info: false,          // Hide the "Showing X of Y entries" info
             processing: true,
             serverSide: true,
             ajax: '{!! route('assignchecklist.index', encrypt($period->id)) !!}',
-            columns: [{
+            columns: [
+                {
                 data: null,
                     render: function(data, type, row, meta) {
                         return meta.row + meta.settings._iDisplayStart + 1;
                     },
                     orderable: false,
                     searchable: false,
+                    visible: false,
                     className: 'align-middle text-center',
                 },
                 {
@@ -162,14 +162,14 @@
                 {
                     orderable: true,
                     searchable: true,
-                    data: 'count',
+                    data: 'countParent',
                     className: 'align-middle text-center text-bold',
                     render: function(data, type, row) {
                         var html
-                        if(row.count == 0){
+                        if(row.countParent == 0){
                             html = '<span class="badge bg-secondary text-white">Not Set</span>';
                         } else {
-                            html = '<h5><span class="badge bg-success text-white">' + row.count + '</span></h5>';
+                            html = '<h5><span class="badge bg-success text-white">' + row.countParent + '</span></h5>';
                         }
                         return html;
                     },
@@ -177,14 +177,14 @@
                 {
                     orderable: true,
                     searchable: true,
-                    data: 'count',
+                    data: 'countCheck',
                     className: 'align-middle text-center text-bold',
                     render: function(data, type, row) {
                         var html
-                        if(row.count == 0){
+                        if(row.countCheck == 0){
                             html = '<span class="badge bg-secondary text-white">Not Set</span>';
                         } else {
-                            html = '<h5><span class="badge bg-success text-white">' + row.count_check + '</span></h5>';
+                            html = '<h5><span class="badge bg-success text-white">' + row.countCheck + '</span></h5>';
                         }
                         return html;
                     },

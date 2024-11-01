@@ -3,126 +3,107 @@
 namespace App\Http\Controllers;
 
 use App\Models\MstAssignChecklists;
-use App\Models\MstChecklists;
-use App\Models\MstDropdowns;
-use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+
+// Trait
+use App\Traits\AuditLogsTrait;
+use App\Traits\MailingTrait;
 
 // Model
 use App\Models\MstPeriodeChecklists;
 use App\Models\MstJaringan;
 use App\Models\MstMapChecklists;
 use App\Models\ChecklistJaringan;
-use App\Models\MstRules;
 use App\Models\MstPeriodName;
 
 // Mail
 use App\Mail\UpdateExpired;
+use App\Models\MstEmployees;
 
 class MstPeriodChecklistController extends Controller
 {
     use AuditLogsTrait;
+    use MailingTrait;
 
     public function index(Request $request)
     {
         $branchs = MstJaringan::get();
-        $period_name = MstPeriodName::get();
+        $period_name = MstPeriodName::orderby('created_at', 'desc')->get();
+
+        $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id');
+
+        if ($request->has('filterBranch') && $request->filterBranch != '' && $request->filterBranch != 'All') {
+            $query->where('mst_periode_checklists.id_branch', $request->filterBranch);
+        }
+
+        $query = $query->orderBy('mst_periode_checklists.created_at', 'desc')->get();
 
         if ($request->ajax()) {
-            $data = $this->getData($branchs, $period_name);
-            return $data;
+            return DataTables::of($query)
+                ->addColumn('action', function ($data) use ($branchs, $period_name) {
+                    return view('periodchecklist.action', compact('data', 'branchs', 'period_name'));
+                })
+                ->toJson();
         }
 
         //Audit Log
         $this->auditLogsShort('View List Mst Period Checklist');
-        
+
         return view('periodchecklist.index', compact('branchs', 'period_name'));
-    }
-
-    private function getData($branchs, $period_name)
-    {
-        $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name')
-            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            ->orderBy('mst_periode_checklists.created_at')
-            ->get();
-
-        $data = DataTables::of($query)
-            ->addColumn('action', function ($data) use ($branchs, $period_name) {
-                return view('periodchecklist.action', compact('data', 'branchs', 'period_name'));
-            })
-            ->toJson();
-        return $data;
     }
 
     public function store(Request $request)
     {
-        // dd($request->all());
-        $validate = Validator::make($request->all(),[
+        $request->validate([
             'period' => 'required',
             'id_branch' => 'required',
             'start_date' => 'required',
             'end_date' => 'required'
         ]);
-        if($validate->fails()){
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
-        }
 
         $start_date = Carbon::parse($request->start_date);
         $end_date = Carbon::parse($request->end_date);
         $today = Carbon::today();
-
         if ($end_date < $start_date) {
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, Start Date Must Be Earlier Than End Date']);
-        } 
-        if ($start_date < $today) {
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill Start Date Less as Today']);
-        } 
-        if ($end_date <= $today) {
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
-        } 
+            $message = 'Failed, Start Date Must Be Earlier Than End Date';
+        } elseif ($start_date < $today) {
+            $message = 'Failed, You Cannot Fill Start Date Less as Today';
+        } elseif ($end_date <= $today) {
+            $message = 'Failed, You Cannot Fill End Date Less or Same as Today';
+        }
+        if (isset($message)) {
+            return redirect()->back()->withInput()->with(['fail' => $message]);
+        }
 
         DB::beginTransaction();
-        try{
-            // kita buat dulu periodenya
-            $newPeriode = MstPeriodeChecklists::create([
+        try {
+            $period = MstPeriodeChecklists::create([
                 'period' => $request->period,
                 'id_branch' => $request->id_branch,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
-                'is_active' => '0',
-                'status' => '0'
+                'is_active' => 1,
+                'status' => 0
             ]);
-            $IdPeriod = $newPeriode->id;
-            //lalu kita dapatkan type jaringannya untuk assign checklist
-            $branchs = MstJaringan::where('id', $request->id_branch)->first()->type;
-            //setelah type jaringan didapatkan, kita lakukan pengecekan ke Mapping Checklist
-            // dapatkan id_parent
-            $mapcheck = MstMapChecklists::select('id_parent_checklist')
-            ->where('type_jaringan', $branchs)->get();
-            
-            // id_parent didapatkan , lakukan perulangan untuk mendapatkan id_checklist
-            foreach($mapcheck as $map){
-                // echo 'id_parent : '.$map['id_parent_checklist'].'<br>';
-                $checklist = MstChecklists::select('id')
-                ->where('id_parent_checklist', $map['id_parent_checklist'])->get();
-                $no = 1;
-                //id_checklist didapatkan
-                foreach($checklist as $check){
-                    // echo 'id_checklist'.$no++.' : '.$check['id'].'<br>';
-                    //create assign dengan id_checklist yang didapat
-                    MstAssignChecklists::create([
-                        'id_periode_checklist' => $IdPeriod,
-                        'id_mst_checklist' => $check['id']
-                    ]);
-                }
-                $no = 1;
+
+            // Get Mapping Checklist
+            $type = MstJaringan::where('id', $request->id_branch)->first()->type;
+            $mapCheck = MstMapChecklists::select('mst_checklists.id')
+                ->leftjoin('mst_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_checklists.id_parent_checklist')
+                ->where('mst_mapchecklists.type_jaringan', $type)
+                ->get();
+            foreach ($mapCheck as $item) {
+                MstAssignChecklists::create([
+                    'id_periode_checklist' => $period->id,
+                    'id_mst_checklist' => $item->id
+                ]);
             }
-            
+
             //Audit Log
             $this->auditLogsShort('Create New Period Checklist');
 
@@ -136,32 +117,27 @@ class MstPeriodChecklistController extends Controller
 
     public function update(Request $request, $id)
     {
-        // dd($request->all());
-
         $id = decrypt($id);
 
-        $validate = Validator::make($request->all(),[
+        $request->validate([
             'period' => 'required',
             'id_branch' => 'required',
             'start_date' => 'required',
             'end_date' => 'required'
         ]);
-        if($validate->fails()){
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
-        }
 
         $start_date = Carbon::parse($request->start_date);
         $end_date = Carbon::parse($request->end_date);
         $today = Carbon::today();
-
         if ($end_date < $start_date) {
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, Start Date Must Be Earlier Than End Date']);
-        } 
-        if ($start_date < $today) {
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill Start Date Less as Today']);
-        } 
-        if ($end_date <= $today) {
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
+            $message = 'Failed, Start Date Must Be Earlier Than End Date';
+        } elseif ($start_date < $today) {
+            $message = 'Failed, You Cannot Fill Start Date Less as Today';
+        } elseif ($end_date <= $today) {
+            $message = 'Failed, You Cannot Fill End Date Less or Same as Today';
+        }
+        if (isset($message)) {
+            return redirect()->back()->withInput()->with(['fail' => $message]);
         }
 
         $databefore = MstPeriodeChecklists::where('id', $id)->first();
@@ -170,9 +146,30 @@ class MstPeriodChecklistController extends Controller
         $databefore->start_date = $request->start_date;
         $databefore->end_date = $request->end_date;
 
-        if($databefore->isDirty()){
+        if ($databefore->isDirty()) {
             DB::beginTransaction();
-            try{
+            try {
+                // IF Jaringan Update
+                $databefore = MstPeriodeChecklists::where('id', $id)->first();
+                if ($databefore->id_branch != $request->id_branch) {
+                    // Delete Assign Before
+                    MstAssignChecklists::where('id_periode_checklist', $id)->delete();
+                    // Get Mapping Checklist
+                    $type = MstJaringan::where('id', $request->id_branch)->first()->type;
+                    $mapCheck = MstMapChecklists::select('mst_checklists.id')
+                        ->leftjoin('mst_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_checklists.id_parent_checklist')
+                        ->where('mst_mapchecklists.type_jaringan', $type)
+                        ->get();
+                    foreach ($mapCheck as $item) {
+                        if ($item->id) {
+                            MstAssignChecklists::create([
+                                'id_periode_checklist' => $id,
+                                'id_mst_checklist' => $item->id
+                            ]);
+                        }
+                    }
+                }
+
                 MstPeriodeChecklists::where('id', $id)->update([
                     'period' => $request->period,
                     'id_branch' => $request->id_branch,
@@ -196,61 +193,49 @@ class MstPeriodChecklistController extends Controller
 
     public function updateexpired(Request $request, $id)
     {
-        // dd($request->all());
-
         $id = decrypt($id);
 
-        $validate = Validator::make($request->all(),[
+        // Validation
+        $request->validate([
             'end_date' => 'required'
         ]);
-        if($validate->fails()){
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
+        if (Carbon::parse($request->end_date) <= Carbon::today()) {
+            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
         }
 
-        $end_date = Carbon::parse($request->end_date);
-        $today = Carbon::today();
-
-        if ($end_date <= $today) {
-            return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
-        } 
+        // [ INITIATE VARIABLE ] 
+        $variableEmail = $this->variableEmail();
+        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type', DB::raw('(SELECT COUNT(*) FROM mst_assign_checklists WHERE mst_assign_checklists.id_periode_checklist = mst_periode_checklists.id) as totalChecklist'))
+            ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+            ->where('mst_periode_checklists.id', $id)
+            ->first();
+        $emailAuditor = MstEmployees::leftjoin('users', 'users.email', 'mst_employees.email')->where('mst_employees.id_dealer', $periodInfo->id_branch)->where('users.role', 'Internal Auditor Dealer')->pluck('users.email');
+        if ($emailAuditor->isEmpty()) {
+            return redirect()->back()->with(['fail' => 'Failed, Data Employee Internal Auditor Jaringan "' . $periodInfo->dealer_name . '" Not Exist']);
+        }
+        $checklistDetail = ChecklistJaringan::where('id_periode', $id)->get();
+        // Recepient Email
+        if ($variableEmail['devRule'] == 1) {
+            $toemail = $ccemail = $variableEmail['emailDev'];
+        } else {
+            $toemail = $emailAuditor;
+            $ccemail = $variableEmail['emailSubmitter'];
+        }
+        // Mail Structure
+        $mailStructure = new UpdateExpired($periodInfo, $checklistDetail, $variableEmail['emailSubmitter']);
 
         DB::beginTransaction();
-        try{
+        try {
             MstPeriodeChecklists::where('id', $id)->update([
                 'end_date' => $request->end_date,
-                'status' => 1,
+                'is_active' => 1,
             ]);
 
-            // [ MAILING ]
-            // Initiate Variable
-            $emailsubmitter = auth()->user()->email;
-            $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
-            $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
-                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                ->where('mst_periode_checklists.id', $id)
-                ->first();
-            $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
-            $periodinfo->count = $count;
-            $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
-            // Recepient Email
-            if($development == 1){
-                $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
-                $ccemail = null;
-            } else {
-                $toemail = MstPeriodeChecklists::leftJoin('mst_employees', 'mst_periode_checklists.id_branch', 'mst_employees.id_dealer')
-                    ->leftJoin('users', 'mst_employees.email', 'users.email')
-                    ->where('mst_periode_checklists.id', $id)
-                    ->where('users.role', 'Internal Auditor Dealer')
-                    ->pluck('mst_employees.email')->toArray();
-                $ccemail = $emailsubmitter;
-            }
-            // Mail Content
-            $mailInstance = new UpdateExpired($periodinfo, $checklistdetail, $emailsubmitter);
             // Send Email
-            Mail::to($toemail)->cc($ccemail)->send($mailInstance);
+            Mail::to($toemail)->cc($ccemail)->send($mailStructure);
 
             //Audit Log
-            $this->auditLogsShort('Update Expired Period Checklist ID:'.$id);
+            $this->auditLogsShort('Update Expired Period Checklist ID:' . $id);
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Update Expired Period Checklist']);
@@ -260,68 +245,23 @@ class MstPeriodChecklistController extends Controller
         }
     }
 
-    public function activate($id)
+    public function delete($id)
     {
         $id = decrypt($id);
 
         DB::beginTransaction();
-        try{
-            MstPeriodeChecklists::where('id', $id)->update([
-                'is_active' => 1
-            ]);
-
-            $name = MstPeriodeChecklists::where('id', $id)->first();
-
-            //Audit Log
-            $this->auditLogsShort('Activate Period Checklist ('. $name->period . ')');
-
-            DB::commit();
-            return redirect()->back()->with(['success' => 'Success Activate Period Checklist ' . $name->period]);
-        } catch (Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Activate Period Checklist ' . $name->period .'!']);
-        }
-    }
-
-    public function deactivate($id)
-    {
-        $id = decrypt($id);
-
-        DB::beginTransaction();
-        try{
-            MstPeriodeChecklists::where('id', $id)->update([
-                'is_active' => 0
-            ]);
-
-            $name = MstPeriodeChecklists::where('id', $id)->first();
-            
-            //Audit Log
-            $this->auditLogsShort('Deactivate Period Checklist ('. $name->period . ')');
-
-            DB::commit();
-            return redirect()->back()->with(['success' => 'Success Deactivate Period Checklist ' . $name->period]);
-        } catch (Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Deactivate Period Checklist ' . $name->period .'!']);
-        }
-    }
-
-    public function delete($id){
-        $id = decrypt($id);
-
-        DB::beginTransaction();
-        try{
+        try {
             MstPeriodeChecklists::where('id', $id)->delete();
 
             //Audit Log
             $this->auditLogsShort('Delete Period Checklist');
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Delete Period Checklist ']);
+            return redirect()->back()->with(['success' => 'Success Delete Period Checklist']);
         } catch (Exception $e) {
             DB::rollback();
             $name = MstPeriodeChecklists::where('id', $id)->first();
-            return redirect()->back()->with(['fail' => 'Failed to Delete Period Checklist ' . $name->period .'!']);
+            return redirect()->back()->with(['fail' => 'Failed to Delete Period Checklist ' . $name->period . '!']);
         }
     }
 }

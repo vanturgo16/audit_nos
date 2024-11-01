@@ -18,7 +18,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->period }}
+                        {{ $periodInfo->period }}
                     </span>
                 </td>
             </tr>
@@ -31,7 +31,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->dealer_name }} ({{ $periodinfo->type }})
+                        {{ $periodInfo->dealer_name }} ({{ $periodInfo->type }})
                     </span>
                 </td>
             </tr>
@@ -44,7 +44,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->count }}
+                        {{ $periodInfo->totalChecklist }}
                     </span>
                 </td>
             </tr>
@@ -57,7 +57,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->start_date }} <b> Until </b> {{ $periodinfo->end_date }}
+                        {{ $periodInfo->start_date }} <b> Until </b> {{ $periodInfo->end_date }}
                     </span>
                 </td>
             </tr>
@@ -73,13 +73,13 @@
                     <span><b>Amount Checklist</b></span>
                 </td>
             </tr>
-            @foreach($checklistdetail as $detail)
+            @foreach($groupTypeChecks as $item)
             <tr>
                 <td style="border: 1px solid #000; padding: 5px;">
-                    <span>{{ $detail->type_checklist }}</span>
+                    <span>{{ $item->type_checklist }}</span>
                 </td>
                 <td style="border: 1px solid #000; padding: 5px;">
-                    <span>{{ $detail->total_checklist }}</span>
+                    <span>{{ $item->countCheck }}</span>
                 </td>
             </tr>
             @endforeach
@@ -89,7 +89,7 @@
         <br> Regards,
         <br>
         <br>
-        <br> {{ $emailsubmitter }}
+        <br> {{ $emailSubmitter }}
         <br> [Person In Charge Dealer] <br>
 
     </span>

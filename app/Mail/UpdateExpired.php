@@ -13,24 +13,19 @@ class UpdateExpired extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $periodinfo;
-    public $checklistdetail;
-    public $emailsubmitter;
+    public $periodInfo;
+    public $checklistDetail;
+    public $emailSubmitter;
 
-    public function __construct($periodinfo, $checklistdetail, $emailsubmitter)
+    public function __construct($periodInfo, $checklistDetail, $emailSubmitter)
     {
-        $this->periodinfo = $periodinfo;
-        $this->checklistdetail = $checklistdetail;
-        $this->emailsubmitter = $emailsubmitter;
+        $this->periodInfo = $periodInfo;
+        $this->checklistDetail = $checklistDetail;
+        $this->emailSubmitter = $emailSubmitter;
     }
 
     public function build()
     {
-        //SUBJECT NAME
-        $subject = "[UPDATE DATE PERIOD CHECKLIST - ASSESSOR]";
-
-        $email = $this->view('mail.updateExpired')->subject($subject);
-
-        return $email;
+        return $this->view('mail.updateExpired')->subject("[UPDATE DATE PERIOD CHECKLIST - ASSESSOR]");
     }
 }

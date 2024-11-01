@@ -59,7 +59,7 @@
                     data: 'name_value',
                     name: 'name_value',
                     orderable: true,
-                    className: 'align-middle text-center text-bold'
+                    className: 'align-middle text-bold'
                 },
                 {
                     data: 'action',

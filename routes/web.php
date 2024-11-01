@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\AjaxMappingRegional;
+use App\Http\Controllers\AssessorChecklistController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\AuditorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FormChecklistController;
 use App\Http\Controllers\MstAssessorChecklistController;
 use App\Http\Controllers\MstAssignChecklistController;
 use App\Http\Controllers\MstJaringanController;
@@ -19,6 +22,7 @@ use App\Http\Controllers\MstPeriodNameController;
 use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
+use App\Http\Controllers\ReviewChecklistController;
 use App\Http\Controllers\UserController;
 use App\Models\MstPeriodName;
 use Illuminate\Support\Facades\Route;
@@ -163,7 +167,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('form')->group(function () {
             Route::get('/', 'form')->name('formchecklist.form');
             Route::get('/jaringan-list', 'jaringanList')->name('formchecklist.jaringanList');
-            Route::get('/period-list/{id}', 'periodList')->name('formchecklist.periodList');
+            // Route::get('/period-list/{id}', 'periodList')->name('formchecklist.periodList');
             Route::get('/type-checklist-list/{id}', 'typeChecklistList')->name('formchecklist.typeChecklistList');
             Route::post('/start-checklist/{id}', 'startChecklist')->name('formchecklist.start');
             Route::get('/checklist/{id}', 'checklistForm')->name('formchecklist.checklistform');
@@ -207,4 +211,44 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mapping/dealer/{id}', [DashboardController::class, 'mappingdealer'])->name('mapping.dealer');
     Route::get('/json_position/{id}', [MstPositionController::class, 'json_position'])->name('json_position');
     Route::post('/check_email_employee', [MstEmployeeController::class, 'check_email'])->name('check_email_employee');
+
+
+    // NEW ROUTE
+
+    // AUDITOR MENU
+    Route::controller(AuditorController::class)->group(function () {
+        Route::prefix('auditor')->group(function () {
+            Route::get('/period-list', 'periodList')->name('auditor.periodList');
+            Route::get('/period-list/detail/{id}', 'periodDetail')->name('auditor.periodDetail');
+            Route::post('/start-checklist/{id}', 'startChecklist')->name('auditor.start');
+            Route::post('/submit-checklist/{id}', 'submitChecklist')->name('auditor.submit');
+        });
+    })->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    // FORM
+    Route::controller(FormChecklistController::class)->group(function () {
+        Route::prefix('form')->group(function () {
+            Route::get('/{id}', 'checklistForm')->name('form.checklistForm');
+            Route::get('/get-checklist/{id}', 'getChecklistForm')->name('form.getChecklistForm');
+            Route::post('/store-checklist-file', 'storeChecklistFile')->name('form.storeChecklistFile');
+            Route::post('/finish-checklist', 'finishChecklist')->name('form.finishChecklist');
+            Route::get('/get-checklist-h1p/{id}', 'getChecklistFormH1P')->name('form.getChecklistFormH1P');
+            Route::post('/store-checklist-file-h1p', 'storeChecklistFileH1P')->name('form.storeChecklistFileH1P');
+            Route::post('/finish-checklist-h1p', 'finishChecklistH1P')->name('form.finishChecklistH1P');
+        });
+    })->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    // APPROVAL
+    Route::controller(AuditorController::class)->group(function () {
+        Route::prefix('assessor')->group(function () {
+            Route::get('/period-list', 'periodList')->name('assessor.periodList');
+            Route::get('/period-list/detail/{id}', 'periodDetail')->name('assessor.periodDetail');
+        });
+    })->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
+    Route::controller(ReviewChecklistController::class)->group(function () {
+        Route::prefix('assessor')->group(function () {
+            Route::get('/review/{id}', 'reviewChecklist')->name('assessor.reviewChecklist');
+            Route::post('/decision-checklist', 'decisionChecklist')->name('assessor.decisionChecklist');
+            Route::post('checklist-jaringan/note/{id}', 'updateNoteChecklist')->name('assessor.updateNoteChecklist');
+            Route::post('submit/{id}', 'submitReviewChecklist')->name('assessor.submitReviewChecklist');
+        });
+    })->middleware('role:Super Admin,Admin,Internal Auditor Dealer');
 });
