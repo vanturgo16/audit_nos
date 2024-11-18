@@ -108,7 +108,7 @@
                     orderable: true,
                     data: 'period_name',
                     name: 'period_name',
-                    className: 'align-middle text-center text-bold',
+                    className: 'align-middle text-bold',
                 },
                 {
                     data: 'action',

@@ -38,7 +38,7 @@ class FormChecklistController extends Controller
         //Auditlog
         $this->auditLogsShort('View Checklist Form:', $id);
 
-        $view = $typeChecklist == 'H1 Premises' ? 'form.h1p' : 'form.other';
+        $view = $typeChecklist == 'H1 Premises' ? 'auditor.form.h1p' : 'auditor.form.other';
         return view($view, compact('id', 'idPeriod'));
     }
 
@@ -298,7 +298,7 @@ class FormChecklistController extends Controller
         $tabParentAct = $request->tabParent == null ? $assigns->first()->parent_point_checklist : $request->tabParent;
         $idQuestionAct = $request->idQuestion == null ? intval($assigns->first()->id) : intval($request->idQuestion);
 
-        $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response', 'checklist_responses.path_input_response', 'mst_assign_checklists.order_no_parent', 'mst_assign_checklists.order_no_checklist')
+        $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response', 'checklist_responses.path_input_response', 'mst_assign_checklists.order_no_parent', 'mst_assign_checklists.order_no_checklist', 'mst_assign_checklists.approve')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
             ->where('id_periode_checklist', $idPeriod)
             ->where('type_checklist', $type->type_checklist)->orderBy('mst_assign_checklists.order_no_parent')->get()->groupBy('parent_point_checklist')

@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- <title>Dashboard NOS | AHASS BANTEN</title> --}}
-    <title>Laravel</title>
+    <title>Dashboard NOS | AHASS BANTEN</title>
+    {{-- <title>-</title> --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- App favicon -->
-    {{-- <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}"> --}}
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
     <!-- plugin css -->
     <link href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
     <!-- DataTables -->
@@ -35,7 +35,7 @@
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
-    <script src="https://cdn.ckeditor.com/4.10.0/full-all/ckeditor.js"></script>
+    {{-- <script src="https://cdn.ckeditor.com/4.10.0/full-all/ckeditor.js"></script> --}}
     
     {{-- select 2 --}}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -146,16 +146,46 @@
                                     <span data-key="t-dashboard">Dashboard</span>
                                 </a>
                             </li>
-                            <li class="menu-title" data-key="t-menu">Configuration</li>
+                            
+                            <li class="menu-title mt-2" data-key="t-menu">Configuration</li>
                             <li>
                                 <a href="{{ route('user.index') }}">
-                                    <i data-feather="users"></i>
+                                    <i class="mdi mdi-account-supervisor"></i>
                                     <span>Manage User</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('rule.index') }}">
+                                    <i class="mdi mdi-cog-box"></i>
+                                    <span>Manage Rule</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('dropdown.index') }}">
+                                    <i class="mdi mdi-package-down"></i>
+                                    <span>Manage Dropdown</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('scheduler.index') }}">
+                                    <i class="mdi mdi-bell-alert-outline"></i>
+                                    <span>List Scheduler</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('grading.index') }}">
+                                    <i class="mdi mdi-percent-outline"></i>
+                                    <span>Grading</span>
+                                </a>
+                            </li>
 
-                            <li class="menu-title" data-key="t-menu">Master Data</li>
-
+                            <li class="menu-title mt-2" data-key="t-menu">Master Data</li>
+                            <li>
+                                <a href="{{ route('jaringan.index') }}">
+                                    <i class="mdi mdi-office-building"></i>
+                                    <span>Master Jaringan</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('employee.index') }}">
                                     <i class="mdi mdi-account-group"></i>
@@ -174,24 +204,8 @@
                                     <span>Master Position</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('jaringan.index') }}">
-                                    <i class="mdi mdi-office-building"></i>
-                                    <span>Master Jaringan</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('rule.index') }}">
-                                    <i class="mdi mdi-cog-box"></i>
-                                    <span>Master Rule</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('dropdown.index') }}">
-                                    <i class="mdi mdi-package-down"></i>
-                                    <span>Master Dropdown</span>
-                                </a>
-                            </li>
+
+                            <li class="menu-title mt-2" data-key="t-menu">Master Checklist</li>
                             <li>
                                 <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
@@ -210,15 +224,8 @@
                                     <span>Master Mapping Checklist</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('grading.index') }}">
-                                    <i class="mdi mdi-percent-outline"></i>
-                                    <span>Master Grading</span>
-                                </a>
-                            </li>
 
-                            <li class="menu-title" data-key="t-menu">Checklist Audit</li>
-
+                            <li class="menu-title mt-2" data-key="t-menu">Assign Checklist Audit</li>
                             <li>
                                 <a href="{{ route('periodname.index') }}">
                                     <i class="mdi mdi-clipboard-text-clock"></i>
@@ -231,13 +238,30 @@
                                     <span>Period Checklist</span>
                                 </a>
                             </li>
+
+                            <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
+                            <li>
+                                <a href="{{ route('review.periodList') }}">
+                                    <i class="mdi mdi-message-draw"></i>
+                                    <span>Review Checklist</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title mt-2" data-key="t-menu">Logs</li>
+                            <li>
+                                <a href="{{ route('auditlog') }}">
+                                    <i class="mdi mdi-chart-donut"></i>
+                                    <span>Audit Logs</span>
+                                </a>
+                            </li>
+
+
                             {{-- <li>
                                 <a href="{{ route('assessor.listjaringan') }}">
                                     <i class="mdi mdi-check-underline-circle"></i>
                                     <span>Checklist</span>
                                 </a>
-                            </li> --}}
-
+                            </li>
                             <li class="menu-title" data-key="t-menu">Auditor Menu</li>
                             <li>
                                 <a href="{{ route('auditor.periodList') }}">
@@ -245,24 +269,13 @@
                                     <span>Assigned Checklist</span>
                                 </a>
                             </li>
-
-                            
                             <li class="menu-title" data-key="t-menu">Assessor Menu</li>
                             <li>
                                 <a href="{{ route('assessor.listperiod.assigned') }}">
                                     <i class="mdi mdi-message-draw"></i>
                                     <span>Review Checklist</span>
                                 </a>
-                            </li>
-
-
-                            <li class="menu-title" data-key="t-menu">Logs</li>
-                            <li>
-                                <a href="{{ route('auditlog') }}">
-                                    <i class="mdi mdi-chart-donut"></i>
-                                    <span>Audit Logs</span>
-                                </a>
-                            </li>
+                            </li> --}}
 
                         </ul>
                     @endif
@@ -276,16 +289,28 @@
                                     <span data-key="t-dashboard">Dashboard</span>
                                 </a>
                             </li>
-                            <li class="menu-title" data-key="t-menu">Configuration</li>
+                            
+                            <li class="menu-title mt-2" data-key="t-menu">Configuration</li>
                             <li>
                                 <a href="{{ route('user.index') }}">
-                                    <i data-feather="users"></i>
+                                    <i class="mdi mdi-account-supervisor"></i>
                                     <span>Manage User</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('grading.index') }}">
+                                    <i class="mdi mdi-percent-outline"></i>
+                                    <span>Grading</span>
+                                </a>
+                            </li>
 
-                            <li class="menu-title" data-key="t-menu">Master Data</li>
-
+                            <li class="menu-title mt-2" data-key="t-menu">Master Data</li>
+                            <li>
+                                <a href="{{ route('jaringan.index') }}">
+                                    <i class="mdi mdi-office-building"></i>
+                                    <span>Master Jaringan</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('employee.index') }}">
                                     <i class="mdi mdi-account-group"></i>
@@ -304,19 +329,8 @@
                                     <span>Master Position</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('jaringan.index') }}">
-                                    <i class="mdi mdi-office-building"></i>
-                                    <span>Master Jaringan</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('dropdown.index') }}">
-                                    <i class="mdi mdi-package-down"></i>
-                                    <span>Master Dropdown</span>
-                                </a>
-                            </li>
-                            
+
+                            <li class="menu-title mt-2" data-key="t-menu">Master Checklist</li>
                             <li>
                                 <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
@@ -335,21 +349,36 @@
                                     <span>Master Mapping Checklist</span>
                                 </a>
                             </li>
+
+                            <li class="menu-title mt-2" data-key="t-menu">Assign Checklist Audit</li>
                             <li>
-                                <a href="{{ route('grading.index') }}">
-                                    <i class="mdi mdi-percent-outline"></i>
-                                    <span>Master Grading</span>
+                                <a href="{{ route('periodname.index') }}">
+                                    <i class="mdi mdi-clipboard-text-clock"></i>
+                                    <span>Master Period Name</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('periodchecklist.index') }}">
+                                    <i class="mdi mdi-check-underline-circle"></i>
+                                    <span>Period Checklist</span>
                                 </a>
                             </li>
 
-                            <li class="menu-title" data-key="t-menu">Logs</li>
+                            <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
+                            <li>
+                                <a href="{{ route('review.periodList') }}">
+                                    <i class="mdi mdi-message-draw"></i>
+                                    <span>Review Checklist</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title mt-2" data-key="t-menu">Logs</li>
                             <li>
                                 <a href="{{ route('auditlog') }}">
                                     <i class="mdi mdi-chart-donut"></i>
                                     <span>Audit Logs</span>
                                 </a>
                             </li>
-
                         </ul>
                     @endif
 
@@ -363,14 +392,7 @@
                                 </a>
                             </li>
 
-                            <li class="menu-title" data-key="t-menu">Master Data</li>
-                            <li>
-                                <a href="{{ route('jaringan.index') }}">
-                                    <i class="mdi mdi-office-building"></i>
-                                    <span>Master Jaringan</span>
-                                </a>
-                            </li>
-                            
+                            <li class="menu-title mt-2" data-key="t-menu">Master Checklist</li>
                             <li>
                                 <a href="{{ route('parentchecklist.typechecklist') }}">
                                     <i class="mdi mdi-clipboard-check-multiple"></i>
@@ -389,73 +411,31 @@
                                     <span>Master Mapping Checklist</span>
                                 </a>
                             </li>
-                            <li>
-                                <a href="{{ route('grading.index') }}">
-                                    <i class="mdi mdi-percent-outline"></i>
-                                    <span>Master Grading</span>
-                                </a>
-                            </li>
 
+                            <li class="menu-title mt-2" data-key="t-menu">Assign Checklist Audit</li>
                             <li>
                                 <a href="{{ route('periodname.index') }}">
                                     <i class="mdi mdi-clipboard-text-clock"></i>
                                     <span>Master Period Name</span>
                                 </a>
                             </li>
-
-                            <li class="menu-title" data-key="t-menu">Assign Checklist</li>
                             <li>
                                 <a href="{{ route('periodchecklist.index') }}">
                                     <i class="mdi mdi-check-underline-circle"></i>
-                                    <span>Assign Period Checklist</span>
+                                    <span>Period Checklist</span>
                                 </a>
                             </li>
 
+                            <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
+                            <li>
+                                <a href="{{ route('review.periodList') }}">
+                                    <i class="mdi mdi-message-draw"></i>
+                                    <span>Review Checklist</span>
+                                </a>
+                            </li>
                         </ul>
                     @endif
-
-                    {{-- Assessor Main Dealer --}}
-                    @if(Auth::user()->role == 'Assessor Main Dealer')
-                        <ul class="metismenu list-unstyled" id="side-menu">
-                            <li>
-                                <a href="{{ route('dashboard') }}">
-                                    <i data-feather="home"></i>
-                                    <span data-key="t-dashboard">Dashboard</span>
-                                </a>
-                            </li>
-
-                            <li class="menu-title" data-key="t-menu">Assessor Menu</li>
-                            <li>
-                                <a href="{{ route('assessor.periodList') }}">
-                                    <i class="mdi mdi-clipboard-check"></i>
-                                    <span>Result Checklist</span>
-                                </a>
-                            </li>
-
-                        </ul>
-                    @endif
-
-                    {{-- PIC NOS MD --}}
-                    @if(Auth::user()->role == 'PIC NOS MD')
-                        <ul class="metismenu list-unstyled" id="side-menu">
-                            <li>
-                                <a href="{{ route('dashboard') }}">
-                                    <i data-feather="home"></i>
-                                    <span data-key="t-dashboard">Dashboard</span>
-                                </a>
-                            </li>
-
-                            <li class="menu-title" data-key="t-menu">PIC MD Menu</li>
-                            <li>
-                                <a href="{{ route('assessor.listjaringan') }}">
-                                    <i class="mdi mdi-clipboard-check"></i>
-                                    <span>Result Checklist</span>
-                                </a>
-                            </li>
-
-                        </ul>
-                    @endif
-
+                    
                     {{-- Internal Auditor Dealer --}}
                     @if(Auth::user()->role == 'Internal Auditor Dealer')
                         <ul class="metismenu list-unstyled" id="side-menu">
@@ -473,7 +453,46 @@
                                     <span>Assigned Checklist</span>
                                 </a>
                             </li>
+                        </ul>
+                    @endif
 
+                    {{-- Assessor Main Dealer --}}
+                    @if(Auth::user()->role == 'Assessor Main Dealer')
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
+                            <li>
+                                <a href="{{ route('review.periodList') }}">
+                                    <i class="mdi mdi-message-draw"></i>
+                                    <span>Review Checklist</span>
+                                </a>
+                            </li>
+                        </ul>
+                    @endif
+
+                    {{-- PIC NOS MD --}}
+                    @if(Auth::user()->role == 'PIC NOS MD')
+                        <ul class="metismenu list-unstyled" id="side-menu">
+                            <li>
+                                <a href="{{ route('dashboard') }}">
+                                    <i data-feather="home"></i>
+                                    <span data-key="t-dashboard">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
+                            <li>
+                                <a href="{{ route('review.periodList') }}">
+                                    <i class="mdi mdi-message-draw"></i>
+                                    <span>Review Checklist</span>
+                                </a>
+                            </li>
                         </ul>
                     @endif
                 </div>
@@ -728,6 +747,10 @@
     <script src="{{ asset('assets/js/custom.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+    
+    <!-- ckeditor -->
+    <script src="{{ asset('assets/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/form-editor.init.js') }}"></script>
 
     {{-- Default Dark --}}
     {{-- <script>

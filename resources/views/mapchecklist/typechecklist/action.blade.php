@@ -1,13 +1,10 @@
-<div class="btn-group" role="group">
-    <button id="btnGroupDrop{{ $data->idUnique }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-        aria-expanded="false">
-        Action <i class="mdi mdi-chevron-down"></i>
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->idUnique }}">
-        <li><a class="dropdown-item drpdwn" href="{{ route('mapchecklist.detail', ['type' => encrypt($type), 'typecheck' => encrypt($data->type_checklist)]) }}"><i class="mdi mdi-information-outline label-icon"></i> | Detail</a></li>
-        <li><a class="dropdown-item drpdwn-dgr" href="#" data-bs-toggle="modal" data-bs-target="#delete{{ $data->idUnique }}"><span class="mdi mdi-delete-alert"></span> | Delete</a></li>
-    </ul>
-</div>
+<a href="{{ route('mapchecklist.detail', ['type' => encrypt($type), 'typecheck' => encrypt($data->type_checklist)]) }}"
+    type="button" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
+    <i class="mdi mdi-cog label-icon"></i> Manage
+</a>
+<button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#delete{{ $data->idUnique }}">
+    <i class="mdi mdi-close-circle label-icon"></i> Remove
+</button>
 
 {{-- MODAL --}}
 <div class="left-align truncate-text">
@@ -24,7 +21,7 @@
                     <input type="hidden" value="{{ $type }}" name="typeJaringan">
                     <div class="modal-body">
                         <div class="text-center">
-                            Are You Sure to <b>Delete</b> This Type Checklist?
+                            Are You Sure to <b>Delete</b> This Type Checklist In This Mapping?
                         </div>
                     </div>
                     <div class="modal-footer">

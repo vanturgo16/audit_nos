@@ -1,12 +1,10 @@
-@php $role = Auth::user()->role; @endphp
-
-@if(in_array($role, ['Super Admin', 'Internal Auditor Dealer']))
+@if(in_array($data->status, [1, 2]))
     <a href="{{ route('auditor.periodDetail', encrypt($data->id)) }}"
-        type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">
-        <i class="mdi mdi-information-outline label-icon"></i> Detail
+        type="button" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
+        <i class="mdi mdi-clipboard-check label-icon"></i> Audit Checklist
     </a>
-@elseif($role == 'Assessor Main Dealer')
-    <a href="{{ route('assessor.periodDetail', encrypt($data->id)) }}"
+@else 
+    <a href="{{ route('auditor.periodDetail', encrypt($data->id)) }}"
         type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">
         <i class="mdi mdi-information-outline label-icon"></i> Detail
     </a>

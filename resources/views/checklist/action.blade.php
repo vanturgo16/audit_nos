@@ -1,4 +1,9 @@
-<div class="btn-group" role="group">
+<a href="{{ route('checklist.detail', encrypt($data->id)) }}"
+    type="button" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
+    <i class="mdi mdi-cog label-icon"></i> Manage
+</a>
+
+{{-- <div class="btn-group" role="group">
     <button id="btnGroupDrop{{ $data->id }}" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown"
         aria-expanded="false">
         Action <i class="mdi mdi-chevron-down"></i>
@@ -9,5 +14,4 @@
         <li><a class="dropdown-item drpdwn" href="{{ route('checklist.mark', encrypt($data->id)) }}"><span class="mdi mdi-file-eye"></span> | Mark</a></li>
         <li><a class="dropdown-item drpdwn" href="{{ route('checklist.exchange', encrypt($data->id)) }}"><span class="mdi mdi-file-edit"></span> | Exchange Order No.</a></li>
     </ul>
-</div>
-
+</div> --}}

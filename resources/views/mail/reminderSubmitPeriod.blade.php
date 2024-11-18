@@ -2,7 +2,7 @@
 <html>
 <body>
     <span>
-        Dear PIC Dealers Team,
+        Dear PIC Dealers / Initiator Period Checklist,
         <br> The Period Checklist You Have Initiated Has a Start Date <b>Today</b> & You Have Not Submit it!
         <br> Detail Period Checklist as below details
         <br>
@@ -44,7 +44,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->count }}
+                        {{ $periodinfo->totalChecklist }}
                     </span>
                 </td>
             </tr>

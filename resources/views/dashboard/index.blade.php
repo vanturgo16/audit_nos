@@ -54,14 +54,6 @@
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <h4 class="mb-sm-0 font-size-18">Dashboard</h4>
-
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Dashboard</li>
-                        </ol>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -215,13 +207,15 @@
                                                     <th colspan="2" class="align-middle text-center">Indikator</th>
                                                     @foreach($typechecklist as $type)
                                                         <th class="align-middle text-center">
-                                                            <a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank"
+                                                            <b>{{ $type->type_checklist }}</b>
+                                                            <br>
+                                                            <small><u><a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank">View Detail</a></u></small>
+                                                            {{-- <a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank"
                                                                 type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">
                                                                 <i class="mdi mdi-information label-icon"></i>{{ $type->type_checklist }}
-                                                            </a>
+                                                            </a> --}}
                                                         </th>
                                                     @endforeach
-                                                    {{-- <th class="align-middle text-center">Final Result</th> --}}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -235,7 +229,6 @@
                                                             <td class="align-middle text-center">{{ $result->result_percentage }}%</th>
                                                         @endif
                                                     @endforeach
-                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Status</td>
@@ -243,58 +236,53 @@
                                                         <td class="align-middle text-center">
                                                             @if($result->status == "" || $result->status == null)
                                                                 <span class="badge bg-secondary text-white">Not Started</span>
-                                                            @elseif($result->status == 0)
+                                                            @elseif(in_array($result->status, [0, 1]))
                                                                 <span class="badge bg-warning text-white">Not Complete</span>
                                                             @else
                                                                 <span class="badge bg-success text-white">Complete</span>
                                                             @endif
                                                         </th>
                                                     @endforeach
-                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Result Audit</td>
                                                     @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [1,2]))
+                                                        @if(in_array($statusPeriod, [0,1,2]))
                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                         @else
                                                             <td class="align-middle text-center">{{ $result->audit_result }}</th>
                                                         @endif
                                                     @endforeach
-                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Mandatory Item</td>
                                                     @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [1,2]))
+                                                        @if(in_array($statusPeriod, [0,1,2]))
                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                         @else
                                                             <td class="align-middle text-center">{{ $result->mandatory_item }}</th>
                                                         @endif
                                                     @endforeach
-                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td></td>
                                                     @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [1,2]))
+                                                        @if(in_array($statusPeriod, [0,1,2]))
                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                         @else
                                                             <td class="align-middle text-center">{{ $result->graph_percentage }}%</th>
                                                         @endif
                                                     @endforeach
-                                                    {{-- <td></td> --}}
                                                 </tr>
                                                 <tr>
                                                     <td>Result Final</td>
                                                     @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [1,2]))
+                                                        @if(in_array($statusPeriod, [0,1,2]))
                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                         @else
                                                             <td class="align-middle text-center">{{ $result->result_final }}</th>
                                                         @endif
                                                     @endforeach
-                                                    {{-- <td></td> --}}
                                                 </tr>
                                             </tbody>
                                         </table>

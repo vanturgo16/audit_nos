@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use Illuminate\Http\Request;
 use App\Models\AuditLog;
+use App\Models\LogActivityPeriod;
 use Browser;
 
 trait AuditLogsTrait
@@ -33,5 +34,15 @@ trait AuditLogsTrait
         //     'access_from' => $access_from,
         //     'activity' => $activity,
         // ]);
+    }
+
+    public function storeLogPeriod($idPeriod, $status, $note)
+    {
+        LogActivityPeriod::create([
+            'id_period' => $idPeriod,
+            'status' => $status,
+            'note' => $note,
+            'activity_by' => auth()->user()->email,
+        ]);
     }
 }

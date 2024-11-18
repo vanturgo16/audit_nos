@@ -32,12 +32,11 @@
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
-                                    <th class="align-middle text-center">Dealer / Jaringan</th>
-                                    <th class="align-middle text-center">Department</th>
-                                    <th class="align-middle text-center">Position</th>
                                     <th class="align-middle text-center">Name</th>
                                     <th class="align-middle text-center">Email</th>
                                     <th class="align-middle text-center">Phone</th>
+                                    <th class="align-middle text-center">Dealer / Jaringan</th>
+                                    <th class="align-middle text-center">Position</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -66,27 +65,6 @@
                     className: 'align-middle text-center',
                 },
                 {
-                    data: 'dealer_name',
-                    name: 'dealer_name',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle text-center text-bold',
-                },
-                {
-                    data: 'department_name',
-                    name: 'department_name',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle',
-                },
-                {
-                    data: 'position_name',
-                    name: 'position_name',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle',
-                },
-                {
                     data: 'employee_name',
                     name: 'employee_name',
                     orderable: true,
@@ -105,7 +83,24 @@
                     name: 'employee_telephone',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle text-center',
+                    className: 'align-middle',
+                },
+                {
+                    data: 'dealer_name',
+                    name: 'dealer_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle text-bold',
+                },
+                {
+                    data: 'position_name',
+                    name: 'position_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-middle',
+                    render: function(data, type, row) {
+                        return row.department_name + '<br>' + row.position_name;
+                    },
                 },
                 {
                     data: 'action',

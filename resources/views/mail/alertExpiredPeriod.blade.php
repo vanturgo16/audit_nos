@@ -44,7 +44,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->count }}
+                        {{ $periodinfo->totalChecklist }}
                     </span>
                 </td>
             </tr>
@@ -63,7 +63,7 @@
             </tr>
         </table>
 
-        <br> Please Contact Your PIC Dealers For The Further Action
+        <br> Please Contact Your PIC Dealers / Administrator For The Further Action
         
         <br>
         <br> [Dashboard AUDIT NOS] <br>

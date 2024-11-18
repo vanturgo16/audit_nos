@@ -132,6 +132,17 @@
                                 <div class="col-lg-6"></div>
                             @endif
 
+                            <div class="col-lg-12 mb-3">
+                                <div class="form-group">
+                                    <div><span class="fw-bold">Mark :</span></div>
+                                    <ul>
+                                        @foreach($mark as $item)
+                                            <li>{{ $item->meta_name }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+
                             <div class="col-lg-6 mb-3">
                                 <div class="form-group">
                                     <div><span class="fw-bold">Created At :</span></div>

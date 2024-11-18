@@ -26,6 +26,6 @@ class UpdateExpired extends Mailable
 
     public function build()
     {
-        return $this->view('mail.updateExpired')->subject("[UPDATE DATE PERIOD CHECKLIST - ASSESSOR]");
+        return $this->view('mail.updateExpired')->subject("[UPDATE DATE PERIOD CHECKLIST - PIC DEALER]");
     }
 }

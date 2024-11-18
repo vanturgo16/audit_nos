@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\ChecklistJaringan;
+use App\Models\ChecklistResponses;
 use App\Models\MstAssignChecklists;
 use App\Models\MstDropdowns;
 use Illuminate\Http\Request;
@@ -18,7 +20,7 @@ class DashboardController extends Controller
     {
         $roleUser = auth()->user()->role;
 
-        if(in_array($roleUser, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD', 'PIC Dealers'])){
+        if (in_array($roleUser, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD', 'PIC Dealers'])) {
             $dealers = MstJaringan::select('id', 'dealer_name')->get();
             $periods = [];
         } else {
@@ -28,7 +30,7 @@ class DashboardController extends Controller
         }
 
         $dataGraph = [];
-        if($request->id_period){
+        if ($request->id_period) {
             $idPeriod = $request->id_period;
             $idDealer = MstPeriodeChecklists::where('id', $idPeriod)->first()->id_branch;
             $periodslist = MstPeriodeChecklists::select('id', 'period')->where('id_branch', $idDealer)->get();
@@ -39,21 +41,27 @@ class DashboardController extends Controller
             $typechecklist = ChecklistJaringan::select('id as id_checklist_jaringan', 'type_checklist')->where('id_periode', $idPeriod)->orderByRaw("FIELD(type_checklist, '" . implode("','", $sortdropdown) . "')")->get();
             $typechecklistValues = $typechecklist->pluck('type_checklist')->toArray();
 
-            $resultchecklist = ChecklistJaringan::select('type_checklist', 'result_percentage', 'status',
-                    'audit_result', 'mandatory_item', 'result_final')
+            $resultchecklist = ChecklistJaringan::select(
+                'type_checklist',
+                'result_percentage',
+                'status',
+                'audit_result',
+                'mandatory_item',
+                'result_final'
+            )
                 ->where('id_periode', $idPeriod)
                 ->orderByRaw("FIELD(type_checklist, '" . implode("','", $typechecklistValues) . "')")
                 ->get();
-            if($resultchecklist){
-                foreach($resultchecklist as $result){
+            if ($resultchecklist) {
+                foreach ($resultchecklist as $result) {
                     //Formula % Graph
-                    if($result->mandatory_item == 'Platinum'){
+                    if ($result->mandatory_item == 'Platinum') {
                         $graph_percentage = 91;
-                    } elseif ($result->mandatory_item == 'Gold'){
+                    } elseif ($result->mandatory_item == 'Gold') {
                         $graph_percentage = 71;
-                    } elseif ($result->mandatory_item == 'Silver'){
+                    } elseif ($result->mandatory_item == 'Silver') {
                         $graph_percentage = 61;
-                    } elseif ($result->mandatory_item == 'Bronze'){
+                    } elseif ($result->mandatory_item == 'Bronze') {
                         $graph_percentage = 1;
                     } else {
                         $graph_percentage = 0;
@@ -74,8 +82,20 @@ class DashboardController extends Controller
             $resultchecklist = null;
         }
 
-        return view('dashboard.index', compact('dealers', 'periods', 'idPeriod', 'idDealer', 'periodslist',
-            'statusPeriod', 'typechecklist', 'typechecklistValues', 'resultchecklist', 'dataGraph'));
+        // dd($dataGraph, $statusPeriod, $typechecklistValues, $typechecklist, $resultchecklist);
+
+        return view('dashboard.index', compact(
+            'dealers',
+            'periods',
+            'idPeriod',
+            'idDealer',
+            'periodslist',
+            'statusPeriod',
+            'typechecklist',
+            'typechecklistValues',
+            'resultchecklist',
+            'dataGraph'
+        ));
     }
 
     public function mappingdealer($idDealer)
@@ -100,32 +120,30 @@ class DashboardController extends Controller
             ->groupBy('parent_point_checklist')
             ->get();
 
-        foreach($data as $item){
-            $countparent = MstAssignChecklists::where('id_periode_checklist', $checkjaringan->id_periode)
+        $countAllTotalChecked = 0;
+        $countAllTotalCheckedEG = 0;
+        $countAllTotalResultPercentage = 0;
+        $countTotalParent = 0;
+        foreach ($data as $item) {
+            $idAssigns = MstAssignChecklists::where('id_periode_checklist', $checkjaringan->id_periode)
                 ->where('type_checklist', $checkjaringan->type_checklist)
                 ->where('parent_point_checklist', $item->parent_point_checklist)
-                ->count();
-            $item->countparent = $countparent;
+                ->pluck('id')->toArray();
+            $item->countTotalChecked = ChecklistResponses::whereIn('id_assign_checklist', $idAssigns)->count();
+            $item->countTotalCheckedEG = ChecklistResponses::whereIn('id_assign_checklist', $idAssigns)->where('checklist_responses.response', 'Exist, Good')->count();
+            $item->resultPercentage = intval($item->countTotalCheckedEG > 0 ? round(($item->countTotalCheckedEG / $item->countTotalChecked) * 100) : 0);
+
+            // Update totals
+            $countAllTotalChecked += $item->countTotalChecked;
+            $countAllTotalCheckedEG += $item->countTotalCheckedEG;
+            $countAllTotalResultPercentage += $item->resultPercentage;
+            $countTotalParent++;
         }
-        foreach($data as $item){
-            $counteg = MstAssignChecklists::leftjoin('checklist_response', 'mst_assign_checklists.id', 'checklist_response.id_assign_checklist')
-                ->where('mst_assign_checklists.type_checklist', $checkjaringan->type_checklist)
-                ->where('mst_assign_checklists.parent_point_checklist', $item->parent_point_checklist)
-                ->where('checklist_response.response', 'Exist, Good')
-                ->count();
-            $item->counteg = $counteg;
-        }
-        foreach($data as $item){
-            $countpercentage = ($item->counteg/$item->countparent)*100;
-            $countpercentage = round($countpercentage);
-            $countpercentage = intval($countpercentage);
-            $item->countpercentage = $countpercentage;
-        }
-        // dd($data);
+        $avgTotalResultPercentage = intval(round($countAllTotalResultPercentage) / $countTotalParent);
 
         $typeparentValues = $data->pluck('parent_point_checklist')->toArray();
-        $dataGraph = $data->pluck('countpercentage')->toArray();
+        $dataGraph = $data->pluck('resultPercentage')->toArray();
 
-        return view('dashboard.detail', compact('checkjaringan', 'data', 'typeparentValues', 'dataGraph'));
+        return view('dashboard.detail', compact('checkjaringan', 'data', 'countAllTotalChecked', 'countAllTotalCheckedEG', 'avgTotalResultPercentage', 'typeparentValues', 'dataGraph'));
     }
 }
