@@ -32,7 +32,7 @@ class UserController extends Controller
 
         //Audit Log
         $this->auditLogsShort('View List Mst User');
-        
+
         return view('users.index', compact('role'));
     }
 
@@ -40,7 +40,7 @@ class UserController extends Controller
     {
         $query = User::orderBy('created_at')->get();
         $data = DataTables::of($query)
-            ->addColumn('action', function ($data) use ($role){
+            ->addColumn('action', function ($data) use ($role) {
                 return view('users.action', compact('data', 'role'));
             })
             ->toJson();
@@ -48,7 +48,8 @@ class UserController extends Controller
         return $data;
     }
 
-    private function generateRandomPassword($length = 8) {
+    private function generateRandomPassword($length = 8)
+    {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomPassword = '';
@@ -64,34 +65,34 @@ class UserController extends Controller
 
         //Prevent Create Role Super Admin, If Not Super Admin
         $roleUser = auth()->user()->role;
-        if($roleUser != 'Super Admin' && $request->role == 'Super Admin'){
+        if ($roleUser != 'Super Admin' && $request->role == 'Super Admin') {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, You Do Not Have Access to Add Role as Super Admin']);
         }
 
-        $validate = Validator::make($request->all(),[
+        $validate = Validator::make($request->all(), [
             'email' => 'required',
             'role' => 'required',
         ]);
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
         }
 
-        $count= MstEmployees::where('email',$request->email)->count();
-        if($count < 1){
-            return redirect()->back()->with('warning','Email Have Not Registered As Employee');
+        $count = MstEmployees::where('email', $request->email)->count();
+        if ($count < 1) {
+            return redirect()->back()->with('warning', 'Email Have Not Registered As Employee');
         } else {
-            $name= MstEmployees::where('email',$request->email)->first()->employee_name;
+            $name = MstEmployees::where('email', $request->email)->first()->employee_name;
         }
 
-        $count= User::where('email',$request->email)->count();
-        
-        if($count > 0){
-            return redirect()->back()->with('warning','Email Was Already Registered As User');
+        $count = User::where('email', $request->email)->count();
+
+        if ($count > 0) {
+            return redirect()->back()->with('warning', 'Email Was Already Registered As User');
         } else {
             DB::beginTransaction();
             $password = $this->generateRandomPassword();
 
-            try{
+            try {
                 $users = User::create([
                     'name' => $name,
                     'email' => $request->email,
@@ -105,7 +106,7 @@ class UserController extends Controller
                 $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
                 $type = 'New';
                 // Recepient Email
-                if($development == 1){
+                if ($development == 1) {
                     $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
                 } else {
                     $toemail = $request->email;
@@ -116,7 +117,7 @@ class UserController extends Controller
                 Mail::to($toemail)->send($mailInstance);
 
                 //Audit Log
-                $this->auditLogsShort('Create New User ('. $request->email . ')');
+                $this->auditLogsShort('Create New User (' . $request->email . ')');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Create New User']);
@@ -132,13 +133,13 @@ class UserController extends Controller
         $id = decrypt($id);
         // dd($id);
         DB::beginTransaction();
-        try{
+        try {
             $data = User::where('id', $id)->update([
                 'is_active' => 1
             ]);
 
             $name = User::where('id', $id)->first();
-            
+
             $password = $this->generateRandomPassword();
             User::where('id', $id)->update([
                 'password' => Hash::make($password),
@@ -149,7 +150,7 @@ class UserController extends Controller
             $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
             $type = 'Reset';
             // Recepient Email
-            if($development == 1){
+            if ($development == 1) {
                 $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
             } else {
                 $toemail = $name->email;
@@ -160,13 +161,13 @@ class UserController extends Controller
             Mail::to($toemail)->send($mailInstance);
 
             //Audit Log
-            $this->auditLogsShort('Reset Password User ('. $name->email . ')');
+            $this->auditLogsShort('Reset Password User (' . $name->email . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Reset Password User, New Password Has Been Send to Email: ' . $name->email]);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Reset Password User ' . $name->email .'!']);
+            return redirect()->back()->with(['fail' => 'Failed to Reset Password User ' . $name->email . '!']);
         }
     }
 
@@ -176,25 +177,25 @@ class UserController extends Controller
 
         $iduser = decrypt($id);
 
-        $validate = Validator::make($request->all(),[
+        $validate = Validator::make($request->all(), [
             'role' => 'required',
         ]);
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
         }
 
         $userbefore = User::where('id', $iduser)->first();
         $userbefore->role = $request->role;
 
-        if($userbefore->isDirty()){
+        if ($userbefore->isDirty()) {
             DB::beginTransaction();
-            try{
+            try {
                 $users = User::where('id', $iduser)->update([
                     'role' => $request->role
                 ]);
 
                 //Audit Log
-                $this->auditLogsShort('Update User ('. $userbefore->email . ')');
+                $this->auditLogsShort('Update User (' . $userbefore->email . ')');
 
                 DB::commit();
                 return redirect()->back()->with(['success' => 'Success Update User']);
@@ -209,23 +210,21 @@ class UserController extends Controller
 
     public function delete($id)
     {
-        $iduser = decrypt($id);
-        // dd($iduser);
+        $id = decrypt($id);
 
         DB::beginTransaction();
-        try{
-            $users = User::where('id', $iduser)->delete();
-
-            $name = User::where('id', $id)->first();
+        try {
+            $email = User::where('id', $id)->first()->email;
+            User::where('id', $id)->delete();
 
             //Audit Log
-            $this->auditLogsShort('Delete User ('. $name->email . ')');
+            $this->auditLogsShort('Delete User (' . $email . ')');
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Delete User ' . $name->email]);
+            return redirect()->back()->with(['success' => 'Success Delete User ' . $email]);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Delete User ' . $name->email .'!']);
+            return redirect()->back()->with(['fail' => 'Failed to Delete User ' . $email . '!']);
         }
     }
 
@@ -234,21 +233,21 @@ class UserController extends Controller
         $id = decrypt($id);
 
         DB::beginTransaction();
-        try{
-            $data = User::where('id', $id)->update([
+        try {
+            User::where('id', $id)->update([
                 'is_active' => 1
             ]);
 
             $name = User::where('id', $id)->first();
 
             //Audit Log
-            $this->auditLogsShort('Activate User ('. $name->email . ')');
+            $this->auditLogsShort('Activate User (' . $name->email . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Activate User ' . $name->email]);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Activate User ' . $name->email .'!']);
+            return redirect()->back()->with(['fail' => 'Failed to Activate User ' . $name->email . '!']);
         }
     }
 
@@ -257,21 +256,21 @@ class UserController extends Controller
         $id = decrypt($id);
 
         DB::beginTransaction();
-        try{
-            $data = User::where('id', $id)->update([
+        try {
+            User::where('id', $id)->update([
                 'is_active' => 0
             ]);
 
             $name = User::where('id', $id)->first();
-            
+
             //Audit Log
-            $this->auditLogsShort('Deactivate User ('. $name->email . ')');
+            $this->auditLogsShort('Deactivate User (' . $name->email . ')');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Deactivate User ' . $name->email]);
         } catch (Exception $e) {
             DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Deactivate User ' . $name->email .'!']);
+            return redirect()->back()->with(['fail' => 'Failed to Deactivate User ' . $name->email . '!']);
         }
     }
 
