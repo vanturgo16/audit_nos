@@ -26,6 +26,6 @@ class SubmitAssignChecklist extends Mailable
 
     public function build()
     {
-        return $this->view('mail.submitAssignChecklist')->subject("[SUBMIT ASSIGN CHECKLIST - ASSESSOR]");
+        return $this->view('mail.submitAssignChecklist')->subject("[SUBMIT ASSIGN CHECKLIST - PIC DEALER]");
     }
 }

@@ -10,7 +10,7 @@ trait MailingTrait
     public function variableEmail()
     {
         $devRule = MstRules::where('rule_name', 'Development')->first()->rule_value;
-        $emailSubmitter = auth()->user()->email;
+        $emailSubmitter = auth()->user()->email ?? '';
         $emailDev = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
         $variableEmail = [
             'devRule' => $devRule,

@@ -2,7 +2,11 @@
 <html>
 <body>
     <span>
-        Dear Internal Auditor & Assessor Team,
+        @if($nextStatus == 3)
+            Dear Assessor Team,
+        @else
+            Dear Internal Auditor & Assessor Team,
+        @endif
         <br> We Would Like to Inform you that We Already Review Checklist Audit as below details
         <br>
         <br>
@@ -43,7 +47,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->count }}
+                        {{ $periodinfo->totalChecklist }}
                     </span>
                 </td>
             </tr>
@@ -56,10 +60,10 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        @if($periodinfo->status == 5)
-                        Rejected
-                        @elseif($periodinfo->status == 4)
-                        Approved
+                        @if($nextStatus == 3)
+                            Rejected
+                        @else
+                            Approved
                         @endif
                     </span>
                 </td>
@@ -74,9 +78,9 @@
                 <td>
                     <span>&nbsp;
                         @if($note == null)
-                        Null
+                            -
                         @else
-                        {{ $note }}
+                            {!! $note !!}
                         @endif
                     </span>
                 </td>
@@ -92,6 +96,12 @@
                 <td style="border: 1px solid #000; padding: 5px;">
                     <span><b>Amount Checklist</b></span>
                 </td>
+                <td style="border: 1px solid #000; padding: 5px;">
+                    <span><b>Decision</b></span>
+                </td>
+                <td style="border: 1px solid #000; padding: 5px;">
+                    <span><b>Reason</b></span>
+                </td>
             </tr>
             @foreach($checklistdetail as $detail)
             <tr>
@@ -100,6 +110,24 @@
                 </td>
                 <td style="border: 1px solid #000; padding: 5px;">
                     <span>{{ $detail->total_checklist }}</span>
+                </td>
+                <td style="border: 1px solid #000; padding: 5px;">
+                    <span>
+                        @if($detail->last_decision_pic == 1)
+                            Rejected
+                        @else
+                            Approved
+                        @endif
+                    </span>
+                </td>
+                <td style="border: 1px solid #000; padding: 5px;">
+                    <span>
+                        @if($detail->last_reason_pic == null)
+                            -
+                        @else 
+                            {!! $detail->last_reason_pic !!}
+                        @endif
+                    </span>
                 </td>
             </tr>
             @endforeach

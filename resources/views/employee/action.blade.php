@@ -202,7 +202,7 @@
     
             function checkEmailAvailability(email, idList) {
                 $.ajax({
-                    url: '/check_email_employee',
+                    url: 'employee/check_email_employee',
                     type: 'POST',
                     data: {
                         email: email,
@@ -231,7 +231,7 @@
             let idDept = "{{ $data->id_dept }}";
             function loadPositions(idDept) {
                 $.ajax({
-                    url: '/json_position/' + idDept,
+                    url: '/position/json_position/' + idDept,
                     type: 'GET',
                     
                     success: function(data) {
@@ -257,7 +257,7 @@
             $('#selecteditDepartment' + idList).change(function(){
                 var idDept = $(this).val();
                 $.ajax({
-                    url: '/json_position/' + idDept,
+                    url: '/position/json_position/' + idDept,
                     type: 'GET',
                     success: function(data) {
                         $('#selecteditPosition' + idList).empty();

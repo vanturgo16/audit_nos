@@ -116,7 +116,7 @@
         $('#selectdepartment').change(function(){
             var idDept = $(this).val();
             $.ajax({
-                url: '/json_position/' + idDept,
+                url: '/position/json_position/' + idDept,
                 type: 'GET',
                 success: function(data) {
                     $('#selectPosition').empty();
@@ -143,7 +143,7 @@
 
         function checkEmailAvailability(email) {
             $.ajax({
-                url: '/check_email_employee',
+                url: 'employee/check_email_employee',
                 type: 'POST',
                 data: {
                     email: email,

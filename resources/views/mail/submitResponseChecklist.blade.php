@@ -44,7 +44,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->count }}
+                        {{ $periodinfo->totalChecklist }}
                     </span>
                 </td>
             </tr>

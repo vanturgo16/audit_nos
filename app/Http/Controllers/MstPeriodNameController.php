@@ -17,40 +17,40 @@ class MstPeriodNameController extends Controller
 
     public function index(Request $request)
     {
-        $datas = MstPeriodName::get();
-        
+        $datas = MstPeriodName::orderby('created_at', 'desc')->get();
+
         if ($request->ajax()) {
             $data = DataTables::of($datas)
-            ->addColumn('action', function ($data) {
-                return view('periodname.action', compact('data'));
-            })
-            ->toJson();
+                ->addColumn('action', function ($data) {
+                    return view('periodname.action', compact('data'));
+                })
+                ->toJson();
             return $data;
         }
 
         //Audit Log
         $this->auditLogsShort('View List Mst Period Name');
-        
-        return view('periodname.index',compact('datas'));
+
+        return view('periodname.index', compact('datas'));
     }
 
     public function store(Request $request)
     {
         // dd($request->all());
-        $validate = Validator::make($request->all(),[
+        $validate = Validator::make($request->all(), [
             'period_name' => 'required',
         ]);
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
         }
 
         $check = MstPeriodName::where('period_name', $request->period_name)->first();
-        if($check != null){
+        if ($check != null) {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Period Name Is Exist']);
         }
 
         DB::beginTransaction();
-        try{
+        try {
             MstPeriodName::create([
                 'period_name' => $request->period_name
             ]);
@@ -71,23 +71,23 @@ class MstPeriodNameController extends Controller
         // dd($request->all());
 
         $id = decrypt($id);
-        $validate = Validator::make($request->all(),[
+        $validate = Validator::make($request->all(), [
             'period_name' => 'required',
         ]);
-        if($validate->fails()){
+        if ($validate->fails()) {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Check Your Input']);
         }
 
         $databefore = MstPeriodName::where('id', $id)->first();
         $check = MstPeriodName::where('period_name', '!=', $databefore->period_name)->where('period_name', $request->period_name)->first();
-        if($check != null){
+        if ($check != null) {
             return redirect()->back()->withInput()->with(['fail' => 'Failed, Period Name Is Exist']);
         }
         $databefore->period_name = $request->period_name;
 
-        if($databefore->isDirty()){
+        if ($databefore->isDirty()) {
             DB::beginTransaction();
-            try{
+            try {
                 MstPeriodName::where('id', $id)->update([
                     'period_name' => $request->period_name
                 ]);

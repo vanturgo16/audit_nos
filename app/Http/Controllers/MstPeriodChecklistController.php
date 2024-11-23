@@ -87,6 +87,7 @@ class MstPeriodChecklistController extends Controller
                 'id_branch' => $request->id_branch,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
+                'created_by' => auth()->user()->email,
                 'is_active' => 1,
                 'status' => 0
             ]);
@@ -103,6 +104,9 @@ class MstPeriodChecklistController extends Controller
                     'id_mst_checklist' => $item->id
                 ]);
             }
+
+            //Log Period
+            $this->storeLogPeriod($period->id, 0, 'Initiate');
 
             //Audit Log
             $this->auditLogsShort('Create New Period Checklist');
@@ -203,27 +207,6 @@ class MstPeriodChecklistController extends Controller
             return redirect()->back()->withInput()->with(['fail' => 'Failed, You Cannot Fill End Date Less or Same as Today']);
         }
 
-        // [ INITIATE VARIABLE ] 
-        $variableEmail = $this->variableEmail();
-        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type', DB::raw('(SELECT COUNT(*) FROM mst_assign_checklists WHERE mst_assign_checklists.id_periode_checklist = mst_periode_checklists.id) as totalChecklist'))
-            ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
-            ->where('mst_periode_checklists.id', $id)
-            ->first();
-        $emailAuditor = MstEmployees::leftjoin('users', 'users.email', 'mst_employees.email')->where('mst_employees.id_dealer', $periodInfo->id_branch)->where('users.role', 'Internal Auditor Dealer')->pluck('users.email');
-        if ($emailAuditor->isEmpty()) {
-            return redirect()->back()->with(['fail' => 'Failed, Data Employee Internal Auditor Jaringan "' . $periodInfo->dealer_name . '" Not Exist']);
-        }
-        $checklistDetail = ChecklistJaringan::where('id_periode', $id)->get();
-        // Recepient Email
-        if ($variableEmail['devRule'] == 1) {
-            $toemail = $ccemail = $variableEmail['emailDev'];
-        } else {
-            $toemail = $emailAuditor;
-            $ccemail = $variableEmail['emailSubmitter'];
-        }
-        // Mail Structure
-        $mailStructure = new UpdateExpired($periodInfo, $checklistDetail, $variableEmail['emailSubmitter']);
-
         DB::beginTransaction();
         try {
             MstPeriodeChecklists::where('id', $id)->update([
@@ -231,11 +214,34 @@ class MstPeriodChecklistController extends Controller
                 'is_active' => 1,
             ]);
 
+            // [ INITIATE VARIABLE ] 
+            $variableEmail = $this->variableEmail();
+            $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type', DB::raw('(SELECT COUNT(*) FROM mst_assign_checklists WHERE mst_assign_checklists.id_periode_checklist = mst_periode_checklists.id) as totalChecklist'))
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+                ->where('mst_periode_checklists.id', $id)
+                ->first();
+            $emailAuditor = MstEmployees::leftjoin('users', 'users.email', 'mst_employees.email')->where('mst_employees.id_dealer', $periodInfo->id_branch)->where('users.role', 'Internal Auditor Dealer')->pluck('users.email');
+            if ($emailAuditor->isEmpty()) {
+                return redirect()->back()->with(['fail' => 'Failed, Data Employee Internal Auditor Jaringan "' . $periodInfo->dealer_name . '" Not Exist']);
+            }
+            $checklistDetail = ChecklistJaringan::where('id_periode', $id)->get();
+            // Recepient Email
+            if ($variableEmail['devRule'] == 1) {
+                $toemail = $variableEmail['emailDev'];
+                $ccemail = null;
+            } else {
+                $toemail = $emailAuditor;
+                $ccemail = $variableEmail['emailSubmitter'];
+            }
+            // Mail Structure
+            $mailStructure = new UpdateExpired($periodInfo, $checklistDetail, $variableEmail['emailSubmitter']);
             // Send Email
             Mail::to($toemail)->cc($ccemail)->send($mailStructure);
 
             //Audit Log
             $this->auditLogsShort('Update Expired Period Checklist ID:' . $id);
+            //Log Period
+            $this->storeLogPeriod($id, 9, 'Extend Period To ' . $request->end_date);
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Update Expired Period Checklist']);

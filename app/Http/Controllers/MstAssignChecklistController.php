@@ -192,6 +192,7 @@ class MstAssignChecklistController extends Controller
             }
         }
 
+        // MAILING
         // [ INITIATE VARIABLE ] 
         // Group By Type Checklist For Create Paper Assign (Checklist Jaringan)
         $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
@@ -214,8 +215,8 @@ class MstAssignChecklistController extends Controller
         }
         // Recepient Email
         if ($variableEmail['devRule'] == 1) {
-            // $toemail = $ccemail = $variableEmail['emailDev'];
-            $toemail = $ccemail = 'harusimam@gmail.com';
+            $toemail = $ccemail = $variableEmail['emailDev'];
+            $ccemail = null;
         } else {
             $toemail = $emailAuditor;
             $ccemail = $variableEmail['emailSubmitter'];
@@ -273,7 +274,13 @@ class MstAssignChecklistController extends Controller
             MstPeriodeChecklists::where('id', $id)->update(['status' => '1']);
 
             // Send Email
-            // Mail::to($toemail)->cc($ccemail)->send($mailStructure);
+            Mail::to($toemail)->cc($ccemail)->send($mailStructure);
+
+            //Log Period
+            $this->storeLogPeriod($id, 1, 'Assign To Internal Auditor');
+
+            //Audit Log
+            $this->auditLogsShort('Assign New Period Checklist');
 
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Submit Assign Checklist To Internal Auditor, Email Sent']);

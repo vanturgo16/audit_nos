@@ -7,7 +7,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Checklist (Type : {{ $type }})</h4>
+                    <div class="page-title-left">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('checklist.typechecklist') }}">List Type</a></li>
+                            <li class="breadcrumb-item active">List Checklist (Type: {{ $type }})</li>
+                        </ol>
+                    </div>
                     
                     <div class="page-title-right">
                         <a id="backButton" type="button" href="{{ route('checklist.typechecklist') }}"
@@ -37,166 +42,71 @@
                                     </div>
                                     <form action="{{ route('checklist.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
                                         @csrf
+                                        <input type="hidden" name="type_checklist" value="{{ $type }}">
                                         <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                             <div class="row">
-                                                <input type="hidden" name="type_checklist" value="{{ $type }}">
-
+                                                <div class="col-lg-6 mb-3">
+                                                    <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
+                                                    <select class="form-select js-example-basic-single" style="width: 100%" name="parent_point_checklist" required>
+                                                        <option value="" selected>-- Select Parent --</option>
+                                                        @foreach( $typeParent as $item)
+                                                            <option value="{{ $item->id }}" {{ old('parent_point_checklist') == $item->parent_point_checklist ? 'selected' : '' }}> {{ $item->parent_point_checklist }} </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
                                                 @if($type == 'H1 Premises')
                                                     <div class="col-lg-6 mb-3">
-                                                        <label class="form-label">Guide Checklist (H1 Premises)</label><label style="color: darkred">*</label>
+                                                        <label class="form-label">Guide Checklist</label><label style="color: darkred">*</label>
                                                         <input type="file" name="guide_checklist" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Guide" required>
                                                     </div>
                                                     <div class="col-lg-6 mb-3"></div>
                                                 @endif
-
                                                 <div class="col-lg-6 mb-3">
-                                                    <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
-                                                    <select class="form-select js-example-basic-single" style="width: 100%" name="parent_point_checklist" id="parentPoint" required>
-                                                        <option value="" disabled selected>-- Select Parent --</option>
-                                                        <option disabled>──────────</option>
-                                                        @foreach( $type_parent as $item)
-                                                            <option value="{{ $item->id }}" {{ old('parent_point_checklist') == $item->parent_point_checklist ? 'selected' : '' }}> {{ $item->parent_point_checklist }} </option>
-                                                        @endforeach
-                                                        <option disabled>──────────</option>
-                                                        <option class="font-weight-bold" value="AddParent">Add New Parent</option>
-                                                    </select>
+                                                    <label class="form-label">Child Point (Optional)</label>
+                                                    <input class="form-control" name="child_checklist" type="text" value="" placeholder="Optional Input Child Point..">
                                                 </div>
-
-                                                <div class="col-lg-6 mb-3">
-                                                    <label class="form-label d-block">Child Point ?<label style="color: darkred">*</label></label>
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="q_child_point" id="q_child_point1" value="0" checked>
-                                                        <label class="form-check-label" for="q_child_point1">No</label>
-                                                    </div>
-
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="q_child_point" id="q_child_point2" value="1">
-                                                        <label class="form-check-label" for="q_child_point2">Yes</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6 mb-3" id="newParent">
-                                                    <label class="form-label">New Parent Point</label><label style="color: darkred">*</label>
-                                                    <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
-                                                </div>
-                                                <div class="col-lg-6 mb-3" id="newTumbnail">
-                                                    <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
-                                                    <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail">
-                                                    <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
-                                                </div>
-                                                <script>
-                                                    document.getElementById('newTumbnail').addEventListener('change', function () {
-                                                        var input = this.querySelector('input[type="file"]');
-                                                        var maxSize = 3 * 1024 * 1024;
-                                                        var errorDiv = document.getElementById('warningTumb');
-
-                                                        if (input.files.length > 0) {
-                                                            var fileSize = input.files[0].size;
-
-                                                            if (fileSize > maxSize) {
-                                                                errorDiv.style.display = 'block';
-                                                                input.value = ''; // Reset input file
-                                                            } else {
-                                                                errorDiv.style.display = 'none';
-                                                            }
-                                                        }
-                                                    });
-                                                </script>
-                                                <script>
-                                                    //option select for new parent
-                                                    $(document).ready(function () {
-                                                        $('#newParent').hide();
-                                                        $('#newTumbnail').hide();
-                                                        $('#parentPoint').change(function () {
-                                                            if ($(this).val() === 'AddParent') {
-                                                                $('#newParent').show();
-                                                                $('#newTumbnail').show();
-                                                                $('input[name="add_parent"]').attr("required", true);
-                                                                $('input[name="thumbnail"]').attr("required", true);
-                                                            } else {
-                                                                $('#newParent').hide();
-                                                                $('#newTumbnail').hide();
-                                                                $('input[name="add_parent"]').attr("required", false);
-                                                                $('input[name="thumbnail"]').attr("required", false);
-                                                            }
-                                                        });
-                                                    });
-                                                </script>
-                                                <div class="col-lg-6 mb-3" id="addchildPoint">
-                                                    <label class="form-label">Child Point</label><label style="color: darkred">*</label>
-                                                    <input class="form-control" name="child_checklist" type="text" value="" placeholder="Input Child Point..">
-                                                </div>
-                                                <script>
-                                                    //option show hide child point
-                                                    $(document).ready(function () {
-                                                        $('#addchildPoint').hide();
-                                                        $('input[name="q_child_point"]').change(function () {
-                                                            if ($(this).val() === '1') {
-                                                                $('#addchildPoint').show();
-                                                                $('input[name="child_checklist"]').attr("required", true);
-                                                            } else {
-                                                                $('#addchildPoint').hide();
-                                                                $('input[name="child_checklist"]').attr("required", false);
-                                                                $('input[name="child_checklist"]').val("");
-                                                            }
-                                                        });
-                                                    });
-                                                </script>
                                                 <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Sub Point</label><label style="color: darkred">*</label>
                                                     <input class="form-control" name="sub_point_checklist" type="text" value="" placeholder="Input Sub Point.." required>
                                                 </div>
                                                 <div class="col-lg-12 mb-3">
                                                     <label class="form-label">Indikator</label><label style="color: darkred">*</label>
-                                                    <textarea name="indikator" id="indikator" required></textarea>
-                                                    <script>
-                                                        CKEDITOR.replace( 'indikator', {
-                                                            toolbar: [
-                                                                { name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo' ] },
-                                                                { name: 'editing', groups: [ 'find', 'selection', 'spellchecker' ], items: [ 'Find', 'Replace' ] },
-                                                                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold' , 'Italic', 'Underline', '-', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat' ]},
-                                                                { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-'] },
-                                                                { name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
-                                                                { name: 'others', items: [ '-' ] },
-                                                            ]
-                                                        });
-                                                    </script>
+                                                    <textarea id="ckeditor-classic" name="indikator"></textarea>
                                                 </div>
-                                                
                                                 <div class="col-12">
                                                     <div class="card p-2">
                                                         <div class="card-header p-1">
                                                             <div class="text-center text-bold">
-                                                                Mandatory
+                                                                Mandatory<label style="color: darkred">*</label>
                                                             </div>
                                                         </div>
                                                         <div class="row p-2">
                                                             <div class="col-lg-4 mb-3">
-                                                                <label class="form-label d-block">Mandatory Silver<label style="color: darkred">*</label></label>
+                                                                <label class="form-label d-block">Mandatory Silver</label>
                                                                 <div class="form-check form-check-inline">
                                                                     <input class="form-check-input" type="radio" name="mandatory_silver" id="mandatory_silver1" value="0" required>
                                                                     <label class="form-check-label" for="mandatory_silver1">No</label>
                                                                 </div>
-            
                                                                 <div class="form-check form-check-inline">
                                                                     <input class="form-check-input" type="radio" name="mandatory_silver" id="mandatory_silver2" value="1">
                                                                     <label class="form-check-label" for="mandatory_silver2">Yes</label>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-4 mb-3">
-                                                                <label class="form-label d-block">Mandatory Gold<label style="color: darkred">*</label></label>
-                                                                
+                                                                <label class="form-label d-block">Mandatory Gold</label>
                                                                 <div class="form-check form-check-inline">
                                                                     <input class="form-check-input" type="radio" name="mandatory_gold" id="mandatory_gold1" value="0" required>
                                                                     <label class="form-check-label" for="mandatory_gold1">No</label>
                                                                 </div>
-            
                                                                 <div class="form-check form-check-inline">
                                                                     <input class="form-check-input" type="radio" name="mandatory_gold" id="mandatory_gold2" value="1">
                                                                     <label class="form-check-label" for="mandatory_gold2">Yes</label>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-4 mb-3">
-                                                                <label class="form-label d-block">Mandatory Platinum<label style="color: darkred">*</label></label>
+                                                                <label class="form-label d-block">Mandatory Platinum</label>
                                                                 <div class="form-check form-check-inline">
                                                                     <input class="form-check-input" type="radio" name="mandatory_platinum" id="mandatory_platinum1" value="0" required>
                                                                     <label class="form-check-label" for="mandatory_platinum1">No</label>
@@ -209,6 +119,34 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="col-lg-9 mb-3">
+                                                    <label class="form-label">Mark</label><label style="color: darkred">*</label>
+                                                    @foreach($typeMark as $item)
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="meta_name[]" value="{{ $item->id }}" id="checkbox_{{ $item->id }}">
+                                                            <label class="form-check-label" for="checkbox_{{ $item->id }}">{{ $item->name_value }}</label>
+                                                        </div>
+                                                    @endforeach
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', function () {
+                                                            const checkboxes = document.querySelectorAll('input[name="meta_name[]"]');
+                                                            function updateRequiredState() {
+                                                                const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+                                                                checkboxes.forEach(checkbox => {
+                                                                    if (isChecked) {
+                                                                        checkbox.removeAttribute('required');
+                                                                    } else {
+                                                                        checkbox.setAttribute('required', 'required');
+                                                                    }
+                                                                });
+                                                            }
+                                                            checkboxes.forEach(checkbox => {
+                                                                checkbox.addEventListener('change', updateRequiredState);
+                                                            });
+                                                            updateRequiredState();
+                                                        });
+                                                    </script>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -219,13 +157,11 @@
                                     <script>
                                         document.getElementById('formadd').addEventListener('submit', function(event) {
                                             if (!this.checkValidity()) {
-                                                event.preventDefault(); // Prevent form submission if it's not valid
-                                                return false;
+                                                event.preventDefault(); return false;
                                             }
                                             var submitButton = this.querySelector('button[name="sb"]');
-                                            submitButton.disabled = true;
-                                            submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                            return true; // Allow form submission
+                                            submitButton.disabled = true; submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
+                                            return true;
                                         });
                                     </script>
                                 </div>

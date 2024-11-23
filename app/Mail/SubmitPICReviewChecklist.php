@@ -13,13 +13,15 @@ class SubmitPICReviewChecklist extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $nextStatus;
     public $periodinfo;
     public $checklistdetail;
     public $emailsubmitter;
     public $note;
 
-    public function __construct($periodinfo, $checklistdetail, $emailsubmitter, $note)
+    public function __construct($nextStatus, $periodinfo, $checklistdetail, $emailsubmitter, $note)
     {
+        $this->nextStatus = $nextStatus;
         $this->periodinfo = $periodinfo;
         $this->checklistdetail = $checklistdetail;
         $this->emailsubmitter = $emailsubmitter;
@@ -29,7 +31,7 @@ class SubmitPICReviewChecklist extends Mailable
     public function build()
     {
         //SUBJECT NAME
-        $subject = "[DECISION REVIEW CHECKLIST - PIC MD]";
+        $subject = "[DECISION REVIEW CHECKLIST - PIC NOS MD]";
 
         $email = $this->view('mail.submitPICReviewChecklist')->subject($subject);
 
