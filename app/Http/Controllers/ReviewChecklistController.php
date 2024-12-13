@@ -296,7 +296,7 @@ class ReviewChecklistController extends Controller
         $checklistdetail = ChecklistJaringan::where('id_periode', $id)
             ->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")
             ->get();
-        $emailAuditor = MstEmployees::leftjoin('users', 'users.email', 'mst_employees.email')->where('mst_employees.id_dealer', $periodInfo->id_branch)->where('users.role', 'Internal Auditor Dealer')->pluck('users.email');
+        $emailAuditor = MstEmployees::leftjoin('users', 'users.email', 'mst_employees.email')->where('mst_employees.id_dealer', $periodInfo->id_branch)->where('users.role', 'Internal Auditor Dealer')->pluck('users.email')->toArray();
         if ($emailAuditor->isEmpty()) {
             return redirect()->back()->with(['fail' => 'Failed, Data Employee Internal Auditor Jaringan "' . $periodInfo->dealer_name . '" Not Exist']);
         }
@@ -312,7 +312,7 @@ class ReviewChecklistController extends Controller
             // IF Approve Send To Internal Auditor & Assessor Main Dealer Information Done
             else {
                 $assessorEmail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
-                $toemail = array_merge($assessorEmail, $emailAuditor);
+                $toEmail = array_unique(array_merge($assessorEmail, $emailAuditor));
             }
             $ccemail = $variableEmail['emailSubmitter'];
         }
