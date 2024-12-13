@@ -409,7 +409,9 @@
                 processing: true,
                 serverSide: true,
                 ajax: '{!! route('review.reviewChecklist', encrypt($id)) !!}',
-                pageLength: 100,
+                // pageLength: 100,
+                pageLength: -1, // Show all rows
+                lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
                 columns: [
                     {
                         data: null,
