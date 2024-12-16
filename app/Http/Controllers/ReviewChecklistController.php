@@ -297,7 +297,7 @@ class ReviewChecklistController extends Controller
             ->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")
             ->get();
         $emailAuditor = MstEmployees::leftjoin('users', 'users.email', 'mst_employees.email')->where('mst_employees.id_dealer', $periodInfo->id_branch)->where('users.role', 'Internal Auditor Dealer')->pluck('users.email')->toArray();
-        if ($emailAuditor->isEmpty()) {
+        if (empty($emailAuditor)) {
             return redirect()->back()->with(['fail' => 'Failed, Data Employee Internal Auditor Jaringan "' . $periodInfo->dealer_name . '" Not Exist']);
         }
         // Recepient Email
