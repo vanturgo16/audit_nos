@@ -348,6 +348,7 @@ class ReviewChecklistController extends Controller
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Submit Review']);
         } catch (\Exception $e) {
+            dd($e);
             return redirect()->back()->with(['fail' => 'Failed to Submit Review!']);
         }
     }
