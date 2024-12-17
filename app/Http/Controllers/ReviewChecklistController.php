@@ -312,7 +312,7 @@ class ReviewChecklistController extends Controller
             // IF Approve Send To Internal Auditor & Assessor Main Dealer Information Done
             else {
                 $assessorEmail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
-                $toEmail = array_unique(array_merge($assessorEmail, $emailAuditor));
+                $toemail = array_unique(array_merge($assessorEmail, $emailAuditor));
             }
             $ccemail = $variableEmail['emailSubmitter'];
         }
