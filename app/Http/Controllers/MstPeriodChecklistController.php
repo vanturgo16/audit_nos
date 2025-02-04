@@ -99,10 +99,12 @@ class MstPeriodChecklistController extends Controller
                 ->where('mst_mapchecklists.type_jaringan', $type)
                 ->get();
             foreach ($mapCheck as $item) {
-                MstAssignChecklists::create([
-                    'id_periode_checklist' => $period->id,
-                    'id_mst_checklist' => $item->id
-                ]);
+                if($item->id){
+                    MstAssignChecklists::create([
+                        'id_periode_checklist' => $period->id,
+                        'id_mst_checklist' => $item->id
+                    ]);
+                }
             }
 
             //Log Period
