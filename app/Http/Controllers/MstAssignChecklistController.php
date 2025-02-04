@@ -259,6 +259,9 @@ class MstAssignChecklistController extends Controller
                         'path_guide_checklist' => $detailMstCheck->path_guide_checklist,
                         'mark' => json_encode($mark)
                     ]);
+                } else {
+                    // Delete Assign Item IF Master Checklist Not Exist
+                    MstAssignChecklists::where('id', $item->id)->delete();
                 }
             }
 
