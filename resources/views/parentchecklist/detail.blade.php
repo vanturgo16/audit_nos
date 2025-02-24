@@ -93,23 +93,12 @@
                                         <script>
                                             var type = '{{ $parent->type_checklist }}';
                                             var path = '{{ $parent->path_guide_premises }}';
-                                            if (type != 'H1 Premises') {
-                                                $('#guidechceklist').show();
-                                                if(path){
-                                                    $('input[name="guide_parent"]').attr("required", false);
-                                                } else {
-                                                    $('input[name="guide_parent"]').attr("required", true);
-                                                }
-                                            } else {
-                                                $('#guidechceklist').hide();
-                                                $('input[name="guide_parent"]').attr("required", false);
-                                            }
-                                            // Type Checlist Change
-                                            $('select[name="type_checklist"]').on('change', function() {
-                                                var typeChecklist = $(this).val();
-                                                if (typeChecklist != 'H1 Premises') {
-                                                    $('#guidechceklist').show(); 
-                                                    if(path){
+                                            var typeChecklistPerCheck = @json($typeChecklistPerCheck);
+
+                                            function updateGuideChecklist(typeChecklist) {
+                                                if (!typeChecklistPerCheck.includes(typeChecklist)) {
+                                                    $('#guidechceklist').show();
+                                                    if (path) {
                                                         $('input[name="guide_parent"]').attr("required", false);
                                                     } else {
                                                         $('input[name="guide_parent"]').attr("required", true);
@@ -118,9 +107,19 @@
                                                     $('#guidechceklist').hide();
                                                     $('input[name="guide_parent"]').attr("required", false);
                                                 }
+                                            }
+
+                                            // Initial check
+                                            updateGuideChecklist(type);
+
+                                            // Handle change event
+                                            $('select[name="type_checklist"]').on('change', function () {
+                                                var selectedType = $(this).val();
+                                                updateGuideChecklist(selectedType);
+
                                                 var url = '{{ route("mappingOrderNo", ":id") }}';
-                                                url = url.replace(':id', typeChecklist);
-                                                if(typeChecklist) {
+                                                url = url.replace(':id', selectedType);
+                                                if(selectedType) {
                                                     $.ajax({
                                                         url: url,
                                                         type: 'GET',
@@ -186,7 +185,7 @@
                                     </span>
                                 </div>
                             </div>
-                            @if ($parent->type_checklist != 'H1 Premises')
+                            @if(!in_array($parent->type_checklist, $typeChecklistPerCheck))
                                 @if($parent->path_guide_premises != null)
                                     <div class="col-lg-6">
                                         <label class="form-label">File Guide Parent Checklist :</label>
