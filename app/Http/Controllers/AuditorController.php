@@ -71,6 +71,7 @@ class AuditorController extends Controller
             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
             ->where('mst_periode_checklists.id', $id)
             ->first();
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
 
         $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
         $checkJars = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")->get();
@@ -85,7 +86,7 @@ class AuditorController extends Controller
                 ->get()->toArray();
             $item->point = $responsCounts;
 
-            if ($item->type_checklist == 'H1 Premises') {
+            if(in_array($item->type_checklist, $typeChecklistPerCheck)) {
                 $isComplete = ($item->checklist_remaining == 0) ? 1 : 0;
             } else {
                 if ($item->checklist_remaining == 0) {
@@ -268,7 +269,8 @@ class AuditorController extends Controller
         //Audit Log
         $this->auditLogsShort('View Review Checklist');
 
-        $view = $typeCheck == 'H1 Premises' ? 'auditor.detail.index-h1' : 'auditor.detail.index-other';
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
+        $view = in_array($typeCheck, $typeChecklistPerCheck) ? 'auditor.detail.index-h1' : 'auditor.detail.index-other';
         return view($view, compact('id', 'chekJar', 'assignChecks', 'period', 'typeCheck'));
     }
 }

@@ -38,11 +38,12 @@ class FormChecklistController extends Controller
         //Auditlog
         $this->auditLogsShort('View Checklist Form:', $id);
 
-        $view = $typeChecklist == 'H1 Premises' ? 'auditor.form.h1p' : 'auditor.form.other';
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
+        $view = in_array($typeChecklist, $typeChecklistPerCheck) ? 'auditor.form.h1p' : 'auditor.form.other';
         return view($view, compact('id', 'idPeriod'));
     }
 
-    // H1 Premises
+    // List Per Checklist
     public function getChecklistFormH1P(Request $request, $id)
     {
         // id_checklist Jaringan

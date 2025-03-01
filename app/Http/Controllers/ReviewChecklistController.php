@@ -146,7 +146,8 @@ class ReviewChecklistController extends Controller
         //Audit Log
         $this->auditLogsShort('View Review Checklist');
 
-        $view = $typeCheck == 'H1 Premises' ? 'review.index-h1' : 'review.index-other';
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
+        $view = in_array($typeCheck, $typeChecklistPerCheck) ? 'review.index-h1' : 'review.index-other';
         return view($view, compact('id', 'assignChecks', 'period', 'typeCheck', 'chekJar'));
     }
 

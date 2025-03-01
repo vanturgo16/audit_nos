@@ -86,7 +86,7 @@
                                                 </select>
                                             </div>
                                             <div class="col-6" id="guidechceklist">
-                                                <label class="form-label">{{ $checklist->path_guide_checklist ? 'Update' : 'Upload' }} Guide Checklist (H1 Premises)</label>
+                                                <label class="form-label">{{ $checklist->path_guide_checklist ? 'Update' : 'Upload' }} Guide Checklist ({{ $parent->type_checklist }})</label>
                                                 @if($checklist->path_guide_checklist != null)
                                                     -> 
                                                     <a href="{{ url($checklist->path_guide_checklist) }}" target="_blank">
@@ -99,22 +99,10 @@
                                         <script>
                                             var type = '{{ $parent->type_checklist }}';
                                             var path = '{{ $checklist->path_guide_checklist }}';
-                                            if (type === 'H1 Premises') {
-                                                $('#guidechceklist').show();
-                                                if(path){
-                                                    $('input[name="guide_checklist"]').attr("required", false);
-                                                } else {
-                                                    $('input[name="guide_checklist"]').attr("required", true);
-                                                }
-                                            } else {
-                                                $('#guidechceklist').hide();
-                                                $('input[name="guide_checklist"]').attr("required", false);
-                                            }
-                                            // Type Checlist Change
-                                            $('select[name="type_checklist"]').on('change', function() {
-                                                var typeChecklist = $(this).find('option:selected').val();
-            
-                                                if (typeChecklist === 'H1 Premises') {
+                                            var typeChecklistPerCheck = @json($typeChecklistPerCheck);
+
+                                            function updateGuideChecklist(typeChecklist) {
+                                                if (typeChecklistPerCheck.includes(typeChecklist)) {
                                                     $('#guidechceklist').show();
                                                     if(path){
                                                         $('input[name="guide_checklist"]').attr("required", false);
@@ -125,11 +113,19 @@
                                                     $('#guidechceklist').hide();
                                                     $('input[name="guide_checklist"]').attr("required", false);
                                                 }
-            
+                                            }
+                                            
+                                            // Initial check
+                                            updateGuideChecklist(type);
+
+                                            // Type Checlist Change
+                                            $('select[name="type_checklist"]').on('change', function() {
+                                                var selectedType = $(this).val();
+                                                updateGuideChecklist(selectedType);
+
                                                 var url = '{{ route("mappingParent", ":name") }}';
-                                                url = url.replace(':name', typeChecklist);
-                                                
-                                                if (typeChecklist) {
+                                                url = url.replace(':name', selectedType);
+                                                if (selectedType) {
                                                     $.ajax({
                                                         url: url,
                                                         type: "GET",

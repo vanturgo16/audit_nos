@@ -56,7 +56,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                @if($type == 'H1 Premises')
+                                                @if(in_array($type, $typeChecklistPerCheck))
                                                     <div class="col-lg-6 mb-3">
                                                         <label class="form-label">Guide Checklist</label><label style="color: darkred">*</label>
                                                         <input type="file" name="guide_checklist" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Guide" required>
@@ -169,7 +169,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
+                        <table class="table table-bordered dt-responsive w-100" id="server-side-table">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">Parent Point</th>
