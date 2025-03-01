@@ -236,7 +236,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
+                        <table class="table table-bordered dt-responsive w-100" id="server-side-table">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>

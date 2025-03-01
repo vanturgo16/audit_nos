@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\File;
 use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
 use App\Models\MstParentChecklists;
+use App\Models\MstRules;
 use App\Traits\OrderTrait;
+
 
 class MstParentChecklistController extends Controller
 {
@@ -47,6 +49,7 @@ class MstParentChecklistController extends Controller
             ->orderBy('type_checklist', 'asc')
             ->orderBy('order_no', 'asc')
             ->get();
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
 
         if ($request->ajax()) {
             $data = DataTables::of($datas)
@@ -60,7 +63,7 @@ class MstParentChecklistController extends Controller
         //Audit Log
         $this->auditLogsShort('View List Mst Parent Checklist');
 
-        return view('parentchecklist.index', compact('datas', 'type'));
+        return view('parentchecklist.index', compact('datas', 'type', 'typeChecklistPerCheck'));
     }
 
     public function detail($id)
@@ -69,11 +72,12 @@ class MstParentChecklistController extends Controller
         $parent = MstParentChecklists::where('id', $id)->first();
         $type_checklist = MstDropdowns::where('category', 'Type Checklist')->get();
         $orders = MstParentChecklists::where('type_checklist', $parent->type_checklist)->orderBy('order_no', 'asc')->get();
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
 
         //Audit Log
         $this->auditLogsShort('View Detail Parent Checklist ID (' . $id . ')');
 
-        return view('parentchecklist.detail', compact('id', 'parent', 'type_checklist', 'orders'));
+        return view('parentchecklist.detail', compact('id', 'parent', 'type_checklist', 'orders', 'typeChecklistPerCheck'));
     }
 
     public function updateParent(Request $request, $id)
@@ -85,11 +89,13 @@ class MstParentChecklistController extends Controller
             'order_no' => 'required',
         ]);
 
-        //Check Data Change
+        // Check Data Change
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
         $dataBefore = MstParentChecklists::where('id', $id)->first();
-        if ($request->type_checklist != 'H1 Premises' && $dataBefore->path_guide_premises == null && !$request->hasFile('guide_parent')) {
-            return redirect()->back()->with(['fail' => 'Failed!, You Have Upload Guide Parent Checklist IF Type Not H1 Premises']);
+        if (!in_array($request->type_checklist, $typeChecklistPerCheck) && $dataBefore->path_guide_premises == null && !$request->hasFile('guide_parent')) {
+            return redirect()->back()->with(['fail' => 'Failed! You must upload Guide Parent Checklist if Type is not in the checklist rules.']);
         }
+
         $dataBefore->type_checklist = $request->type_checklist;
         $dataBefore->parent_point_checklist = $request->add_parent;
         $dataBefore->order_no = $request->order_no;
@@ -179,11 +185,15 @@ class MstParentChecklistController extends Controller
 
     public function store(Request $request)
     {
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
         $request->validate([
             'type_checklist' => 'required',
             'add_parent' => 'required',
-            'thumbnail' => $request->type_checklist != 'H1 Premises' ? 'required|image|mimes:jpg,jpeg,png|max:3072' : ''
+            'thumbnail' => !in_array($request->type_checklist, $typeChecklistPerCheck) 
+                ? 'required|image|mimes:jpg,jpeg,png|max:3072' 
+                : ''
         ]);
+    
 
         DB::beginTransaction();
         try {

@@ -50,7 +50,7 @@
                                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
                                                     <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
                                                 </div>
-                                                @if($type != 'H1 Premises')
+                                                @if(!in_array($type, $typeChecklistPerCheck))
                                                     <div class="col-lg-6 mb-3" id="newTumbnail">
                                                         <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
                                                         <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail" required>
@@ -104,7 +104,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
+                        <table class="table table-bordered dt-responsive w-100" id="server-side-table">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">Order No</th>

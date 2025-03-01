@@ -13,6 +13,7 @@ use App\Models\MstChecklists;
 use App\Models\MstDropdowns;
 use App\Models\MstParentChecklists;
 use App\Traits\OrderTrait;
+use App\Models\MstRules;
 
 class MstChecklistController extends Controller
 {
@@ -52,6 +53,7 @@ class MstChecklistController extends Controller
             ->orderby('mst_parent_checklists.order_no')
             ->orderby('mst_checklists.order_no')
             ->get();
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
 
         if ($request->ajax()) {
             $data = DataTables::of($datas)
@@ -65,14 +67,17 @@ class MstChecklistController extends Controller
         //Audit Log
         $this->auditLogsShort('View List Mst Checklist');
 
-        return view('checklist.index', compact('type', 'typeParent', 'typeMark'));
+        return view('checklist.index', compact('type', 'typeParent', 'typeMark', 'typeChecklistPerCheck'));
     }
     public function store(Request $request)
     {
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
         $request->validate([
             'type_checklist' => 'required',
             'parent_point_checklist' => 'required',
-            'guide_checklist' => $request->type_checklist == 'H1 Premises' ? 'required|image|mimes:jpg,jpeg,png|max:3072' : '',
+            'guide_checklist' => in_array($request->type_checklist, $typeChecklistPerCheck) 
+                ? 'required|image|mimes:jpg,jpeg,png|max:3072' 
+                : '',
             'sub_point_checklist' => 'required',
             'indikator' => 'required',
             'mandatory_silver' => 'required',
@@ -80,10 +85,11 @@ class MstChecklistController extends Controller
             'mandatory_platinum' => 'required',
         ]);
 
+
         DB::beginTransaction();
         try {
-            // IF Create Checklist With Type H1 Premises (Conditional HardCode)
-            $uploadfile = ($request->type_checklist == 'H1 Premises') ? 1 : 0;
+            // Check if type_checklist exists in the database list
+            $uploadfile = in_array($request->type_checklist, $typeChecklistPerCheck) ? 1 : 0;
             $url_guide_check = null;
             if ($uploadfile && $request->hasFile('guide_checklist')) {
                 $file = $request->file('guide_checklist');
@@ -153,11 +159,12 @@ class MstChecklistController extends Controller
         $orders = MstChecklists::select('order_no', 'sub_point_checklist')
             ->where('id_parent_checklist', $checklist->id_parent_checklist)
             ->orderBy('order_no', 'asc')->get();
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
 
         //Audit Log
         $this->auditLogsShort('View Info Checklist ID (' . $id . ')');
 
-        return view('checklist.detail', compact('id', 'checklist', 'parent', 'mark', 'type_checklist', 'type_parent', 'typeMark', 'orders'));
+        return view('checklist.detail', compact('id', 'checklist', 'parent', 'mark', 'type_checklist', 'type_parent', 'typeMark', 'orders', 'typeChecklistPerCheck'));
     }
     public function updateHeadCheck(Request $request, $id)
     {
@@ -169,9 +176,10 @@ class MstChecklistController extends Controller
         ]);
 
         //Check Data Change
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
         $dataBefore = MstChecklists::where('id', $id)->first();
-        if ($request->type_checklist == 'H1 Premises' && $dataBefore->path_guide_checklist == null && !$request->hasFile('guide_checklist')) {
-            return redirect()->back()->with(['fail' => 'Failed!, You Have Upload Guide Checklist IF Type H1 Premises']);
+        if (in_array($request->type_checklist, $typeChecklistPerCheck) && $dataBefore->path_guide_checklist == null && !$request->hasFile('guide_checklist')) {
+            return redirect()->back()->with(['fail' => 'Failed!, You Have Upload Guide Checklist IF Type Premises']);
         }
         $dataBefore->id_parent_checklist = $request->parent_point_checklist;
         $dataBefore->order_no = $request->order_no;
@@ -362,7 +370,6 @@ class MstChecklistController extends Controller
     }
     public function update(Request $request, $id)
     {
-        dd($request->all());
         $id = decrypt($id);
 
         $request->validate([
@@ -377,11 +384,12 @@ class MstChecklistController extends Controller
 
         DB::beginTransaction();
         try {
-            // Check Data Before H1 Premises or not
-            if ($request->type_checklist_before == 'H1 Premises') {
+            $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
+            // Check Data Before Type Per Checklist or not
+            if (in_array($request->type_checklist_before, $typeChecklistPerCheck)) {
                 $path_guide_checklist = MstChecklists::where('id', $id)->first()->path_guide_checklist;
-                // IF Update Checklist With Type H1 Pemises (Conditional HardCode)
-                if ($request->type_checklist == 'H1 Premises') {
+                // If the checklist type is in the allowed list before update
+                if (in_array($request->type_checklist, $typeChecklistPerCheck)) {
                     $uploadfile = 1;
                     if ($request->hasFile('guide_checklist')) {
                         $path_loc = $request->file('guide_checklist');
@@ -396,7 +404,7 @@ class MstChecklistController extends Controller
                     $url_guide_check = null;
                 }
             } else {
-                if ($request->type_checklist == 'H1 Premises') {
+                if (in_array($request->type_checklist, $typeChecklistPerCheck)) {
                     $uploadfile = 1;
                     if ($request->hasFile('guide_checklist')) {
                         $path_loc = $request->file('guide_checklist');
