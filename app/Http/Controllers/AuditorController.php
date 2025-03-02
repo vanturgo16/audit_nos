@@ -192,11 +192,11 @@ class AuditorController extends Controller
                     ->where('checklist_responses.response', '!=', 'Exist, Good')
                     ->where('mst_periode_checklists.id', $id)
                     ->first();
-                if ($mandatoryCounts->sgp != null) {
+                if ((int)$mandatoryCounts->sgp > 0) {
                     $mandatoryItem = 'Bronze';
-                } elseif ($mandatoryCounts->gp != null) {
+                } elseif ((int)$mandatoryCounts->gp > 0) {
                     $mandatoryItem = 'Silver';
-                } elseif ($mandatoryCounts->p != null) {
+                } elseif ((int)$mandatoryCounts->p > 0) {
                     $mandatoryItem = 'Gold';
                 } else {
                     $mandatoryItem = 'Platinum';
