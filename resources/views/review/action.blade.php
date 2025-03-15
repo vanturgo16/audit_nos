@@ -1,4 +1,4 @@
-@if(in_array(Auth::user()->role, ['Assessor Main Dealer']))
+@if(in_array(Auth::user()->role, ['Assessor Main Dealer']) && in_array($chekJar->status, [2]))
     @if($data->approve === null)
         <div id="decision{{ $data->id }}">
             <a href="#" type="button" class="btn btn-sm btn-success approve-btn" title="Approve" id="appr{{ $data->id }}">
