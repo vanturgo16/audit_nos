@@ -138,8 +138,8 @@ class ReviewChecklistController extends Controller
                 ->addColumn('photo', function ($data) {
                     return view('review.photo', compact('data'));
                 })
-                ->addColumn('action', function ($data) {
-                    return view('review.action', compact('data'));
+                ->addColumn('action', function ($data) use ($chekJar) {
+                    return view('review.action', compact('data', 'chekJar'));
                 })->toJson();
         }
 
