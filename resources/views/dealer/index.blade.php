@@ -33,10 +33,10 @@
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">No</th>
-                                    <th class="align-middle text-center">Jaringan Name</th>
-                                    <th class="align-middle text-center">Jaringan Code</th>
-                                    <th class="align-middle text-center">Jaringan Type</th>
-                                    <th class="align-middle text-center">Jaringan Address</th>
+                                    <th class="align-middle text-center">Code</th>
+                                    <th class="align-middle text-center">Type</th>
+                                    <th class="align-middle text-center">Name</th>
+                                    <th class="align-middle text-center">Address</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -62,28 +62,28 @@
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
-                },
-                {
-                    data: 'dealer_name',
-                    name: 'dealer_name',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-middle text-center text-bold',
+                    className: 'align-top text-center',
                 },
                 {
                     data: 'dealer_code',
                     name: 'dealer_code',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
                 {
                     data: 'type',
                     name: 'type',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle text-center',
+                    className: 'align-top',
+                },
+                {
+                    data: 'dealer_name',
+                    name: 'dealer_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top text-bold',
                 },
                 {
                     orderable: true,
@@ -99,7 +99,7 @@
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
             ],
         });

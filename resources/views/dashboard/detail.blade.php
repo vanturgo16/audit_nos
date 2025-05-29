@@ -112,16 +112,30 @@
                                                         {{ $item->parent_point_checklist }}
                                                     </th>
                                                     <td class="align-middle text-center">
-                                                        {{ $item->counteg }}
+                                                        {{ $item->countTotalCheckedEG }}
                                                     </th>
                                                     <td class="align-middle text-center">
-                                                        {{ $item->countparent }}
+                                                        {{ $item->countTotalChecked }}
                                                     </th>
                                                     <td class="align-middle text-center">
-                                                        {{ $item->countpercentage }}%
+                                                        {{ $item->resultPercentage }}%
                                                     </th>
                                                 </tr>
                                             @endforeach
+                                            <tr>
+                                                <td colspan="2" class="align-middle text-center text-bold">
+                                                    RESULT
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    {{ $countAllTotalCheckedEG }}
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    {{ $countAllTotalChecked }}
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    {{ $avgTotalResultPercentage }}%
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -163,7 +177,7 @@
                                             yAxis: {
                                                 gridLineInterpolation: 'polygon',
                                                 min: 0, 
-                                                max: 110, 
+                                                max: 120, 
                                                 tickInterval: 10, 
                                                 lineWidth: 0,
                                                 labels: {
@@ -172,7 +186,7 @@
                                                         fontSize: '8px'
                                                     }
                                                 },
-                                                tickPositions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
+                                                tickPositions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]
                                             },
                                             tooltip: {
                                                 shared: true,

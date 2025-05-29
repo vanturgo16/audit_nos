@@ -1,4 +1,4 @@
-<button type="button" class="btn btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#delete{{ $data->idMap }}">
+<button type="button" class="btn btn-sm btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#delete{{ $data->idMap }}">
     <i class="mdi mdi-close-circle label-icon"></i> Remove
 </button>
 

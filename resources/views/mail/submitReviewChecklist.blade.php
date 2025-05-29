@@ -2,10 +2,10 @@
 <html>
 <body>
     <span>
-        @if($periodinfo->status == 5)
-        Dear Internal Auditor Team,
-        @elseif($periodinfo->status == 4)
-        Dear Internal Auditor & PIC NOS MD Team,
+        @if($nextStatus == 2)
+            Dear Internal Auditor Team,
+        @else
+            Dear PIC NOS MD Team,
         @endif
         <br> We Would Like to Inform you that We Already Review Checklist Audit as below details
         <br>
@@ -47,7 +47,7 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        {{ $periodinfo->count }}
+                        {{ $periodinfo->totalChecklist }}
                     </span>
                 </td>
             </tr>
@@ -60,10 +60,10 @@
                 </td>
                 <td>
                     <span>&nbsp;
-                        @if($periodinfo->status == 5)
-                        Rejected
-                        @elseif($periodinfo->status == 4)
-                        Approved
+                        @if($nextStatus == 2)
+                            Rejected
+                        @else
+                            Approved
                         @endif
                     </span>
                 </td>
@@ -78,9 +78,9 @@
                 <td>
                     <span>&nbsp;
                         @if($note == null)
-                        Null
+                            -
                         @else
-                        {{ $note }}
+                            {!! $note !!}
                         @endif
                     </span>
                 </td>
@@ -112,14 +112,20 @@
                     <span>{{ $detail->total_checklist }}</span>
                 </td>
                 <td style="border: 1px solid #000; padding: 5px;">
-                    <span>{{ $detail->last_decision }}</span>
+                    <span>
+                        @if($detail->last_decision_assessor == 1)
+                            Rejected
+                        @else
+                            Approved
+                        @endif
+                    </span>
                 </td>
                 <td style="border: 1px solid #000; padding: 5px;">
                     <span>
-                        @if($detail->last_reason == null)
-                            Null
+                        @if($detail->last_reason_assessor == null)
+                            -
                         @else 
-                            {!! $detail->last_reason !!}
+                            {!! $detail->last_reason_assessor !!}
                         @endif
                     </span>
                 </td>

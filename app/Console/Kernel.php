@@ -13,21 +13,21 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $now=Carbon::now()->format('YmdHis');
+        $now = Carbon::now()->format('YmdHis');
 
         // $schedule->command('period:start')->dailyAt('00:01');
 
         $schedule->command('AlertExpiredPeriodCommand')
             ->timezone('Asia/Jakarta')
-            ->dailyAt('08:00');
-            // ->everyMinute();
-            // ->sendOutputTo("storage/logs/LogAlertExpired_".$now.".txt");
+            ->dailyAt('08:00')
+            // ->everyMinute()
+            ->sendOutputTo("storage/logs/LogAlertExpired_" . $now . ".txt");
 
         $schedule->command('ReminderSubmitPeriodCommand')
             ->timezone('Asia/Jakarta')
-            ->dailyAt('08:00');
-            // ->everyMinute();
-            // ->sendOutputTo("storage/logs/LogReminderSubmit_".$now.".txt");
+            ->dailyAt('08:00')
+            // ->everyMinute()
+            ->sendOutputTo("storage/logs/LogReminderSubmit_" . $now . ".txt");
     }
 
     /**
@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

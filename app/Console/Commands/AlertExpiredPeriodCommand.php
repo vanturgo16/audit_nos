@@ -9,15 +9,19 @@ use Illuminate\Support\Facades\Mail;
 
 // Model
 use App\Models\MstPeriodeChecklists;
-use App\Models\MstAssignChecklists;
-use App\Models\MstRules;
 use App\Models\User;
+use App\Models\LogActivityPeriod;
 
 // Mail 
 use App\Mail\AlertExpiredPeriod;
 
+// Trait
+use App\Traits\MailingTrait;
+
 class AlertExpiredPeriodCommand extends Command
 {
+    use MailingTrait;
+
     protected $signature = 'AlertExpiredPeriodCommand';
     protected $description = 'Warning Expired Period Checklist';
 
@@ -25,53 +29,46 @@ class AlertExpiredPeriodCommand extends Command
     {
         $today = Carbon::today();
 
-        DB::beginTransaction();
-        try{
-            // Get Period EndDate Today
-            $periodexpired = MstPeriodeChecklists::select('mst_periode_checklists.*')
-                ->where('is_active', '1')
-                ->where('status', '1')
-                ->where('end_date', '<=', $today)
-                ->get();
+        // Get Period EndDate Less Than Or Equal Today Where Status Still Audit/Revisi
+        $periodExpired = MstPeriodeChecklists::where('end_date', '<=', $today)
+            ->where('is_active', 1)->whereIn('status', [1, 2])->get();
 
-            foreach($periodexpired as $expired){
-                // Update is_active Period to Expired (3)
-                MstPeriodeChecklists::where('id', $expired->id)->update(['status' => null]);
-
-                // Send Email Alert To Internal Auditor
-                // [ MAILING ]
-                // Initiate Variable
-                $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
-                $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
-                    ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                    ->where('mst_periode_checklists.id', $expired->id)
-                    ->first();
-                $count = MstAssignChecklists::where('id_periode_checklist', $expired->id)->count();
-                $periodinfo->count = $count;
-                // Recepient Email
-                if($development == 1){
-                    $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
-                    $ccemail = null;
-                } else {
-                    // $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
-                    $toemail = MstPeriodeChecklists::leftJoin('mst_employees', 'mst_periode_checklists.id_branch', 'mst_employees.id_dealer')
-                        ->leftJoin('users', 'mst_employees.email', 'users.email')
-                        ->where('mst_periode_checklists.id', $expired->id)
-                        ->where('users.role', 'Internal Auditor Dealer')
-                        ->pluck('mst_employees.email')->toArray();
-                    $ccemail = User::where('role', 'PIC Dealers')->pluck('email')->toArray();
-                }
-                // Mail Content
-                $mailInstance = new AlertExpiredPeriod($periodinfo);
-                // Send Email
-                Mail::to($toemail)->cc($ccemail)->send($mailInstance);
+        foreach ($periodExpired as $item) {
+            // Variable
+            $variableEmail = $this->variableEmail();
+            $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type', DB::raw('(SELECT COUNT(*) FROM mst_assign_checklists WHERE mst_assign_checklists.id_periode_checklist = mst_periode_checklists.id) as totalChecklist'))
+                ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+                ->where('mst_periode_checklists.id', $item->id)
+                ->first();
+            // Recepient Email
+            if ($variableEmail['devRule'] == 1) {
+                $toemail = $variableEmail['emailDev'];
+            } else {
+                $toemail = User::leftjoin('mst_employees', 'users.email', 'mst_employees.email')
+                    ->where('users.role', 'Internal Auditor Dealer')->where('mst_employees.id_dealer', $item->id_branch)
+                    ->pluck('users.email')->toArray();
             }
+            // Mail Structure
+            $mailStructure = new AlertExpiredPeriod($periodInfo);
 
-            DB::commit();
-            echo ('Success Running Command at '.$today);
-        } catch (Exception $e) {
-            DB::rollback();
-            echo ('Failed Run Command at '.$today.' error: '.$e);
+            DB::beginTransaction();
+            try {
+                // Update To Expired
+                MstPeriodeChecklists::where('id', $item->id)->update(['is_active' => 0]);
+                // Store Log
+                LogActivityPeriod::create([
+                    'id_period' => $item->id, 'status' => 8,
+                    'note' => 'Period Ended', 'activity_by' => 'Scheduler By System',
+                ]);
+                // Send Email
+                Mail::to($toemail)->send($mailStructure);
+
+                DB::commit();
+                echo ('Success Running Command at ' . $today);
+            } catch (Exception $e) {
+                DB::rollback();
+                echo ('Failed Run Command at ' . $today . ' error: ' . $e);
+            }
         }
     }
 }

@@ -9,15 +9,17 @@ use Illuminate\Support\Facades\Mail;
 
 // Model
 use App\Models\MstPeriodeChecklists;
-use App\Models\MstAssignChecklists;
-use App\Models\MstRules;
-use App\Models\User;
 
 // Mail 
 use App\Mail\ReminderSubmitPeriod;
 
+// Trait
+use App\Traits\MailingTrait;
+
 class ReminderSubmitPeriodCommand extends Command
 {
+    use MailingTrait;
+
     protected $signature = 'ReminderSubmitPeriodCommand';
     protected $description = 'Reminder Submit Period Checklist';
 
@@ -27,41 +29,35 @@ class ReminderSubmitPeriodCommand extends Command
         $formattedDate = $today->format('Y-m-d');
 
         DB::beginTransaction();
-        try{
-            // Get Period StartDate Today
-            $remindsubmit = MstPeriodeChecklists::select('mst_periode_checklists.*')
-                ->where('is_active', '0')
-                ->where('start_date', $formattedDate)
-                ->get();
+        try {
+            // Get Period StartDate More Than Or Equal Today Where Status Still Initiate
+            $periodStart = MstPeriodeChecklists::where('start_date', '>=', $formattedDate)
+                ->where('status', 0)->get();
 
-            foreach($remindsubmit as $submit){
-                // Send Email Reminder Submit To Assessor
-                // [ MAILING ]
-                // Initiate Variable
-                $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
-                $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
-                    ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                    ->where('mst_periode_checklists.id', $submit->id)
+            foreach ($periodStart as $item) {
+                // Variable
+                $variableEmail = $this->variableEmail();
+                $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type', DB::raw('(SELECT COUNT(*) FROM mst_assign_checklists WHERE mst_assign_checklists.id_periode_checklist = mst_periode_checklists.id) as totalChecklist'))
+                    ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+                    ->where('mst_periode_checklists.id', $item->id)
                     ->first();
-                $count = MstAssignChecklists::where('id_periode_checklist', $submit->id)->count();
-                $periodinfo->count = $count;
                 // Recepient Email
-                if($development == 1){
-                    $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
+                if ($variableEmail['devRule'] == 1) {
+                    $toemail = $variableEmail['emailDev'];
                 } else {
-                    $toemail = User::where('role', 'PIC Dealers')->pluck('email')->toArray();
+                    $toemail = $periodInfo->created_by;
                 }
-                // Mail Content
-                $mailInstance = new ReminderSubmitPeriod($periodinfo);
+                // Mail Structure
+                $mailStructure = new ReminderSubmitPeriod($periodInfo);
                 // Send Email
-                Mail::to($toemail)->send($mailInstance);
+                Mail::to($toemail)->send($mailStructure);
             }
 
             DB::commit();
-            echo ('Success Running Command at '.$today);
+            echo ('Success Running Command at ' . $today);
         } catch (Exception $e) {
             DB::rollback();
-            echo ('Failed Run Command at '.$today.' error: '.$e);
+            echo ('Failed Run Command at ' . $today . ' error: ' . $e);
         }
     }
 }

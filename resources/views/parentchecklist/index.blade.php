@@ -7,7 +7,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Parent Checklist (Type : {{ $type }})</h4>
+                    <div class="page-title-left">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('parentchecklist.typechecklist') }}">List Type</a></li>
+                            <li class="breadcrumb-item active">List Parent Checklist (Type: {{ $type }})</li>
+                        </ol>
+                    </div>
 
                     <div class="page-title-right">
                         <a id="backButton" type="button" href="{{ route('parentchecklist.typechecklist') }}"
@@ -45,30 +50,36 @@
                                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
                                                     <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
                                                 </div>
-                                                <div class="col-lg-6 mb-3" id="newTumbnail">
-                                                    <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
-                                                    <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail">
-                                                    <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
-                                                </div>
-                                                <script>
-                                                    document.getElementById('newTumbnail').addEventListener('change', function () {
-                                                        var input = this.querySelector('input[type="file"]');
-                                                        var maxSize = 3 * 1024 * 1024;
-                                                        var errorDiv = document.getElementById('warningTumb');
+                                                @if(!in_array($type, $typeChecklistPerCheck))
+                                                    <div class="col-lg-6 mb-3" id="newTumbnail">
+                                                        <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
+                                                        <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail" required>
+                                                        <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
+                                                    </div>
+                                                    <script>
+                                                        document.getElementById('newTumbnail').addEventListener('change', function () {
+                                                            var input = this.querySelector('input[type="file"]');
+                                                            var maxSize = 3 * 1024 * 1024;
+                                                            var errorDiv = document.getElementById('warningTumb');
 
-                                                        if (input.files.length > 0) {
-                                                            var fileSize = input.files[0].size;
+                                                            if (input.files.length > 0) {
+                                                                var fileSize = input.files[0].size;
 
-                                                            if (fileSize > maxSize) {
-                                                                errorDiv.style.display = 'block';
-                                                                input.value = ''; // Reset input file
-                                                            } else {
-                                                                errorDiv.style.display = 'none';
+                                                                if (fileSize > maxSize) {
+                                                                    errorDiv.style.display = 'block';
+                                                                    input.value = ''; // Reset input file
+                                                                } else {
+                                                                    errorDiv.style.display = 'none';
+                                                                }
                                                             }
-                                                        }
-                                                    });
-                                                </script>
-                                                
+                                                        });
+                                                    </script>
+                                                @endif
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <span class="badge bg-secondary text-white">automatically get the last order number</span>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -93,7 +104,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
+                        <table class="table table-bordered dt-responsive w-100" id="server-side-table">
                             <thead>
                                 <tr>
                                     <th class="align-middle text-center">Order No</th>

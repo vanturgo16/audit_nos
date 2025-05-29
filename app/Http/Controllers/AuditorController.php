@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ChecklistResponse;
 use App\Models\FileInputResponse;
-use App\Models\MstAssignChecklists;
-use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -13,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 
 //model
+use App\Models\MstAssignChecklists;
 use App\Models\MstDropdowns;
 use App\Models\MstEmployees;
 use App\Models\MstGrading;
@@ -30,45 +29,39 @@ use App\Mail\SubmitChecklist;
 use App\Models\ChecklistResponses;
 use Mockery\Undefined;
 
+// Trait
+use App\Traits\AuditLogsTrait;
+use App\Traits\MailingTrait;
+
 class AuditorController extends Controller
 {
     use AuditLogsTrait;
+    use MailingTrait;
 
     public function periodList(Request $request)
     {
-        $branchs = MstJaringan::get();
-        $branchName = null;
+        $idJaringan = MstEmployees::where('email', auth()->user()->email)->first()->id_dealer;
+        $jaringanDetail = MstJaringan::where('id', $idJaringan)->first();
 
         $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
             ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
             ->whereNotNull('mst_periode_checklists.status')
-            ->where('mst_periode_checklists.status', '!=', 0);
-
-        $role = auth()->user()->role;
-        if (in_array($role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC Dealers', 'PIC NOS MD'])) {
-            if ($request->has('filterBranch') && $request->filterBranch != '' && $request->filterBranch != 'All') {
-                $query->where('mst_periode_checklists.id_branch', $request->filterBranch);
-            }
-        } else {
-            $idBranch = MstEmployees::where('email', auth()->user()->email)->first()->id_dealer;
-            $branchName = MstJaringan::where('id', $idBranch)->first()->dealer_name;
-            $query->where('mst_periode_checklists.id_branch', $idBranch);
-        }
-
-        $query = $query->orderBy('mst_periode_checklists.created_at', 'desc')->get();
+            ->where('mst_periode_checklists.status', '!=', 0)
+            ->where('mst_periode_checklists.id_branch', $idJaringan)
+            ->orderBy('mst_periode_checklists.created_at', 'desc')
+            ->get();
 
         if ($request->ajax()) {
             return DataTables::of($query)
-                ->addColumn('action', function ($data) use ($branchs) {
-                    return view('auditor.period.action', compact('data', 'branchs'));
-                })
-                ->toJson();
+                ->addColumn('action', function ($data) {
+                    return view('auditor.period.action', compact('data'));
+                })->toJson();
         }
 
         //Audit Log
         $this->auditLogsShort('View List Assign Period Checklist Auditor');
 
-        return view('auditor.period.index', compact('branchs', 'branchName'));
+        return view('auditor.period.index', compact('jaringanDetail'));
     }
 
     public function periodDetail(Request $request, $id)
@@ -78,6 +71,7 @@ class AuditorController extends Controller
             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
             ->where('mst_periode_checklists.id', $id)
             ->first();
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
 
         $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
         $checkJars = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")->get();
@@ -92,7 +86,7 @@ class AuditorController extends Controller
                 ->get()->toArray();
             $item->point = $responsCounts;
 
-            if ($item->type_checklist == 'H1 Premises') {
+            if(in_array($item->type_checklist, $typeChecklistPerCheck)) {
                 $isComplete = ($item->checklist_remaining == 0) ? 1 : 0;
             } else {
                 if ($item->checklist_remaining == 0) {
@@ -107,15 +101,10 @@ class AuditorController extends Controller
                 }
             }
             $item->isComplete = $isComplete;
-            $item->reviewed = (MstAssignChecklists::where('id_periode_checklist', $id)->where('type_checklist', $item->type_checklist)->whereNull('approve')->exists()) ? 0 : 1;
         }
 
         $allComplete = $checkJars->contains(function ($item) {
             return $item->isComplete === 0;
-        }) ? 0 : 1;
-
-        $allReviewed = $checkJars->contains(function ($item) {
-            return $item->reviewed === 0;
         }) ? 0 : 1;
 
         if ($request->ajax()) {
@@ -125,7 +114,7 @@ class AuditorController extends Controller
 
             return DataTables::of($checkJars)
                 ->addColumn('action', function ($data) use ($statusPeriod, $startPeriod, $today) {
-                    return view('auditor.detail.action', compact('data', 'statusPeriod', 'startPeriod', 'today'));
+                    return view('auditor.period.detail.action', compact('data', 'statusPeriod', 'startPeriod', 'today'));
                 })
                 ->toJson();
         }
@@ -133,7 +122,7 @@ class AuditorController extends Controller
         // Audit Log
         $this->auditLogsShort('View Data Checklist, Period: ', $id);
 
-        return view('auditor.detail.index', compact('id', 'periodInfo', 'allComplete', 'allReviewed'));
+        return view('auditor.period.detail.index', compact('id', 'periodInfo', 'allComplete'));
     }
 
     public function startChecklist($id)
@@ -160,9 +149,32 @@ class AuditorController extends Controller
     {
         $id = decrypt($id); //id_periode
 
+        // MAILING
+        // [ INITIATE VARIABLE ] 
+        $variableEmail = $this->variableEmail();
+        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type', DB::raw('(SELECT COUNT(*) FROM mst_assign_checklists WHERE mst_assign_checklists.id_periode_checklist = mst_periode_checklists.id) as totalChecklist'))
+            ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+            ->where('mst_periode_checklists.id', $id)
+            ->first();
+        // Group By Type Checklist For Create Paper Assign (Checklist Jaringan)
+        $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
+        $checklistdetail = ChecklistJaringan::where('id_periode', $id)
+            ->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")
+            ->get();
+        // Recepient Email
+        if ($variableEmail['devRule'] == 1) {
+            $toemail = $variableEmail['emailDev'];
+            $ccemail = null;
+        } else {
+            $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
+            $ccemail = $variableEmail['emailSubmitter'];
+        }
+        // Mail Structure
+        $mailStructure = new SubmitChecklist($periodInfo, $checklistdetail, $variableEmail['emailSubmitter']);
+
         DB::beginTransaction();
         try {
-            $checkJars = ChecklistJaringan::where('id_periode', $id)->where('status', '!=', 1)->get();
+            $checkJars = ChecklistJaringan::where('id_periode', $id)->whereNotIn('status', [1, 5])->get();
             foreach ($checkJars as $item) {
                 // Get Audit Result
                 $auditResult = MstGrading::where('bottom', '<=', $item->result_percentage)
@@ -180,11 +192,11 @@ class AuditorController extends Controller
                     ->where('checklist_responses.response', '!=', 'Exist, Good')
                     ->where('mst_periode_checklists.id', $id)
                     ->first();
-                if ($mandatoryCounts->sgp != null) {
+                if ((int)$mandatoryCounts->sgp > 0) {
                     $mandatoryItem = 'Bronze';
-                } elseif ($mandatoryCounts->gp != null) {
+                } elseif ((int)$mandatoryCounts->gp > 0) {
                     $mandatoryItem = 'Silver';
-                } elseif ($mandatoryCounts->p != null) {
+                } elseif ((int)$mandatoryCounts->p > 0) {
                     $mandatoryItem = 'Gold';
                 } else {
                     $mandatoryItem = 'Platinum';
@@ -206,32 +218,17 @@ class AuditorController extends Controller
                     'result_final' => $resultFinal
                 ]);
             }
+            // IF After Revision Reset Rejected For Review Again
+            MstAssignChecklists::where('id_periode_checklist', $id)->where('approve', 2)->update(['approve' => null]);
+            // Update Status
             MstPeriodeChecklists::where('id', $id)->update(['status' => 3]);
 
-            // // [ MAILING ]
-            // // Initiate Variable
-            // $emailsubmitter = auth()->user()->email;
-            // $development = MstRules::where('rule_name', 'Development')->first()->rule_value;
-            // $periodinfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
-            //     ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            //     ->where('mst_periode_checklists.id', $id)
-            //     ->first();
-            // $count = MstAssignChecklists::where('id_periode_checklist', $id)->count();
-            // $periodinfo->count = $count;
-            // $checklistdetail = ChecklistJaringan::where('id_periode', $id)->get();
-            // // Recepient Email
-            // if ($development == 1) {
-            //     $toemail = MstRules::where('rule_name', 'Email Development')->pluck('rule_value')->toArray();
-            //     $ccemail = null;
-            // } else {
-            //     $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
-            //     $ccemail = $emailsubmitter;
-            // }
-            // // Mail Content
-            // $mailInstance = new SubmitChecklist($periodinfo, $checklistdetail, $emailsubmitter);
-            // // Send Email
-            // Mail::to($toemail)->cc($ccemail)->send($mailInstance);
+            // Send Email
+            Mail::to($toemail)->cc($ccemail)->send($mailStructure);
 
+            //Log Period
+            $this->storeLogPeriod($id, 3, 'Submit Audit Checklist');
+            //Audit Log
             $this->auditLogsShort('Submit answer Checklist Period (' . $id . ')');
 
             DB::commit();
@@ -240,5 +237,40 @@ class AuditorController extends Controller
             DB::rollBack();
             return redirect()->back()->with(['fail' => 'Failed to Submit Checklist!']);
         }
+    }
+
+    public function detailChecklist(Request $request, $id)
+    {
+        $id = decrypt($id);
+        $chekJar = ChecklistJaringan::where('id', $id)->first();
+        $period = MstPeriodeChecklists::where('id', $chekJar->id_periode)->first();
+        $typeCheck = $chekJar->type_checklist;
+        $assignChecks = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.path_input_response')
+            ->leftjoin('checklist_responses', 'mst_assign_checklists.id', 'checklist_responses.id_assign_checklist')
+            ->where('mst_assign_checklists.id_periode_checklist', $chekJar->id_periode)
+            ->where('mst_assign_checklists.type_checklist', $chekJar->type_checklist)
+            ->orderby('mst_assign_checklists.order_no_parent')
+            ->orderby('mst_assign_checklists.order_no_checklist')
+            ->get();
+
+        if ($request->ajax()) {
+            return DataTables::of($assignChecks)
+                ->addColumn('file', function ($data) {
+                    return view('review.file', compact('data'));
+                })
+                ->addColumn('detail', function ($data) {
+                    return view('review.detail', compact('data'));
+                })
+                ->addColumn('photo', function ($data) {
+                    return view('review.photo', compact('data'));
+                })->toJson();
+        }
+
+        //Audit Log
+        $this->auditLogsShort('View Review Checklist');
+
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
+        $view = in_array($typeCheck, $typeChecklistPerCheck) ? 'auditor.detail.index-h1' : 'auditor.detail.index-other';
+        return view($view, compact('id', 'chekJar', 'assignChecks', 'period', 'typeCheck'));
     }
 }
