@@ -6,6 +6,7 @@ use App\Http\Controllers\AjaxMappingRegional;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\AuditorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CaptchaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FormChecklistController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\MstPeriodNameController;
 use App\Http\Controllers\MstPeriodChecklistController;
 use App\Http\Controllers\MstPositionController;
 use App\Http\Controllers\MstRuleController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewChecklistController;
 use App\Http\Controllers\SchedulerController;
 use App\Http\Controllers\UserController;
@@ -29,6 +31,7 @@ use App\Http\Controllers\UserController;
 
 // LOGIN
 Route::get('/', [AuthController::class, 'login'])->name('login');
+Route::get('/captcha/generate', [CaptchaController::class, 'generate'])->name('captcha.generate');
 Route::post('auth/login', [AuthController::class, 'postlogin'])->name('postlogin')->middleware("throttle:5,2");
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -41,6 +44,15 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/mapping/dealer/{id}', 'mappingdealer')->name('mapping.dealer');
             Route::get('/detailresult/{id}', 'detailresult')->name('dashboard.detailresult');
             Route::post('/', 'index')->name('dashboard');
+            Route::post('/switch-theme', 'switchTheme')->name('switchTheme');
+        });
+    });
+
+    // PROFIL
+    Route::controller(ProfileController::class)->group(function () {
+        Route::prefix('profile')->group(function () {
+            Route::get('/', 'index')->name('profile.index');
+            Route::post('/update-photo', 'updatePhoto')->name('profile.updatePhoto');
         });
     });
 

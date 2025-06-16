@@ -16,10 +16,15 @@
         <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
         <!-- App Css-->
         <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+        <!-- CAPTCHA CSS -->
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/captcha.css') }}"/>
 
     </head>
 
     <body>
+        <!-- Loading -->
+        @include('layouts.loading')
+
         <div class="auth-page">
             <div class="container-fluid p-0">
                 <div class="row g-0">
@@ -36,22 +41,11 @@
                                         <div class="text-center">
                                             <h5 class="mb-0">Welcome Back !</h5>
                                             <p class="text-muted mt-2">Sign in to continue</p>
-
-                                            @if (session('success'))
-                                                <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show" role="alert">
-                                                    <i class="mdi mdi-check-all label-icon"></i><strong>Success</strong> - {{ session('success') }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                            @endif
-                                            @if (session('fail'))
-                                                <div class="alert alert-danger alert-dismissible alert-label-icon label-arrow fade show" role="alert">
-                                                    <i class="mdi mdi-block-helper label-icon"></i><strong>Failed</strong> - {{ session('fail') }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                            @endif
-                                            
+                                            <div class="text-start">
+                                                @include('layouts.alert')
+                                            </div>
                                         </div>
-                                        <form action="{{ route('postlogin') }}" id="login" method="POST" enctype="multipart/form-data">
+                                        <form class="formLoad" action="{{ route('postlogin') }}" id="login" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             <div class="mb-3">
                                                 <label class="form-label">Email / Username</label>
@@ -69,6 +63,24 @@
                                                     <button class="btn btn-light shadow-none ms-0" type="button" id="password-addon"><i class="mdi mdi-eye-outline"></i></button>
                                                 </div>
                                             </div>
+                                            
+                                            <!-- CAPTCHA display and refresh -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Captcha<span class="text-danger">*</span></label>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="captcha-container me-2">
+                                                        <div class="captcha" id="captcha-text">
+                                                            @foreach(str_split(session('captcha_code')) as $index => $char)
+                                                                <span class="captcha-char" style="--i:{{ $index }}; --rand:{{ rand(0, 4) }};">{{ $char }}</span>
+                                                            @endforeach
+                                                        </div>
+                                                        <div class="middle-line"></div>
+                                                    </div>
+                                                    <button type="button" id="refresh-captcha" title="Refresh Kode Captcha">↻</button>
+                                                </div>
+                                                <input type="text" class="form-control mt-2" name="captcha_input" placeholder="Masukkan kode CAPTCHA" required/>
+                                            </div>
+
                                             <div class="row mb-4">
                                                 <div class="col">
                                                     <div class="form-check">
@@ -142,8 +154,12 @@
         <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
         <!-- pace js -->
         <script src="{{ asset('assets/libs/pace-js/pace.min.js') }}"></script>
+        <!-- FORM LOAD JS -->
+        <script src="{{ asset('assets/js/formLoad.js') }}"></script>
         <!-- password addon init -->
         <script src="{{ asset('assets/js/pages/pass-addon.init.js') }}"></script>
+        <!-- CAPTCHA JS -->
+        <script src="{{ asset('assets/js/captcha.js') }}"></script>
 
     </body>
 

@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        @include('layouts.alert')
+        {{-- @include('layouts.alert') --}}
 
         <div class="row">
             @php

@@ -18,7 +18,7 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
+        {{-- @include('layouts.alert') --}}
 
         <div class="row" id="buildForm"></div>
         <!-- Error Modal -->

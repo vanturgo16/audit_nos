@@ -9,13 +9,19 @@ use App\Models\MstAssignChecklists;
 use App\Models\MstDropdowns;
 use Illuminate\Http\Request;
 
+// Traits
+use App\Traits\AuditLogsTrait;
+
 //Model
 use App\Models\MstJaringan;
 use App\Models\MstEmployees;
 use App\Models\MstPeriodeChecklists;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
+    use AuditLogsTrait;
+
     public function index(Request $request)
     {
         $roleUser = auth()->user()->role;
@@ -145,5 +151,23 @@ class DashboardController extends Controller
         $dataGraph = $data->pluck('resultPercentage')->toArray();
 
         return view('dashboard.detail', compact('checkjaringan', 'data', 'countAllTotalChecked', 'countAllTotalCheckedEG', 'avgTotalResultPercentage', 'typeparentValues', 'dataGraph'));
+    }
+
+    public function switchTheme(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $statusBefore = User::where('id', auth()->user()->id)->first()->is_darkmode;
+            $status = ($statusBefore == 1) ? null : 1;
+            User::where('id', auth()->user()->id)->update(['is_darkmode' => $status]);
+
+            //Audit Log
+            $this->auditLogsShort('Switch Theme');
+            DB::commit();
+            return redirect()->back()->with('success', 'Success, Change Theme');
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with(['fail' => 'Failed, Change Theme']);
+        }
     }
 }
