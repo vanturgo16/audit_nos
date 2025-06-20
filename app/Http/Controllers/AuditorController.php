@@ -43,15 +43,18 @@ class AuditorController extends Controller
         $idJaringan = MstEmployees::where('email', auth()->user()->email)->first()->id_dealer;
         $jaringanDetail = MstJaringan::where('id', $idJaringan)->first();
 
-        $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
-            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            ->whereNotNull('mst_periode_checklists.status')
-            ->where('mst_periode_checklists.status', '!=', 0)
-            ->where('mst_periode_checklists.id_branch', $idJaringan)
-            ->orderBy('mst_periode_checklists.created_at', 'desc')
-            ->get();
-
         if ($request->ajax()) {
+            $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
+                'a.name as auditor_name', 'b.name as assesor_name')
+                ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
+                ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
+                ->whereNotNull('mst_periode_checklists.status')
+                ->where('mst_periode_checklists.status', '!=', 0)
+                ->where('mst_periode_checklists.id_branch', $idJaringan)
+                ->orderBy('mst_periode_checklists.created_at', 'desc')
+                ->get();
+                
             return DataTables::of($query)
                 ->addColumn('action', function ($data) {
                     return view('auditor.period.action', compact('data'));
@@ -67,8 +70,11 @@ class AuditorController extends Controller
     public function periodDetail(Request $request, $id)
     {
         $id = decrypt($id);
-        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
+            'a.name as auditor_name', 'b.name as assesor_name')
             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+            ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
+            ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
             ->where('mst_periode_checklists.id', $id)
             ->first();
         $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
@@ -131,9 +137,15 @@ class AuditorController extends Controller
 
         DB::beginTransaction();
         try {
-            ChecklistJaringan::where('id', $id)->update([
+            $checklist = ChecklistJaringan::findOrFail($id);
+            $period = MstPeriodeChecklists::findOrFail($checklist->id_periode);
+
+            if (is_null($period->id_auditor)) {
+                $period->update(['id_auditor' => auth()->id()]);
+            }
+            $checklist->update([
                 'status' => '0',
-                'start_date' => Carbon::now(),
+                'start_date' => now(),
             ]);
 
             //Audit Log

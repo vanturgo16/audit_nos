@@ -42,23 +42,24 @@ class ReviewChecklistController extends Controller
     {
         $branchs = MstJaringan::get();
 
-        $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
-            ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-            ->whereNotNull('mst_periode_checklists.status')
-            ->where('mst_periode_checklists.status', '!=', 0);
-
-        if ($request->has('filterBranch') && $request->filterBranch != '' && $request->filterBranch != 'All') {
-            $query->where('mst_periode_checklists.id_branch', $request->filterBranch);
-        }
-
-        $query = $query->orderBy('mst_periode_checklists.created_at', 'desc')->get();
-
         if ($request->ajax()) {
+            $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
+                'a.name as auditor_name', 'b.name as assesor_name')
+                ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
+                ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
+                ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
+                ->whereNotNull('mst_periode_checklists.status')
+                ->where('mst_periode_checklists.status', '!=', 0);
+    
+            if ($request->has('filterBranch') && $request->filterBranch != '' && $request->filterBranch != 'All') {
+                $query->where('mst_periode_checklists.id_branch', $request->filterBranch);
+            }
+            $query = $query->orderBy('mst_periode_checklists.created_at', 'desc')->get();
+
             return DataTables::of($query)
                 ->addColumn('action', function ($data) use ($branchs) {
                     return view('review.period.action', compact('data', 'branchs'));
-                })
-                ->toJson();
+                })->toJson();
         }
 
         //Audit Log
@@ -70,8 +71,11 @@ class ReviewChecklistController extends Controller
     public function periodDetail(Request $request, $id)
     {
         $id = decrypt($id);
-        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type')
+        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
+            'a.name as auditor_name', 'b.name as assesor_name')
             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+            ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
+            ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
             ->where('mst_periode_checklists.id', $id)
             ->first();
 
@@ -100,9 +104,10 @@ class ReviewChecklistController extends Controller
 
         if ($request->ajax()) {
             $statusPeriod = $periodInfo->is_active;
+            $idAssesor = $periodInfo->id_assesor;
             return DataTables::of($checkJars)
-                ->addColumn('action', function ($data) use ($statusPeriod) {
-                    return view('review.period.detail.action', compact('data', 'statusPeriod'));
+                ->addColumn('action', function ($data) use ($statusPeriod, $idAssesor) {
+                    return view('review.period.detail.action', compact('data', 'statusPeriod', 'idAssesor'));
                 })
                 ->toJson();
         }
@@ -185,6 +190,87 @@ class ReviewChecklistController extends Controller
     public function submitReviewChecklist(Request $request, $id)
     {
         $id = decrypt($id);
+        $nextStatus = (MstAssignChecklists::where('id_periode_checklist', $id)->whereNotIn('approve', [1, 3])->exists()) ? 2 : 3;
+        // Except Done Checklist
+        $chekJars = ChecklistJaringan::where('id_periode', $id)->where('status', '!=', 5)->get();
+        
+        DB::beginTransaction();
+        try {
+            // IF ANY REVISI WILL THROW BACK TO AUDITOR
+            if ($nextStatus == 2) {
+                // Update Period
+                MstPeriodeChecklists::where('id', $id)->update(['status' => $nextStatus]);
+                foreach ($chekJars as $item) {
+                    $isApprove = (MstAssignChecklists::where('id_periode_checklist', $id)->where('type_checklist', $item->type_checklist)->whereNotIn('approve', [1, 3])->exists()) ? 0 : 1;
+                    if ($isApprove == 1) {
+                        ChecklistJaringan::where('id', $item->id)->update(['status' => 1, 'last_decision_assessor' => 2]);
+                    } else {
+                        ChecklistJaringan::where('id', $item->id)->update(['status' => 4, 'last_decision_assessor' => 1]);
+                    }
+                }
+                $note = $request->note;
+
+                // MAILING
+                // [ INITIATE VARIABLE ] 
+                $variableEmail = $this->variableEmail();
+                $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type', DB::raw('(SELECT COUNT(*) FROM mst_assign_checklists WHERE mst_assign_checklists.id_periode_checklist = mst_periode_checklists.id) as totalChecklist'))
+                    ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
+                    ->where('mst_periode_checklists.id', $id)
+                    ->first();
+                // Group By Type Checklist For Create Paper Assign (Checklist Jaringan)
+                $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
+                $checklistdetail = ChecklistJaringan::where('id_periode', $id)
+                    ->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")
+                    ->get();
+
+                $emailAuditor = MstEmployees::leftjoin('users', 'users.email', 'mst_employees.email')->where('mst_employees.id_dealer', $periodInfo->id_branch)->where('users.role', 'Internal Auditor Dealer')->pluck('users.email');
+                if ($emailAuditor->isEmpty()) {
+                    return redirect()->back()->with(['fail' => 'Failed, Data Employee Internal Auditor Jaringan "' . $periodInfo->dealer_name . '" Not Exist']);
+                }
+                // Recepient Email
+                $toemail = $ccemail = null;
+                if ($variableEmail['devRule'] == 1) {
+                    $toemail = $variableEmail['emailDev'];
+                } else {
+                    $toemail = $emailAuditor;
+                }
+                // Mail Structure
+                $mailStructure = new SubmitReviewChecklist($nextStatus, $periodInfo, $checklistdetail, $variableEmail['emailSubmitter'], $request->note);
+                // Send Email
+                Mail::to($toemail)->cc($ccemail)->send($mailStructure);
+            } 
+            // IF APPROVE ALL, MOVE TO CORRECTION ASSESOR SECTION
+            else {
+                foreach ($chekJars as $item) {
+                    ChecklistJaringan::where('id', $item->id)->update([
+                        'status' => 2, 'last_decision_assessor' => 2, 'last_correction_assessor' => 0,
+                        'total_point_assesor' => $item->total_point, 'result_percentage_assesor' => $item->result_percentage,
+                        'audit_result_assesor' => $item->audit_result, 'mandatory_item_assesor' => $item->mandatory_item, 'result_final_assesor' => $item->result_final
+                    ]);
+                    // Copy Response Auditor To Response Assesor Init
+                    $responses = ChecklistResponses::where('id_checklist_jaringan', $item->id)->get();
+                    foreach ($responses as $response) {
+                        ChecklistResponses::where('id', $response->id)->update([
+                            'response_correction' => $response->response
+                        ]);
+                    }
+                }
+                $note = 'Move To Correction Assesor Section';
+            }
+
+            //Log Period
+            $this->storeLogPeriod($id, $nextStatus, $note);
+            //Audit Log
+            $this->auditLogsShort('Assessor Submit Review Checklist Jaringan :' . $id);
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Success Submit Review']);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['fail' => 'Failed to Submit Review!']);
+        }
+    }
+    public function submitReviewChecklistOld(Request $request, $id)
+    {
+        $id = decrypt($id);
         $nextStatus = (MstAssignChecklists::where('id_periode_checklist', $id)->whereNotIn('approve', [1, 3])->exists()) ? 2 : 4;
         $chekJars = ChecklistJaringan::where('id_periode', $id)->where('status', '!=', 5)->get();
         foreach ($chekJars as $item) {
@@ -256,6 +342,27 @@ class ReviewChecklistController extends Controller
             return redirect()->back()->with(['success' => 'Success Submit Review']);
         } catch (\Exception $e) {
             return redirect()->back()->with(['fail' => 'Failed to Submit Review!']);
+        }
+    }
+    public function takeReview($id)
+    {
+        $id = decrypt($id);
+
+        DB::beginTransaction();
+        try {
+            $period = MstPeriodeChecklists::findOrFail($id);
+            if (is_null($period->id_assesor)) {
+                $period->update(['id_assesor' => auth()->id()]);
+            } else {
+                return redirect()->back()->with(['fail' => 'Has Any Other Assesor Take This Checklist for Review!']);
+            }
+
+            //Audit Log
+            $this->auditLogsShort('Take Review Checklist :' . $id);
+            DB::commit();
+            return redirect()->back()->with(['success' => 'Success Take Review This Checklist']);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['fail' => 'Failed to Take Review This Checklist!']);
         }
     }
 

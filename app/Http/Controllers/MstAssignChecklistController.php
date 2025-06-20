@@ -57,6 +57,11 @@ class MstAssignChecklistController extends Controller
             $item->countParent = $countParent;
             $item->countCheck = $countCheck;
         }
+        if($period->status != 0){
+            $typeChecks = $typeChecks->filter(function ($item) {
+                return $item->countParent > 0;
+            })->values();
+        }
 
         if ($request->ajax()) {
             return DataTables::of($typeChecks)
@@ -182,14 +187,19 @@ class MstAssignChecklistController extends Controller
     {
         $id = decrypt($id);
 
-        // Check All Checklist Has Mark Or Not Yet First
         $assignChecks = MstAssignChecklists::select('mst_assign_checklists.id', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.sub_point_checklist')
             ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
             ->where('mst_assign_checklists.id_periode_checklist', $id)->get();
-        foreach ($assignChecks as $item) {
-            if (!MstChecklistDetails::where('id_checklist', $item->id_mst_checklist)->exists()) {
-                return redirect()->back()->with(['fail' => 'Failed, Checklist = "' . $item->sub_point_checklist . '" Dont Have Any Mark Yet!, Please Update The Checklist']);
-            }
+        // Check All Checklist Has Mark Or Not Yet First
+        $missingDetails = MstAssignChecklists::select('mst_checklists.sub_point_checklist')
+            ->leftJoin('mst_checklists', 'mst_assign_checklists.id_mst_checklist', 'mst_checklists.id')
+            ->leftJoin('mst_checklist_details', 'mst_assign_checklists.id_mst_checklist', 'mst_checklist_details.id_checklist')
+            ->where('mst_assign_checklists.id_periode_checklist', $id)
+            ->whereNull('mst_checklist_details.id')->get();
+        if ($missingDetails->isNotEmpty()) {
+            return redirect()->back()->with([
+                'fail' => 'Failed, Checklist = "' . $missingDetails->first()->sub_point_checklist . '" doesn\'t have any mark yet! Please update the checklist.'
+            ]);
         }
 
         // MAILING

@@ -4,22 +4,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        {{-- <div class="row">
-            <div class="col-12">
-                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Period Checklist</h4>
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Checklist Audit</a></li>
-                            <li class="breadcrumb-item active">Period Checklists</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
-
-        {{-- @include('layouts.alert') --}}
-
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -95,19 +79,11 @@
                             <div class="col-4 d-flex justify-content-center align-items-center">
                                 <h4 class="mb-sm-0 font-size-18">Master Period Checklist</h4>
                             </div>
-                            {{-- <div class="col-4">
-                                <select class="form-select js-example-basic-single" id="filterBranch" style="width: 100%">
-                                    <option value="" selected>-- All Jaringan --</option>
-                                    @foreach($branchs as $item)
-                                        <option value="{{ $item->id }}">{{ $item->dealer_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
-                            <thead>
+                        <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
+                            <thead class="table-light">
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Period Checklist</th>
@@ -138,7 +114,7 @@
 
 <script>
     $(function() {
-        $('#server-side-table').DataTable({
+        $('#ssTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
@@ -233,7 +209,7 @@
         $('#lengthDT').select2({ minimumResultsForSearch: Infinity, width: '60px' });
         $('#lengthDT').on('change', function() {
             var newLength = $(this).val();
-            var table = $("#server-side-table").DataTable();
+            var table = $("#ssTable").DataTable();
             table.page.len(newLength).draw();
         });
 
@@ -249,7 +225,7 @@
         `;
         $('.dataTables_length').before(filterBranch);
         $('#filterBranch').select2({width: '300px' });
-        $('#filterBranch').on('change', function() { $("#server-side-table").DataTable().ajax.reload(); });
+        $('#filterBranch').on('change', function() { $("#ssTable").DataTable().ajax.reload(); });
     });
 </script>
 @endsection

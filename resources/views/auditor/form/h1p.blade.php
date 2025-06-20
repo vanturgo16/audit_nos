@@ -2,24 +2,8 @@
 @section('konten')
 <link rel="stylesheet" href="{{ asset('assets/css/style-form.css') }}" type="text/css"/>
 
-{{-- LOADING BLANK ACTION --}}
-<div class="process-container hidden" id="processing">
-    <div class="card p-4" style="background-color: rgba(0, 0, 0, 0.7);">
-        <div class="col-12 text-center d-flex justify-content-center align-items-center">
-            <div class="dotLoading"></div>
-        </div>
-        <div class="col-12 text-center d-flex justify-content-center align-items-center mt-4">
-            <h4 class="text-white textLoading">
-                Please Wait
-            </h4>
-        </div>
-    </div>
-</div>
-
 <div class="page-content">
     <div class="container-fluid">
-        {{-- @include('layouts.alert') --}}
-
         <div class="row" id="buildForm"></div>
         <!-- Error Modal -->
         <div class="modal fade" id="errorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">

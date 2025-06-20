@@ -274,6 +274,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/period-list', 'periodList')->name('review.periodList');
                 Route::get('/period-list/detail/{id}', 'periodDetail')->name('review.periodDetail');
                 Route::get('/detail/{id}', 'reviewChecklist')->name('review.reviewChecklist');
+                Route::post('/take-review/{id}', 'takeReview')->name('review.takeReview');
                 Route::post('/decision-checklist', 'decisionChecklist')->name('review.decisionChecklist');
                 Route::post('/note/{id}', 'updateNoteChecklist')->name('review.updateNoteChecklist');
                 Route::post('submit/{id}', 'submitReviewChecklist')->name('review.submitReviewChecklist');

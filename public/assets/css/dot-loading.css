@@ -25,7 +25,8 @@ body.no-scroll {
 
 .dotLoading {
     --uib-size: 70px;
-    --uib-color: #171c4a;
+    /* --uib-color: #171c4a; */
+    --uib-color: #dc3545;
     --uib-speed: 1.5s;
     --uib-dot-size: calc(var(--uib-size) * 0.4);
     position: relative;

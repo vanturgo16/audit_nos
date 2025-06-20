@@ -1,6 +1,7 @@
 @extends('layouts.master')
 
 @section('konten')
+
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -10,64 +11,73 @@
                         Assign Checklist
                     </h4>
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('periodchecklist.index') }}"
-                            class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
-                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
-                            Back
+                        <a id="backButton" type="button" href="{{ route('periodchecklist.index') }}" class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>Back
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-
-        {{-- @include('layouts.alert') --}}
-
+        
         <div class="row">
             <div class="col-12">
-                <table class="table table-bordered dt-responsive nowrap w-100">
-                    <tbody>
-                        <tr>
-                            <td class="align-middle"><b>Period Name</b></td>
-                            <td class="align-middle">: {{ $period->period }}</td>
-                        </tr>
-                        <tr>
-                            <td class="align-middle"><b><i>Jaringan</i> Name</b></td>
-                            <td class="align-middle">: {{ $period->dealer_name }}</td>
-                        </tr>
-                        <tr>
-                            <td class="align-middle"><b>Date</b></td>
-                            <td class="align-middle">: {{ Carbon\Carbon::parse($period->start_date)->format('d-m-Y') }} <b> Until </b>{{ Carbon\Carbon::parse($period->end_date)->format('d-m-Y') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="align-middle"><b>Status</b></td>
-                            <td class="align-middle">: 
-                                @php
-                                    $statusLabels = [
-                                        0 => '<span class="badge bg-secondary text-white"><i class="mdi mdi-play-box-edit-outline label-icon"></i> Initiate</span>',
-                                        1 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Assigned - Checklist Process</span>',
-                                        2 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Revision - Checklist Process</span>',
-                                        3 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review Assessor</span>',
-                                        4 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review PIC MD</span>',
-                                        5 => '<span class="badge bg-success text-white"><i class="mdi mdi-check-all label-icon"></i> Approved - Done</span>',
-                                        'default' => '<span class="badge bg-secondary text-white">Null</span>',
-                                    ];
-                                @endphp
+                <div class="card mb-3">
+                    <a href="javascript:void(0);" class="d-flex justify-content-between align-items-center card-header py-3 toggle-collapse" 
+                        data-target="#collapseCardExample" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to show or hide detail">
+                        <h6 class="mb-0">{{ $period->period ?? '-' }}</h6><i class="mdi mdi-chevron-up arrow-icon"></i>
+                    </a>
+                    <div class="collapse show" id="collapseCardExample">
+                        <div class="card-body p-0">
+                            <table class="table table-bordered dt-responsive nowrap w-100">
+                                <tbody>
+                                    <tr>
+                                        <td class="align-top"><b><i>Jaringan</i> Name</b></td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">{{ $period->dealer_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-top"><b>Date</b></td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">
+                                            {{ \Carbon\Carbon::parse($period->start_date)->format('d-m-Y') }}
+                                            <b> Until </b>
+                                            {{ \Carbon\Carbon::parse($period->end_date)->format('d-m-Y') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-top"><b>Status</b></td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">
+                                            @php
+                                                $statusLabels = [
+                                                    0 => '<span class="badge bg-secondary text-white"><i class="mdi mdi-play-box-edit-outline label-icon"></i> Initiate</span>',
+                                                    1 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Assigned - Checklist Process</span>',
+                                                    2 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Revision - Checklist Process</span>',
+                                                    3 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review Assessor</span>',
+                                                    4 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review PIC MD</span>',
+                                                    5 => '<span class="badge bg-success text-white"><i class="mdi mdi-check-all label-icon"></i> Approved - Done</span>',
+                                                    'default' => '<span class="badge bg-secondary text-white">Null</span>',
+                                                ];
+                                            @endphp
 
-                                @if($period->is_active == 1)
-                                    {!! $statusLabels[$period->status] ?? $statusLabels['default'] !!}
-                                @else
-                                    <span class="badge bg-warning text-white"><i class="mdi mdi-timer-alert-outline label-icon"></i> Expired</span>
-                                @endif
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                            @if($period->is_active == 1)
+                                                {!! $statusLabels[$period->status] ?? $statusLabels['default'] !!}
+                                            @else
+                                                <span class="badge bg-warning text-white"><i class="mdi mdi-timer-alert-outline label-icon"></i> Expired</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-12">
                 <div class="card">
-                    <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
-                        <thead>
+                    <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
+                        <thead class="table-light">
                             <tr>
                                 <th class="align-middle text-center">No</th>
                                 <th class="align-middle text-center">Type Checklist</th>
@@ -135,7 +145,7 @@
 
 <script>
     $(function() {
-        $('#server-side-table').DataTable({
+        $('#ssTable').DataTable({
             bLengthChange: false, // Hide the "Show entries" dropdown
             bFilter: false,       // Hide the search box
             paging: false,        // Hide the pagination
@@ -201,6 +211,5 @@
             ],
         });
     });
-
 </script>
 @endsection

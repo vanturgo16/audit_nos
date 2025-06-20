@@ -7,29 +7,20 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
-                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Master Employee</h4>
-                    <div class="page-title-right">
-                        <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Master Data</a></li>
-                            <li class="breadcrumb-item active">Employee</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- @include('layouts.alert') --}}
-
-        <div class="row">
-            <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New employee</button>
+                        <div class="row">
+                            <div class="col-4">
+                                <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New employee</button>
+                            </div>
+                            <div class="col-4 d-flex justify-content-center align-items-center">
+                                <h4 class="mb-sm-0 font-size-18">Master Employee</h4>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive w-100" id="server-side-table" style="font-size: small">
-                            <thead>
+                        <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable" style="font-size: small">
+                            <thead class="table-light">
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Name</th>
@@ -51,7 +42,7 @@
 
 <script>
     $(function() {
-        $('#server-side-table').DataTable({
+        $('#ssTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: '{!! route('employee.index') !!}',

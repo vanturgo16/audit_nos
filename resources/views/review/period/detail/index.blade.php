@@ -22,61 +22,84 @@
             </div>
         </div>
 
-        {{-- @include('layouts.alert') --}}
-
         <div class="row">
             <div class="col-12">
-                <table class="table table-bordered dt-responsive nowrap w-100">
-                    <tbody>
-                        <tr>
-                            <td class="align-middle"><b>Period Name</b></td>
-                            <td class="align-middle">: {{ $periodInfo->period }}</td>
-                        </tr>
-                        <tr>
-                            <td class="align-middle"><b><i>Jaringan</i> Name</b></td>
-                            <td class="align-middle">: {{ $periodInfo->dealer_name }} - ({{ $periodInfo->type }})</td>
-                        </tr>
-                        <tr>
-                            <td class="align-middle"><b>Date</b></td>
-                            <td class="align-middle">: {{ Carbon\Carbon::parse($periodInfo->start_date)->format('d-m-Y') }} <b> Until </b>{{ Carbon\Carbon::parse($periodInfo->end_date)->format('d-m-Y') }}</td>
-                        </tr>
-                        <tr>
-                            <td class="align-middle"><b>Status</b></td>
-                            <td class="align-middle">:
-                                @php
-                                    $statusLabels = [
-                                        0 => '<span class="badge bg-secondary text-white"><i class="mdi mdi-play-box-edit-outline label-icon"></i> Initiate</span>',
-                                        1 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Assigned - Checklist Process</span>',
-                                        2 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Revision - Checklist Process</span>',
-                                        3 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review Assessor</span>',
-                                        4 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review PIC MD</span>',
-                                        5 => '<span class="badge bg-success text-white"><i class="mdi mdi-check-all label-icon"></i> Approved - Done</span>',
-                                        'default' => '<span class="badge bg-secondary text-white">Null</span>',
-                                    ];
-                                @endphp
-                                @if($periodInfo->is_active == 1)
-                                    {!! $statusLabels[$periodInfo->status] ?? $statusLabels['default'] !!}
-                                @else
-                                    <span class="badge bg-warning text-white"><i class="mdi mdi-timer-alert-outline label-icon"></i> Expired</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @if($periodInfo->last_submit_audit)
-                        <tr>
-                            <td class="align-middle"><b>Last Submit Checklist</b></td>
-                            <td class="align-middle">: {{ Carbon\Carbon::parse($periodInfo->last_submit_audit)->format('d-m-Y H:i:s') }}</td>
-                        </tr>
-                        @endif
-                        <tr>
-                            <td class="align-middle"><b>Log Activity</b></td>
-                            <td class="align-middle">: 
-                                <a type="button" href="{{ route('review.logActivityPeriod', encrypt($id)) }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
-                                    <i class="mdi mdi-eye label-icon"></i> View
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="card mb-3">
+                    <a href="javascript:void(0);" class="d-flex justify-content-between align-items-center card-header py-3 toggle-collapse" 
+                        data-target="#collapseCardExample" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to show or hide detail">
+                        <h6 class="mb-0">{{ $periodInfo->period ?? '-' }}</h6><i class="mdi mdi-chevron-up arrow-icon"></i>
+                    </a>
+                    <div class="collapse show" id="collapseCardExample">
+                        <div class="card-body p-0">
+                            <table class="table table-bordered dt-responsive nowrap w-100">
+                                <tbody>
+                                    <tr>
+                                        <td class="align-top fw-bold"><i>Jaringan</i> Name</td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">{{ $periodInfo->dealer_name }} - ({{ $periodInfo->type }})</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-top fw-bold">Date</td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">
+                                            {{ \Carbon\Carbon::parse($periodInfo->start_date)->format('d-m-Y') }}
+                                            <b> Until </b>
+                                            {{ \Carbon\Carbon::parse($periodInfo->end_date)->format('d-m-Y') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-top fw-bold">Status</td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">
+                                            @php
+                                                $statusLabels = [
+                                                    0 => '<span class="badge bg-secondary text-white"><i class="mdi mdi-play-box-edit-outline label-icon"></i> Initiate</span>',
+                                                    1 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Assigned - Checklist Process</span>',
+                                                    2 => '<span class="badge bg-info text-white"><i class="mdi mdi-sync label-icon"></i> Revision - Checklist Process</span>',
+                                                    3 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review Assessor</span>',
+                                                    4 => '<span class="badge bg-primary text-white"><i class="mdi mdi-message-draw label-icon"></i> Review PIC MD</span>',
+                                                    5 => '<span class="badge bg-success text-white"><i class="mdi mdi-check-all label-icon"></i> Approved - Done</span>',
+                                                    'default' => '<span class="badge bg-secondary text-white">Null</span>',
+                                                ];
+                                            @endphp
+                                            @if($periodInfo->is_active == 1)
+                                                {!! $statusLabels[$periodInfo->status] ?? $statusLabels['default'] !!}
+                                            @else
+                                                <span class="badge bg-warning text-white"><i class="mdi mdi-timer-alert-outline label-icon"></i> Expired</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @if($periodInfo->last_submit_audit)
+                                    <tr>
+                                        <td class="align-top fw-bold">Last Submit Checklist</td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">{{ Carbon\Carbon::parse($periodInfo->last_submit_audit)->format('d-m-Y H:i:s') }}</td>
+                                    </tr>
+                                    @endif
+                                    <tr>
+                                        <td class="align-top fw-bold">Auditor</td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">{{ $periodInfo->auditor_name ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-top fw-bold">Assessor</td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">{{ $periodInfo->assesor_name ?? '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-top fw-bold">Log Activity</td>
+                                        <td class="align-top no-right-border" style="width: 1%">:</td>
+                                        <td class="align-top no-left-border">
+                                            <a type="button" href="{{ route('review.logActivityPeriod', encrypt($id)) }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
+                                                <i class="mdi mdi-eye label-icon"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="col-12">
@@ -104,8 +127,8 @@
                             </script>
                         </div>
                     @endif
-                    <table class="table table-bordered dt-responsive w-100" id="server-side-table" style="font-size: small">
-                        <thead>
+                    <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable" style="font-size: small">
+                        <thead class="table-light">
                             <tr>
                                 <th rowspan="2" class="align-middle text-center">No</th>
                                 <th rowspan="2" class="align-middle text-center">Type Checklist</th>
@@ -241,7 +264,7 @@
 <script>
     $(function() {
         var role = "{{ Auth::user()->role }}";
-        $('#server-side-table').DataTable({
+        $('#ssTable').DataTable({
             bLengthChange: false, // Hide the "Show entries" dropdown
             bFilter: false,       // Hide the search box
             paging: false,        // Hide the pagination
@@ -367,6 +390,7 @@
                     className: 'align-top text-center',
                     render: function(data, type, row) {
                         var html = '';
+                        var correction = '';
                         if (row.last_decision_assessor == 0) {
                             html = '<span class="badge bg-warning text-white"><i class="mdi mdi-refresh label-icon"></i></span>';
                         } else if (row.last_decision_assessor == 1) {
@@ -376,7 +400,13 @@
                         } else {
                             html = '-';
                         }
-                        return html;
+
+                        if(row.last_correction_assessor == 0){
+                            html = '<br><span class="badge bg-warning text-white">correcting</span>';
+                        } else if(row.last_correction_assessor == 1){
+                            html = '<br><span class="badge bg-success text-white">corrected</span>';
+                        }
+                        return html + correction;
                     },
                 },
                 {

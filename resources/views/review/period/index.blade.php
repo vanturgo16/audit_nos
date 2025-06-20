@@ -4,7 +4,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        {{-- @include('layouts.alert') --}}
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -16,14 +15,19 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
-                            <thead>
+                        <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
+                            <thead class="table-light">
                                 <tr>
-                                    <th class="align-middle text-center">No</th>
-                                    <th class="align-middle text-center">Period Checklist</th>
-                                    <th class="align-middle text-center">Jaringan</th>
-                                    <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Action</th>
+                                    <th rowspan="2" class="align-middle text-center">No</th>
+                                    <th rowspan="2" class="align-middle text-center">Period Checklist</th>
+                                    <th rowspan="2" class="align-middle text-center">Jaringan</th>
+                                    <th colspan="2" class="align-middle text-center">Handle By</th>
+                                    <th rowspan="2" class="align-middle text-center">Status</th>
+                                    <th rowspan="2" class="align-middle text-center">Action</th>
+                                </tr>
+                                <tr>
+                                    <th class="align-middle text-center">Auditor</th>
+                                    <th class="align-middle text-center">Assesor</th>
                                 </tr>
                             </thead>
                         </table>
@@ -48,7 +52,7 @@
 
 <script>
     $(function() {
-        $('#server-side-table').DataTable({
+        $('#ssTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
@@ -65,14 +69,14 @@
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
                 {
                     data: 'period',
                     name: 'period',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle',
+                    className: 'align-top',
                     render: function(data, type, row) {
                         var startDate = new Date(row.start_date);
                         var endDate = new Date(row.end_date);
@@ -84,14 +88,35 @@
                     name: 'dealer_name',
                     orderable: true,
                     searchable: true,
+                    className: 'align-top',
                     render: function(data, type, row) {
                         return '<b>' + row.dealer_name + '</b><br>(' + row.type +')';
                     }
                 },
                 {
+                    data: 'auditor_name',
+                    name: 'auditor_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top',
+                    render: function(data, type, row) {
+                        return data ?? '-';
+                    }
+                },
+                {
+                    data: 'assesor_name',
+                    name: 'assesor_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top',
+                    render: function(data, type, row) {
+                        return data ?? '-';
+                    }
+                },
+                {
                     data: 'status',
                     orderable: true,
-                    className: 'align-middle',
+                    className: 'align-top',
                     render: function(data, type, row) {
                         const statusLabels = {
                             0: '<span class="badge bg-secondary text-white"><i class="mdi mdi-play-box-edit-outline label-icon"></i> Initiate</span>',
@@ -115,7 +140,7 @@
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
             ],
         });
@@ -142,7 +167,7 @@
         $('#lengthDT').select2({ minimumResultsForSearch: Infinity, width: '60px' });
         $('#lengthDT').on('change', function() {
             var newLength = $(this).val();
-            var table = $("#server-side-table").DataTable();
+            var table = $("#ssTable").DataTable();
             table.page.len(newLength).draw();
         });
 
@@ -158,7 +183,7 @@
         `;
         $('.dataTables_length').before(filterBranch);
         $('#filterBranch').select2({width: '300px' });
-        $('#filterBranch').on('change', function() { $("#server-side-table").DataTable().ajax.reload(); });
+        $('#filterBranch').on('change', function() { $("#ssTable").DataTable().ajax.reload(); });
     });
 </script>
 

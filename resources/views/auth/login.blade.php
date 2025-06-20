@@ -32,7 +32,7 @@
                         <div class="auth-full-page-content d-flex p-sm-5 p-4">
                             <div class="w-100">
                                 <div class="d-flex flex-column h-100">
-                                    <div class="mb-4 mb-md-5 text-center">
+                                    <div class="mb-2 text-center">
                                         <a href="index.html" class="d-block auth-logo">
                                             <img src="{{ asset('assets/images/logo.png') }}" alt="" height="40">
                                         </a>
@@ -90,10 +90,9 @@
                                                         </label>
                                                     </div>  
                                                 </div>
-                                                
                                             </div>
                                             <div class="mb-3">
-                                                <button class="btn btn-primary w-100 waves-effect waves-light" type="submit" name="sb">Log In</button>
+                                                <button class="btn btn-danger w-100 waves-effect waves-light" type="submit" name="sb">Log In</button>
                                             </div>
                                         </form>
                                         <script>
@@ -109,10 +108,8 @@
                                             });
                                         </script>
                                     </div>
-                                    <div class="mt-4 mt-md-5 text-center">
-                                        <p class="mb-0">
-                                            © Dashboard NOS PT Mitra Sendang Kemakmuran Banten 2024
-                                        </p>
+                                    <div class="mt-4 mt-md-5 text-center footer-text">
+                                        &copy; Dashboard NOS PT Mitra Sendang Kemakmuran Banten {{ date('Y') }}
                                     </div>
                                 </div>
                             </div>
@@ -121,8 +118,8 @@
                     </div>
                     <!-- end col -->
                     <div class="col-xxl-9 col-lg-8 col-md-7">
-                        <div class="auth-bg pt-md-5 p-4 d-flex" style="background-image: url('{{ asset('assets/images/auth-bg.jpg') }}');">
-                            <div class="bg-overlay bg-primary"></div>
+                        <div class="auth-bg pt-md-5 p-4 d-flex" style="background-image: url('{{ asset('assets/images/background/MSK.png') }}');">
+                            <div class="bg-overlay bg-danger-subtle" style="opacity: 0.75"></div>
                             <ul class="bg-bubbles">
                                 <li></li>
                                 <li></li>

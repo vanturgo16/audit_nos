@@ -1,88 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard NOS | AHASS BANTEN</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
+    
     <!-- plugin css -->
-    <link href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" />
     <!-- DataTables -->
-    <link href="{{ asset('assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" />
     <!-- Responsive datatable examples -->
-    <link href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css" /> 
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" />
     <!-- preloader css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/preloader.min.css') }}" />
     <!-- Bootstrap Css -->
-    <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" />
     <!-- Icons Css -->
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/icons.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" />
     <!-- App Css-->
-    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-    {{-- Custom --}}
-    <link href="{{ asset('assets/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-    {{-- Jquery --}}
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/app.min.css') }}" id="app-style" />
+    <!-- Custom Css-->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom.css') }}" id="app-style" />
+    <!-- Choices Select Css-->
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/css/select2.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/css/select2.min.css') }}" />
+    
+    <!-- ========== EXTERNAL LINK ========== -->
+    <!-- Jquery-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
-    
-    <!-- CHOICES SELECT CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}"/>
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/css/select2.css') }}"/>
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/css/select2.min.css') }}"/>
-    
-    {{-- Highchart --}}
+    <!-- Highchart-->
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-
-    {{-- MDI Icon --}}
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
 </head>
 
-<body @if(Auth::user()->is_darkmode) data-bs-theme="dark" data-topbar="dark" data-sidebar="dark" @endif>
+<body @if (Auth::user()->is_darkmode) data-bs-theme="dark" data-topbar="dark" data-sidebar="dark" @endif>
     @include('layouts.loading')
     @include('layouts.toast')
 
-    <!-- Begin page -->
+    <!-- ========== BEGIN page ========== -->
     <div id="layout-wrapper">
-        <!-- ========== Left Sidebar Start ========== -->
-        <div class="vertical-menu">
-            @include('layouts.sidebar')
-        </div>
-        <!-- Left Sidebar End -->
+        <!-- Left Sidebar -->
+        @include('layouts.sidebar')
 
         <!-- start main content-->
         <div class="main-content bg-company">
-            <!-- Header -->
             @include('layouts.header')
-            <!-- Header -->
-            
-            <!-- Start Page-content -->
             @yield('konten')
-            <!-- End Page-content -->
-
-            <!-- Footer -->
             @include('layouts.footer')
-            <!-- Footer -->
         </div>
         <!-- end main content-->
     </div>
-    <!-- END layout-wrapper -->
-    
+
     <!-- Right Sidebar -->
     @include('layouts.rightsidebar')
-    <!-- Right Sidebar -->
 
-    <!-- JAVASCRIPT -->
+    <!-- ========== JAVASCRIPT ========== -->
     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/libs/metismenu/metisMenu.min.js') }}"></script>
     <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
@@ -90,7 +74,6 @@
     <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
     <!-- pace js -->
     <script src="{{ asset('assets/libs/pace-js/pace.min.js') }}"></script>
-
     <!-- Required datatable js -->
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
@@ -108,7 +91,6 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <!-- Datatable init js -->
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-
     <!-- apexcharts -->
     <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
     <!-- Plugins js-->
@@ -117,56 +99,23 @@
     <!-- dashboard init -->
     <script src="{{ asset('assets/js/pages/dashboard.init.js') }}"></script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
-    <!-- CHOICHES SELECT JS -->
+    <!-- Choices Select js -->
     <script src="{{ asset('assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/libs/select2/js/select2.init.js') }}"></script>
-
     <!-- init js -->
     <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
-
-    <!-- Custom -->
-    <script src="{{ asset('assets/js/custom.js') }}"></script>
-    <script src="{{ asset('assets/js/formLoad.js') }}"></script>
-
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-    
     <!-- ckeditor -->
     <script src="{{ asset('assets/libs/@ckeditor/ckeditor5-build-classic/build/ckeditor.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-editor.init.js') }}"></script>
-
     <!-- Sidebar Scroll as Link -->
-    <script>
-        function scrollToNavItem(navItemId, routePattern) {
-            if (window.location.pathname.includes(routePattern)) {
-                const targetElement = document.getElementById(navItemId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
-            }
-        }
-        document.addEventListener("DOMContentLoaded", function() {
-            scrollToNavItem("dashboardNav", "dashboard");
-            scrollToNavItem("userNav", "user");
-            scrollToNavItem("dropdownNav", "dropdown");
-            scrollToNavItem("gradNav", "grading");
-            scrollToNavItem("ruleNav", "rule");
-            scrollToNavItem("schedulerNav", "scheduler");
-            scrollToNavItem("jaringanNav", "jaringan");
-            scrollToNavItem("empNav", "employee");
-            scrollToNavItem("deptNav", "department");
-            scrollToNavItem("positionNav", "position");
-            scrollToNavItem("parentCheckNav", "parentchecklist");
-            scrollToNavItem("checklistNav", "checklist");
-            scrollToNavItem("mappingCheckNav", "mapchecklist");
-            scrollToNavItem("periodNameNav", "periodname");
-            scrollToNavItem("periodNav", "periodchecklist");
-            scrollToNavItem("reviewNav", "review");
-            scrollToNavItem("assignedNav", "auditor");
-            scrollToNavItem("auditlogNav", "auditlog");
-        });
-    </script>
+    <script src="{{ asset('assets/js/sidebarFocus.js') }}"></script>
+    <!-- Collapse Card -->
+    <script src="{{ asset('assets/js/collapse.js') }}"></script>
+    <!-- Custom -->
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
+    <script src="{{ asset('assets/js/formLoad.js') }}"></script>
 </body>
 
 </html>

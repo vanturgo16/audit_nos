@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-bordered dt-responsive nowrap w-100" id="ssTable">
+            <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
                 <thead class="table-light">
                     <tr>
                         <th class="align-middle text-center">No</th>
@@ -68,7 +68,6 @@
         var dataTable = $('#ssTable').DataTable({
             processing: true,
             serverSide: true,
-            scrollY: '100vh',
             ajax: {
                 url: '{!! route('auditlog') !!}',
                 type: 'GET',

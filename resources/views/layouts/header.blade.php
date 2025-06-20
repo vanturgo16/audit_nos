@@ -3,7 +3,7 @@
         <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-                <a href="index.html" class="logo logo-dark">
+                <a href="{{ route('dashboard') }}" class="logo logo-dark">
                     <span class="logo-sm">
                         <img src="{{ asset('assets/images/LOGO_MSK_PUTIH_VERTIKAL.jpg') }}" alt="" height="50">
                     </span>
@@ -11,13 +11,12 @@
                         <img src="{{ asset('assets/images/logosamping.png') }}" alt="" height="50">
                     </span>
                 </a>
-
-                <a href="index.html" class="logo logo-light">
+                <a href="{{ route('dashboard') }}" class="logo logo-light">
                     <span class="logo-sm">
                         <img src="{{ asset('assets/images/LOGO_MSK_MERAH_VERTIKAL.jpg') }}" alt="" height="50">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('assets/images/logosamping.png') }}" alt="" height="50">
+                        <img src="{{ asset('assets/images/logosampingDark.png') }}" alt="" height="50">
                     </span>
                 </a>
             </div>
