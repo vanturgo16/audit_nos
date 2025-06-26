@@ -8,14 +8,14 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <div class="page-title-left">
                         <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="{{ route('auditor.periodList') }}">List Period</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('review.periodList') }}">List Period</a></li>
                             <li class="breadcrumb-item active">Detail {{ $periodInfo->period }}</li>
                         </ol>
                     </div>
 
                     <div class="page-title-right">
-                        <a id="backButton" type="button" href="{{ route('auditor.periodList') }}" class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
-                            <i class="mdi mdi-arrow-left-circle label-icon"></i> Back
+                        <a id="backButton" type="button" href="{{ route('review.periodList') }}" class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>Back
                         </a>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                                             @if($periodInfo->is_active == 1)
                                                 {!! $statusLabels[$periodInfo->status] ?? $statusLabels['default'] !!}
                                             @else
-                                                <span class="badge bg-warning text-white"><i class="mdi mdi-timer-alert-outline label-icon"></i> Expired - Contact Your PIC / Administrator</span>
+                                                <span class="badge bg-warning text-white"><i class="mdi mdi-timer-alert-outline label-icon"></i> Expired</span>
                                             @endif
                                         </td>
                                     </tr>
@@ -90,7 +90,7 @@
                                         <td class="align-top fw-bold">Log Activity</td>
                                         <td class="align-top no-right-border" style="width: 1%">:</td>
                                         <td class="align-top no-left-border">
-                                            <a type="button" href="{{ route('auditor.logActivityPeriod', encrypt($id)) }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
+                                            <a type="button" href="{{ route('review.logActivityPeriod', encrypt($id)) }}" class="btn btn-sm btn-primary waves-effect btn-label waves-light">
                                                 <i class="mdi mdi-eye label-icon"></i> View
                                             </a>
                                         </td>
@@ -103,7 +103,30 @@
             </div>
 
             <div class="col-12">
-                <div class="card">
+                <div class="card p-0">
+                    {{-- Export --}}
+                    @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'PIC NOS MD']) && in_array($periodInfo->status, [5]))
+                        <div class="card-header p-2">
+                            <a href="{{ route('export.period', encrypt($id)) }}" type="button" class="btn btn-secondary waves-effect btn-label waves-light float-end" id="exportBtn">
+                                <i class="mdi mdi-file-excel label-icon"></i>Export To Excel
+                            </a>
+                            <script>
+                                $(document).ready(function() {
+                                    $("#exportBtn").click(function() {
+                                        // Load Button
+                                        var button = this; button.disabled = true;
+                                        button.classList.remove("waves-effect", "btn-label", "waves-light");
+                                        button.innerHTML = '<i class="mdi mdi-loading mdi-spin"></i> Please wait...';
+                                        setTimeout(function () {
+                                            button.innerHTML = '<i class="mdi mdi-file-excel label-icon"></i>Export To Excel';
+                                            button.classList.add("waves-effect", "btn-label", "waves-light");
+                                            button.disabled = false;
+                                        }, 3000);
+                                    });
+                                });
+                            </script>
+                        </div>
+                    @endif
                     <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable" style="font-size: small">
                         <thead class="table-light">
                             <tr>
@@ -124,36 +147,108 @@
                         </thead>
                     </table>
                     <div class="card-footer">
-                        @if(in_array(Auth::user()->role, ['Internal Auditor Dealer']))
-                            @if(in_array($periodInfo->status, [1, 2]))
-                                <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" 
-                                    data-bs-toggle="modal" data-bs-target="#submit" @if($allComplete != 1) disabled @endif>
-                                    <i class="mdi mdi-check-bold label-icon"></i>Submit Checklist
+                        @if(in_array(Auth::user()->role, ['Assessor Main Dealer']))
+                            @if(in_array($periodInfo->status, [3]))
+                                <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end"
+                                    data-bs-toggle="modal" data-bs-target="#submit" @if($allReviewed != 1) disabled @endif>
+                                    <i class="mdi mdi-check-bold label-icon"></i>Submit Review
                                 </button>
                                 {{-- Modal Submit --}}
                                 <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-top" role="document">
+                                    <div class="modal-dialog modal-dialog-top modal-lg" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                            <form class="formLoad" action="{{ route('auditor.submit', encrypt($id)) }}" method="POST">
+                                            <form action="{{ route('review.submitReviewChecklist', encrypt($id)) }}" id="formsubmit" method="POST">
                                                 @csrf
-                                                <div class="modal-body">
-                                                    <div class="row">
+                                                <div class="modal-body" style="max-height: 67vh; overflow-y: auto;">
+                                                    <div class="row p-4">
                                                         <div class="col-12 text-center">
-                                                            <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
-                                                            <h5>Are You Sure to Submit Your Answer For This Checklist?</h5>
-                                                            <p>(You are no longer to edit next!)</p>
+                                                            <h5>Are You Sure to Submit Your Review For This Checklist?</h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12 mt-4">
+                                                            <div class="form-group">
+                                                                <h5 class="fw-bold">Note (Optional)</h5>
+                                                                <textarea id="ckeditor-classic" name="note"></textarea>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-success waves-effect btn-label waves-light"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                                                    <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
                                                 </div>
                                             </form>
+                                            <script>
+                                                document.getElementById('formsubmit').addEventListener('submit', function(event) {
+                                                    if (!this.checkValidity()) {
+                                                        event.preventDefault(); // Prevent form submission if it's not valid
+                                                        return false;
+                                                    }
+                                                    var submitButton = this.querySelector('button[name="sb"]');
+                                                    submitButton.disabled = true;
+                                                    submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
+                                                    return true; // Allow form submission
+                                                });
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+
+                        @if(in_array(Auth::user()->role, ['PIC NOS MD']))
+                            @if(in_array($periodInfo->status, [4]))
+                                <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end"
+                                    data-bs-toggle="modal" data-bs-target="#submit" @if($allReviewedPIC != 1) disabled @endif>
+                                    <i class="mdi mdi-check-bold label-icon"></i>Submit Review
+                                </button>
+                                {{-- Modal Submit --}}
+                                <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form action="{{ route('review.submitPICReviewChecklist', encrypt($id)) }}" id="formsubmit" method="POST">
+                                                @csrf
+                                                <div class="modal-body" style="max-height: 67vh; overflow-y: auto;">
+                                                    <div class="row p-4">
+                                                        <div class="col-12 text-center">
+                                                            <h5>Are You Sure to Submit Your Review For This Checklist?</h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12 mt-4">
+                                                            <div class="form-group">
+                                                                <h5 class="fw-bold">Note (Optional)</h5>
+                                                                <textarea id="ckeditor-classic" name="note"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
+                                                </div>
+                                            </form>
+                                            <script>
+                                                document.getElementById('formsubmit').addEventListener('submit', function(event) {
+                                                    if (!this.checkValidity()) {
+                                                        event.preventDefault(); // Prevent form submission if it's not valid
+                                                        return false;
+                                                    }
+                                                    var submitButton = this.querySelector('button[name="sb"]');
+                                                    submitButton.disabled = true;
+                                                    submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
+                                                    return true; // Allow form submission
+                                                });
+                                            </script>
                                         </div>
                                     </div>
                                 </div>
@@ -168,6 +263,7 @@
 
 <script>
     $(function() {
+        var role = "{{ Auth::user()->role }}";
         $('#ssTable').DataTable({
             bLengthChange: false, // Hide the "Show entries" dropdown
             bFilter: false,       // Hide the search box
@@ -175,7 +271,7 @@
             info: false,          // Hide the "Showing X of Y entries" info
             processing: true,
             serverSide: true,
-            ajax: '{!! route('auditor.periodDetail', encrypt($id)) !!}',
+            ajax: '{!! route('review.periodDetail', encrypt($id)) !!}',
             columns: [
                 {
                 data: null,
@@ -185,7 +281,7 @@
                     orderable: false,
                     searchable: false,
                     visible: false,
-                    className: 'align-top text-center',
+                    className: 'align-middle text-center',
                 },
                 {
                     data: 'type_checklist',
@@ -274,16 +370,14 @@
                         } else {
                             html = '-';
                         }
-
-                        if(row.status == 0 || row.status == 4){
-                            if(row.checklist_remaining == 0){
-                                if(row.type_checklist == 'H1 Premises'){
-                                    html += '<br><span class="badge bg-success text-white">Complete</span>';
-                                } else {
-                                    if(row.isComplete == 1){
-                                        html += '<br><span class="badge bg-success text-white">Complete</span>';
-                                    }
-                                }
+                        if(row.status == 2 && role == 'Assessor Main Dealer'){
+                            if(row.reviewed == 1){
+                                html += '<br><span class="badge bg-success text-white">Reviewed All</span>';
+                            }
+                        }
+                        if(row.status == 3 && role == 'PIC NOS MD'){
+                            if(row.last_decision_pic != 0){
+                                html += '<br><span class="badge bg-success text-white">Reviewed</span>';
                             }
                         }
                         
@@ -296,6 +390,7 @@
                     className: 'align-top text-center',
                     render: function(data, type, row) {
                         var html = '';
+                        var correction = '';
                         if (row.last_decision_assessor == 0) {
                             html = '<span class="badge bg-warning text-white"><i class="mdi mdi-refresh label-icon"></i></span>';
                         } else if (row.last_decision_assessor == 1) {
@@ -305,7 +400,13 @@
                         } else {
                             html = '-';
                         }
-                        return html;
+
+                        if(row.last_correction_assessor == 0){
+                            html = '<br><span class="badge bg-warning text-white">correcting</span>';
+                        } else if(row.last_correction_assessor == 1){
+                            html = '<br><span class="badge bg-success text-white">corrected</span>';
+                        }
+                        return html + correction;
                     },
                 },
                 {

@@ -195,7 +195,31 @@
                                                     <tbody>
                                                         <tr>
                                                             <td colspan="3" class="py-0">
-                                                                <h4><span class="badge bg-primary text-bold">${response.question.sub_point_checklist}</span></h4>
+                                                                <div class="row">
+                                                                    <div class="col-10">
+                                                                        <h4><span class="badge bg-primary text-bold">${response.question.sub_point_checklist}</span></h4>
+                                                                    </div>
+                                                                    <div class="col-2 text-end">
+                                                                        ${response.question.note_assesor ? `
+                                                                            <button class="btn btn-sm btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#noteAssesor">
+                                                                                <i class="mdi mdi-close-circle-outline label-icon"></i> Note Reject
+                                                                            </button>
+                                                                            <div class="modal fade" id="noteAssesor" tabindex="-1">
+                                                                                <div class="modal-dialog modal-lg">
+                                                                                    <div class="modal-content">
+                                                                                        <div class="modal-header">
+                                                                                            <h5 class="modal-title">Note Reject From Assesor</h5>
+                                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                                        </div>
+                                                                                        <div class="modal-body text-start p-4">
+                                                                                            ${response.question.note_assesor}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ` : ''}
+                                                                    </div>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                         <tr>

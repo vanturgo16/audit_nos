@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Dashboard NOS | AHASS BANTEN</title>
-    <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
+    {{-- <title>Dashboard NOS | AHASS BANTEN</title> --}}
+    <title>-</title>
+    {{-- <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}"> --}}
     
     <!-- plugin css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" />
@@ -65,6 +66,11 @@
 
     <!-- Right Sidebar -->
     @include('layouts.rightsidebar')
+    
+    <!-- Scroll To Top Button -->
+    <button type="button" class="btn btn-primary rounded-circle shadow scroll-to-top" id="scrollTopBtn" style="display: none;">
+        <i class="mdi mdi-arrow-up"></i>
+    </button>
 
     <!-- ========== JAVASCRIPT ========== -->
     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

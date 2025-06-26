@@ -275,14 +275,35 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/period-list/detail/{id}', 'periodDetail')->name('review.periodDetail');
                 Route::get('/detail/{id}', 'reviewChecklist')->name('review.reviewChecklist');
                 Route::post('/take-review/{id}', 'takeReview')->name('review.takeReview');
+                Route::post('/decision/{id}/approve', 'approve')->name('review.approve');
+                Route::post('/decision/{id}/reject', 'reject')->name('review.reject');
+                Route::post('/decision/{id}/reset', 'reset')->name('review.reset');
+                Route::post('/decision/{id}/correction', 'correction')->name('review.correction');
+                Route::post('/decision/{id}/renderCardOnly', 'renderCardOnly')->name('review.renderCardOnly');
+                Route::post('/syncResultCorrection/{id}', 'syncResultCorrection')->name('review.syncResultCorrection');
                 Route::post('/decision-checklist', 'decisionChecklist')->name('review.decisionChecklist');
                 Route::post('/note/{id}', 'updateNoteChecklist')->name('review.updateNoteChecklist');
                 Route::post('submit/{id}', 'submitReviewChecklist')->name('review.submitReviewChecklist');
+                Route::post('submitCorrection/{id}', 'submitCorrectionChecklist')->name('review.submitCorrectionChecklist');
                 Route::post('decisionpic/{id}', 'updateDecisionPIC')->name('review.updateDecisionPIC');
                 Route::post('submit-pic/{id}', 'submitPICReviewChecklist')->name('review.submitPICReviewChecklist');
             });
         });
     });
+
+    // APPROVAL MENU
+    // Route::middleware('role:Super Admin,Admin,PIC Dealers,Assessor Main Dealer,PIC NOS MD')->group(function () {
+    //     // Period List & Review
+    //     Route::controller(ReviewChecklistController::class)->group(function () {
+    //         Route::prefix('review')->group(function () {
+    //             Route::get('/detail/{id}', 'reviewChecklist')->name('review.reviewChecklist');
+    //             Route::post('/decision/{id}/approve', 'approve')->name('review.approve');
+    //             Route::post('/decision/{id}/reject', 'reject')->name('review.reject');
+    //             Route::post('/decision/{id}/reset', 'reset')->name('review.reset');
+    //             Route::post('/decision/{id}/renderCardOnly', 'renderCardOnly')->name('review.renderCardOnly');
+    //         });
+    //     });
+    // });
 
     // EXPORT
     Route::get('/export-period/{id}', [ExportController::class, 'exportPeriod'])->name('export.period')->middleware('role:Super Admin,Admin,PIC NOS MD');

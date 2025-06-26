@@ -10,9 +10,7 @@
         @if(in_array($data->status, [2]))
             @if($idAssesor)
                 @if(Auth::user()->id == $idAssesor)
-                    <a href="{{ route('review.reviewChecklist', encrypt($data->id)) }}" type="button" class="btn btn-sm btn-primary">
-                        {{ $data->last_correction_assessor === null ? 'Review' : 'Correction' }}
-                    </a>
+                    <a href="{{ route('review.reviewChecklist', encrypt($data->id)) }}" type="button" class="btn btn-sm btn-primary">Review</a>
                 @else
                     <a href="{{ route('review.reviewChecklist', encrypt($data->id)) }}" type="button" class="btn btn-sm btn-info">Detail</a>
                 @endif
