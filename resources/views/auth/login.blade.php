@@ -1,24 +1,19 @@
 <!doctype html>
 <html lang="en">
-
     <head>
-
         <meta charset="utf-8" />
         <title>Login | NOS Honda Banten</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- App favicon -->
         <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
-        <!-- preloader css -->
-        {{-- <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" /> --}}
         <!-- Bootstrap Css -->
-        <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" />
         <!-- Icons Css -->
-        <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/icons.min.css') }}" />
         <!-- App Css-->
-        <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/app.min.css') }}" id="app-style" />
         <!-- CAPTCHA CSS -->
         <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/captcha.css') }}"/>
-
     </head>
 
     <body>
@@ -95,18 +90,6 @@
                                                 <button class="btn btn-danger w-100 waves-effect waves-light" type="submit" name="sb">Log In</button>
                                             </div>
                                         </form>
-                                        <script>
-                                            document.getElementById('login').addEventListener('submit', function(event) {
-                                                if (!this.checkValidity()) {
-                                                    event.preventDefault(); // Prevent form submission if it's not valid
-                                                    return false;
-                                                }
-                                                var submitButton = this.querySelector('button[name="sb"]');
-                                                submitButton.disabled = true;
-                                                submitButton.textContent   = 'Please Wait...';
-                                                return true; // Allow form submission
-                                            });
-                                        </script>
                                     </div>
                                     <div class="mt-4 mt-md-5 text-center footer-text">
                                         &copy; Dashboard NOS PT Mitra Sendang Kemakmuran Banten {{ date('Y') }}
@@ -116,26 +99,19 @@
                         </div>
                         <!-- end auth full page content -->
                     </div>
-                    <!-- end col -->
+                    <!-- end col -->    
+                    
                     <div class="col-xxl-9 col-lg-8 col-md-7">
                         <div class="auth-bg pt-md-5 p-4 d-flex" style="background-image: url('{{ asset('assets/images/background/MSK.png') }}');">
-                            <div class="bg-overlay bg-danger-subtle" style="opacity: 0.75"></div>
+                            <div class="bg-overlay bg-secondary-subtle" style="opacity: 0.85"></div>
+                            <!-- bubble effect -->
                             <ul class="bg-bubbles">
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
+                                @foreach(range(1, 10) as $i)
+                                    <li></li>
+                                @endforeach
                             </ul>
-                            <!-- end bubble effect -->
                         </div>
                     </div>
-                    <!-- end col -->
                 </div>
                 <!-- end row -->
             </div>
@@ -157,7 +133,5 @@
         <script src="{{ asset('assets/js/pages/pass-addon.init.js') }}"></script>
         <!-- CAPTCHA JS -->
         <script src="{{ asset('assets/js/captcha.js') }}"></script>
-
     </body>
-
 </html>

@@ -15,7 +15,7 @@
     <!-- DataTables -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}" />
-    <!-- Responsive datatable examples -->
+    <!-- Responsive datatable -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css') }}" />
     <!-- preloader css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/preloader.min.css') }}" />
@@ -23,7 +23,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" />
     <!-- Icons Css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/icons.min.css') }}" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/@mdi/css/materialdesignicons.min.css') }}" />
     <!-- App Css-->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/app.min.css') }}" id="app-style" />
     <!-- Custom Css-->
@@ -32,18 +32,18 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/choices.js/public/assets/styles/choices.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/css/select2.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/css/select2.min.css') }}" />
-    
-    <!-- ========== EXTERNAL LINK ========== -->
+
     <!-- Jquery-->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/jquery-validation/jquery.validate.min.js') }}"></script>
+    <!-- SheetJS -->
+    <script src="{{ asset('assets/libs/sheetJs/xlsx.full.min.js') }}"></script>
     <!-- Highchart-->
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/highcharts-more.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/modules/export-data.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="{{ asset('assets/libs/highcharts/highcharts.js') }}"></script>
+    <script src="{{ asset('assets/libs/highcharts/highcharts-more.js') }}"></script>
+    <script src="{{ asset('assets/libs/highcharts/modules/exporting.js') }}"></script>
+    <script src="{{ asset('assets/libs/highcharts/modules/export-data.js') }}"></script>
+    <script src="{{ asset('assets/libs/highcharts/modules/accessibility.js') }}"></script>
 </head>
 
 <body @if (Auth::user()->is_darkmode) data-bs-theme="dark" data-topbar="dark" data-sidebar="dark" @endif>
