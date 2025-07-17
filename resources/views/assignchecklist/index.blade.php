@@ -88,52 +88,47 @@
                         </thead>
                     </table>
                     <div class="card-footer">
-                        @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'PIC Dealer']))
-                            @if($period->is_active == 1 && $period->status == 0)
-                                <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" 
-                                    data-bs-toggle="modal" data-bs-target="#submit" @if($check != 1) disabled @endif>
-                                    <i class="mdi mdi-check-bold label-icon"></i> Assign To Internal Auditor
-                                </button>
-                                {{-- Modal Submit --}}
-                                <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-top" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form action="{{ route('assignchecklist.submit', encrypt($period->id)) }}" id="formsubmit" method="POST">
-                                                @csrf
-                                                <div class="modal-body">
-                                                    <div class="row">
-                                                        <div class="col-12 text-center">
-                                                            <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
-                                                            <h5>Start Submit This Assign Checklist?</h5>
-                                                            <p>(You are no longer to edit next!)</p>
-                                                        </div>
+                        @php
+                            $role = Auth::user()->role;
+                            $status = $period->status;
+                            $isActive = $period->is_active;
+                            $showSubmitAssign = in_array($role, ['Super Admin', 'Admin', 'PIC Dealer']) && $isActive == 1 && $status == 0;
+                        @endphp
+
+                        @if($showSubmitAssign)
+                            <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" 
+                                data-bs-toggle="modal" data-bs-target="#submit" @if($check != 1) disabled @endif>
+                                <i class="mdi mdi-check-bold label-icon"></i> Assign To Internal Auditor
+                            </button>
+                            {{-- Modal Submit --}}
+                            <div class="modal fade" id="submit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-top" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="staticBackdropLabel">Submit</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form class="formLoad" action="{{ route('assignchecklist.submit', encrypt($period->id)) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-12 text-center">
+                                                        <h1><span class="mdi mdi-bell-alert" style="color: #FFA500;"></span></h1>
+                                                        <h5>Start Submit This Assign Checklist?</h5>
+                                                        <p>(You are no longer to edit next!)</p>
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-check-bold label-icon"></i>Submit</button>
-                                                </div>
-                                            </form>
-                                            <script>
-                                                document.getElementById('formsubmit').addEventListener('submit', function(event) {
-                                                    if (!this.checkValidity()) {
-                                                        event.preventDefault(); // Prevent form submission if it's not valid
-                                                        return false;
-                                                    }
-                                                    var submitButton = this.querySelector('button[name="sb"]');
-                                                    submitButton.disabled = true;
-                                                    submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                                    return true; // Allow form submission
-                                                });
-                                            </script>
-                                        </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
+                                                    <i class="mdi mdi-check-bold label-icon"></i>Submit
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
-                            @endif
+                            </div>
                         @endif
                     </div>
                 </div>

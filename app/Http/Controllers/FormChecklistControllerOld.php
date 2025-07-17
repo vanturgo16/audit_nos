@@ -24,98 +24,61 @@ use Carbon\Carbon;
 use App\Mail\SubmitChecklist;
 use App\Models\ChecklistResponses;
 
-class FormChecklistController extends Controller
+class FormChecklistControllerOld extends Controller
 {
     use AuditLogsTrait;
 
-    public function checklist($id, Request $request)
+    public function checklistForm($id, Request $request)
     {
         $id = decrypt($id);
         $period = ChecklistJaringan::where('id', $id)->first();
         $typeChecklist = $period->type_checklist;
         $idPeriod = $period->id_periode;
 
-        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
-        $view = in_array($typeChecklist, $typeChecklistPerCheck) ? 'formaudit.perCheck' : 'formaudit.perParent';
-
         //Auditlog
         $this->auditLogsShort('View Checklist Form:', $id);
 
+        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
+        $view = in_array($typeChecklist, $typeChecklistPerCheck) ? 'auditor.form.h1p' : 'auditor.form.other';
         return view($view, compact('id', 'idPeriod'));
     }
 
-    // CALCULATE TOTAL POINT
-    public function calculatePoint($checkJar)
-    {
-        $totalPoint = null;
-        $responses = ChecklistResponses::where('id_checklist_jaringan', $checkJar->id)->where('status_response', 1)->get();
-        $totalResp = $responses->count();
-        $remaining = $checkJar->total_checklist - $totalResp;
-        $totalEG = $responses->where('response', 'Exist, Good')->count();
-        $totalENG = $responses->where('response', 'Exist Not Good')->count();
-
-        // H1 / H23 Premises = EG*1 + ENG*-1 + NE/NA*0
-        // H1 / H23 People = EG*2 + ENG*1 + NE/NA*0
-        // H1 / H23 Process = EG*1 + ENG*0 + NE/NA*0
-        if (in_array($checkJar->type_checklist, ['H1 Premises', 'H23 Premises'])) {
-            $totalPoint = $totalEG - $totalENG;
-            $result = ($totalResp > 0) ? ($totalPoint / $totalResp) * 100 : 0;
-        } elseif (in_array($checkJar->type_checklist, ['H1 People', 'H23 People'])) {
-            $totalPoint = ($totalEG * 2) + $totalENG;
-            $result = ($totalResp > 0) ? ($totalPoint / (2 * $totalResp)) * 100 : 0;
-        } elseif (in_array($checkJar->type_checklist, ['H1 Process', 'H23 Process'])) {
-            $totalPoint = $totalEG;
-            $result = ($totalResp > 0) ? ($totalPoint / $totalResp) * 100 : 0;
-        } else {
-            return [
-                'success' => false,
-                'remaining' => null,
-                'totalPoint' => null,
-                'percentageResult' => null
-            ];
-        }
-        return [
-            'success' => true,
-            'remaining' => $remaining,
-            'totalPoint' => $totalPoint,
-            'percentageResult' => number_format($result, 2, '.', '')
-        ];
-    }
-
     // List Per Checklist
-    public function getFormPerCheck(Request $request, $id)
+    public function getChecklistFormH1P(Request $request, $id)
     {
-        // id checklist_jaringan
+        // id_checklist Jaringan
         $id = decrypt($id);
-        $checkJar = ChecklistJaringan::find($id);
-        $type = $checkJar->type_checklist;
-        $idPeriod = $checkJar->id_periode;
 
         // Save Response 
         if ($request->responseAns != null) {
             $statusResp = ($request->responseAns == 'N/A' || $request->responseAns == 'Not Exist') ? 1
                 : (ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('path_input_response')->exists() ? 1 : null);
-            
-            DB::beginTransaction();
-            try {
-                ChecklistResponses::updateOrCreate(
-                    ['id_assign_checklist' => $request->idActive],
-                    ['id_checklist_jaringan' => $id, 'response' => $request->responseAns, 'status_response' => $statusResp]
-                );
-                // Calculate points
-                $calculate = $this->calculatePoint($checkJar);
-                if ($calculate['success']) {
-                    $checkJar->update(['checklist_remaining' => $calculate['remaining'], 'total_point' => $calculate['totalPoint'], 'result_percentage' => $calculate['percentageResult']]);
-                }
-                DB::commit();
-            } catch (Exception $e) {
-                DB::rollBack();
-            }
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['id_checklist_jaringan' => $id, 'response' => $request->responseAns, 'status_response' => $statusResp]
+            );
+
+            // Calculate Point
+            $checklistJaringan = ChecklistJaringan::find($id);
+            $checked = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->count();
+            $remaining = $checklistJaringan->total_checklist - $checked;
+            // Calculate totals
+            $responses = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->get();
+            $totalEG = $responses->where('response', 'Exist, Good')->count();
+            $totalENG = $responses->where('response', 'Exist Not Good')->count();
+            $totalPoint = $totalEG - $totalENG;
+            // Avoid division by zero
+            $result = ($checked > 0) ? ($totalPoint / $checked) * 100 : 0;
+            $formattedResult = number_format($result, 2, '.', '');
+            // Update Checklist Jaringan
+            $checklistJaringan->update(['checklist_remaining' => $remaining, 'total_point' => $totalPoint, 'result_percentage' => $formattedResult]);
         }
 
+        $type = ChecklistJaringan::where('id', $id)->first();
+        $idPeriod = $type->id_periode;
         $assigns = MstAssignChecklists::select('mst_assign_checklists.id', 'mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.order_no_parent', 'mst_assign_checklists.order_no_checklist')
             ->where('id_periode_checklist', $idPeriod)
-            ->where('type_checklist', $type)
+            ->where('type_checklist', $type->type_checklist)
             ->orderByRaw('CAST(mst_assign_checklists.order_no_parent AS UNSIGNED)')
             ->orderByRaw('CAST(mst_assign_checklists.order_no_checklist AS UNSIGNED)')
             ->get();
@@ -126,7 +89,7 @@ class FormChecklistController extends Controller
         $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response', 'mst_assign_checklists.order_no_parent', 'mst_assign_checklists.order_no_checklist', 'mst_assign_checklists.approve')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
             ->where('id_periode_checklist', $idPeriod)
-            ->where('type_checklist', $type)->orderBy('mst_assign_checklists.order_no_parent')->get()->groupBy('parent_point_checklist')
+            ->where('type_checklist', $type->type_checklist)->orderBy('mst_assign_checklists.order_no_parent')->get()->groupBy('parent_point_checklist')
             ->map(function ($group) {
                 $sortedGroup = $group->sortBy('order_no_checklist');
                 $responses = $sortedGroup->pluck('status_response')->toArray();
@@ -142,7 +105,7 @@ class FormChecklistController extends Controller
         $points = MstAssignChecklists::select('mst_assign_checklists.id', 'checklist_responses.status_response', 'mst_assign_checklists.order_no_checklist', 'mst_assign_checklists.approve')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
             ->where('id_periode_checklist', $idPeriod)
-            ->where('type_checklist', $type)
+            ->where('type_checklist', $type->type_checklist)
             ->where('parent_point_checklist', $tabParentAct)
             ->orderByRaw('CAST(mst_assign_checklists.order_no_checklist AS UNSIGNED)')
             ->get();
@@ -183,7 +146,7 @@ class FormChecklistController extends Controller
         ];
         return response()->json($response);
     }
-    public function storeFileFormPerCheck(Request $request)
+    public function storeChecklistFileH1P(Request $request)
     {
         // Validation Format File Upload Image Max 2mb
         $request->validate([
@@ -205,49 +168,145 @@ class FormChecklistController extends Controller
                 $file->move(public_path('assets/images/response_checklist'), $name);
                 $url = 'assets/images/response_checklist/' . $name;
 
+                $statusResp = ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('response')->exists() ? 1 : null;
                 ChecklistResponses::updateOrCreate(
                     ['id_assign_checklist' => $request->idActive],
-                    ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $url]
+                    ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $url, 'status_response' => $statusResp]
+                );
+
+                // Calculate Point
+                $id = $request->idCheckJar;
+                $checklistJaringan = ChecklistJaringan::find($id);
+                $checked = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->count();
+                $remaining = $checklistJaringan->total_checklist - $checked;
+                // Calculate totals
+                $responses = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->get();
+                $totalEG = $responses->where('response', 'Exist, Good')->count();
+                $totalENG = $responses->where('response', 'Exist Not Good')->count();
+                $totalPoint = $totalEG - $totalENG;
+                // Avoid division by zero
+                $result = ($checked > 0) ? ($totalPoint / $checked) * 100 : 0;
+                $formattedResult = number_format($result, 2, '.', '');
+                // Update Checklist Jaringan
+                $checklistJaringan->update(['checklist_remaining' => $remaining, 'total_point' => $totalPoint, 'result_percentage' => $formattedResult]);
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+        }
+    }
+    public function finishChecklistH1P(Request $request)
+    {
+        // Validation Format File Upload Image Max 2mb
+        $request->validate([
+            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Save Response 
+            if ($request->hasFile('responseFile')) {
+                $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+                if ($exist) {
+                    if (File::exists($exist->path_input_response)) {
+                        File::delete($exist->path_input_response);
+                    }
+                }
+                $file = $request->file('responseFile');
+                $name = $file->hashName();
+                $file->move(public_path('assets/images/response_checklist'), $name);
+                $url = 'assets/images/response_checklist/' . $name;
+
+                $statusResp = ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('response')->exists() ? 1 : null;
+                ChecklistResponses::updateOrCreate(
+                    ['id_assign_checklist' => $request->idActive],
+                    ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $url, 'response' => $request->responseAns, 'status_response' => $statusResp]
+                );
+            } 
+            if ($request->has('responseAns') && !is_null($request->responseAns) && $request->responseAns !== 'undefined') {
+                $statusResp = ($request->responseAns == 'N/A' || $request->responseAns == 'Not Exist') ? 1
+                    : (ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('path_input_response')->exists() ? 1 : null);
+                ChecklistResponses::updateOrCreate(
+                    ['id_assign_checklist' => $request->idActive],
+                    ['id_checklist_jaringan' => $request->idCheckJar, 'response' => $request->responseAns, 'status_response' => $statusResp]
                 );
             }
+
+            // Calculate Point
+            $id = $request->idCheckJar;
+            $checklistJaringan = ChecklistJaringan::find($id);
+            $checked = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->count();
+            $remaining = $checklistJaringan->total_checklist - $checked;
+            // Calculate totals
+            $responses = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->get();
+            $totalEG = $responses->where('response', 'Exist, Good')->count();
+            $totalENG = $responses->where('response', 'Exist Not Good')->count();
+            $totalPoint = $totalEG - $totalENG;
+            // Avoid division by zero
+            $result = ($checked > 0) ? ($totalPoint / $checked) * 100 : 0;
+            $formattedResult = number_format($result, 2, '.', '');
+            // Update Checklist Jaringan
+            $checklistJaringan->update(['checklist_remaining' => $remaining, 'total_point' => $totalPoint, 'result_percentage' => $formattedResult]);
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
         }
     }
 
-    public function getFormPerParent(Request $request, $id)
+    // H1 People = EG*2 + ENG*1 + NE/NA*0
+    // H1 Process = EG*1 + ENG*0 + NE/NA*0
+    // H23 Premises = EG*1 + ENG*-1 + NE/NA*0
+    // H23 People = EG*2 + ENG*1 + NE/NA*0
+    // H23 Process = EG*1 + ENG*0 + NE/NA*0
+    public function getChecklistForm(Request $request, $id)
     {
-        // id checklist_jaringan
+        // id_checklist Jaringan
         $id = decrypt($id);
-        $checkJar = ChecklistJaringan::find($id);
-        $type = $checkJar->type_checklist;
-        $idPeriod = $checkJar->id_periode;
 
         // Save Response 
         if ($request->responseAns != null) {
             $statusResp = 1;
+            ChecklistResponses::updateOrCreate(
+                ['id_assign_checklist' => $request->idActive],
+                ['id_checklist_jaringan' => $id, 'response' => $request->responseAns, 'status_response' => $statusResp]
+            );
 
-            DB::beginTransaction();
-            try {
-                ChecklistResponses::updateOrCreate(
-                    ['id_assign_checklist' => $request->idActive],
-                    ['id_checklist_jaringan' => $id, 'response' => $request->responseAns, 'status_response' => $statusResp]
-                );
-                // Calculate points
-                $calculate = $this->calculatePoint($checkJar);
-                if ($calculate['success']) {
-                    $checkJar->update(['checklist_remaining' => $calculate['remaining'], 'total_point' => $calculate['totalPoint'], 'result_percentage' => $calculate['percentageResult']]);
-                }
-                DB::commit();
-            } catch (Exception $e) {
-                DB::rollBack();
+            // Calculate Point
+            $checklistJaringan = ChecklistJaringan::find($id);
+            $checked = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->count();
+            $remaining = $checklistJaringan->total_checklist - $checked;
+            // Calculate totals
+            $responses = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->get();
+            $totalEG = $responses->where('response', 'Exist, Good')->count();
+            $totalENG = $responses->where('response', 'Exist Not Good')->count();
+            if (in_array($checklistJaringan->type_checklist, ['H1 People', 'H23 People'])) {
+                $totalPoint = ($totalEG * 2) + $totalENG;
+                // Avoid division by zero
+                $result = ($checked > 0) ? ($totalPoint / (2 * $checked)) * 100 : 0;
+                $formattedResult = number_format($result, 2, '.', '');
+            } elseif (in_array($checklistJaringan->type_checklist, ['H1 Process', 'H23 Process'])) {
+                $totalPoint = $totalEG;
+                // Avoid division by zero
+                $result = ($checked > 0) ? ($totalPoint / $checked) * 100 : 0;
+                $formattedResult = number_format($result, 2, '.', '');
+            } else {
+                $totalPoint = $totalEG - $totalENG;
+                // Avoid division by zero
+                $result = ($checked > 0) ? ($totalPoint / $checked) * 100 : 0;
+                $formattedResult = number_format($result, 2, '.', '');
             }
+            // Update Checklist Jaringan
+            $checklistJaringan->update(['checklist_remaining' => $remaining, 'total_point' => $totalPoint, 'result_percentage' => $formattedResult]);
         }
+
+        $type = ChecklistJaringan::where('id', $id)->first();
+        $idPeriod = $type->id_periode;
 
         $assigns = MstAssignChecklists::select('mst_assign_checklists.id', 'mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.order_no_parent', 'mst_assign_checklists.order_no_checklist', 'mst_assign_checklists.approve')
             ->where('id_periode_checklist', $idPeriod)
-            ->where('type_checklist', $type)
+            ->where('type_checklist', $type->type_checklist)
             ->orderByRaw('CAST(mst_assign_checklists.order_no_parent AS UNSIGNED)')
             ->orderByRaw('CAST(mst_assign_checklists.order_no_checklist AS UNSIGNED)')
             ->get();
@@ -257,7 +316,7 @@ class FormChecklistController extends Controller
         $tabLists = MstAssignChecklists::select('mst_assign_checklists.parent_point_checklist', 'mst_assign_checklists.id', 'checklist_responses.status_response', 'checklist_responses.path_input_response', 'mst_assign_checklists.order_no_parent', 'mst_assign_checklists.order_no_checklist', 'mst_assign_checklists.approve')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
             ->where('id_periode_checklist', $idPeriod)
-            ->where('type_checklist', $type)->orderBy('mst_assign_checklists.order_no_parent')->get()->groupBy('parent_point_checklist')
+            ->where('type_checklist', $type->type_checklist)->orderBy('mst_assign_checklists.order_no_parent')->get()->groupBy('parent_point_checklist')
             ->map(function ($group) {
                 $sortedGroup = $group->sortBy('order_no_checklist');
                 $responses = $sortedGroup->pluck('status_response')->toArray();
@@ -277,7 +336,7 @@ class FormChecklistController extends Controller
         $points = MstAssignChecklists::select('mst_assign_checklists.id', 'checklist_responses.status_response', 'mst_assign_checklists.order_no_checklist', 'mst_assign_checklists.approve')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
             ->where('id_periode_checklist', $idPeriod)
-            ->where('type_checklist', $type)
+            ->where('type_checklist', $type->type_checklist)
             ->where('parent_point_checklist', $tabParentAct)
             ->orderByRaw('CAST(mst_assign_checklists.order_no_checklist AS UNSIGNED)')
             ->get();
@@ -317,9 +376,12 @@ class FormChecklistController extends Controller
         ];
         return response()->json($response);
     }
-    public function storeFileFormPerParent(Request $request)
+    public function storeChecklistFile(Request $request)
     {
-        // Validation Format File Upload Max 2mb
+        // Validation Format File Upload Image Max 2mb
+        // $request->validate([
+        //     'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        // ]);
         $request->validate([
             'responseFile' => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar|max:20480'
         ]);
@@ -356,30 +418,54 @@ class FormChecklistController extends Controller
             DB::rollBack();
         }
     }
-
     public function finishChecklist(Request $request)
     {
-        $id = $request->idCheckJar;
-        $checkJar = ChecklistJaringan::find($id);
-        $type = $checkJar->type_checklist;
-        $idPeriod = $checkJar->id_periode;
-
-        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
-        $model = in_array($type, $typeChecklistPerCheck) ? 'perCheck' : 'perParent';
-
-        if($model == 'perCheck'){
-            $request->validate([
-                'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
-            ]);
-        } else {
-            $request->validate([
-                'responseFile' => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar|max:20480'
-            ]);
-        }
+        // Validation Format File Upload Image Max 2mb
+        // $request->validate([
+        //     'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        // ]);
+        $request->validate([
+            'responseFile' => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar|max:20480'
+        ]);
 
         DB::beginTransaction();
         try {
-            // Save Response File
+            // Save Response 
+            if ($request->has('responseAns') && !is_null($request->responseAns) && $request->responseAns !== 'undefined') {
+                $statusResp = 1;
+                ChecklistResponses::updateOrCreate(
+                    ['id_assign_checklist' => $request->idActive],
+                    ['id_checklist_jaringan' => $request->idCheckJar, 'response' => $request->responseAns, 'status_response' => $statusResp]
+                );
+
+                // Calculate Point
+                $id = $request->idCheckJar;
+                $checklistJaringan = ChecklistJaringan::find($id);
+                $checked = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->count();
+                $remaining = $checklistJaringan->total_checklist - $checked;
+                // Calculate totals
+                $responses = ChecklistResponses::where('id_checklist_jaringan', $id)->where('status_response', 1)->get();
+                $totalEG = $responses->where('response', 'Exist, Good')->count();
+                $totalENG = $responses->where('response', 'Exist Not Good')->count();
+                if (in_array($checklistJaringan->type_checklist, ['H1 People', 'H23 People'])) {
+                    $totalPoint = ($totalEG * 2) + $totalENG;
+                    // Avoid division by zero
+                    $result = ($checked > 0) ? ($totalPoint / (2 * $checked)) * 100 : 0;
+                    $formattedResult = number_format($result, 2, '.', '');
+                } elseif (in_array($checklistJaringan->type_checklist, ['H1 Process', 'H23 Process'])) {
+                    $totalPoint = $totalEG;
+                    // Avoid division by zero
+                    $result = ($checked > 0) ? ($totalPoint / $checked) * 100 : 0;
+                    $formattedResult = number_format($result, 2, '.', '');
+                } else {
+                    $totalPoint = $totalEG - $totalENG;
+                    // Avoid division by zero
+                    $result = ($checked > 0) ? ($totalPoint / $checked) * 100 : 0;
+                    $formattedResult = number_format($result, 2, '.', '');
+                }
+                // Update Checklist Jaringan
+                $checklistJaringan->update(['checklist_remaining' => $remaining, 'total_point' => $totalPoint, 'result_percentage' => $formattedResult]);
+            }
             if ($request->hasFile('responseFile')) {
                 $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
                 if ($exist) {
@@ -392,42 +478,16 @@ class FormChecklistController extends Controller
                 $file->move(public_path('assets/images/response_checklist'), $name);
                 $url = 'assets/images/response_checklist/' . $name;
 
-                if($model == 'perCheck'){
+                $parent = MstAssignChecklists::where('id', $request->idActive)->first()->parent_point_checklist;
+                $checkJar = ChecklistJaringan::where('id', $request->idCheckJar)->first();
+                $type = $checkJar->type_checklist;
+                $idPeriod = $checkJar->id_periode;
+                $assigns = MstAssignChecklists::where('id_periode_checklist', $idPeriod)->where('type_checklist', $type)->where('parent_point_checklist', $parent)->get();
+                foreach ($assigns as $item) {
                     ChecklistResponses::updateOrCreate(
-                        ['id_assign_checklist' => $request->idActive],
-                        ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $url]
+                        ['id_assign_checklist' => $item->id],
+                        ['path_input_response' => $url]
                     );
-                } else {
-                    $parent = MstAssignChecklists::where('id', $request->idActive)->first()->parent_point_checklist;
-                    $checkJar = ChecklistJaringan::where('id', $request->idCheckJar)->first();
-                    $type = $checkJar->type_checklist;
-                    $idPeriod = $checkJar->id_periode;
-                    $assigns = MstAssignChecklists::where('id_periode_checklist', $idPeriod)->where('type_checklist', $type)->where('parent_point_checklist', $parent)->get();
-                    foreach ($assigns as $item) {
-                        ChecklistResponses::updateOrCreate(
-                            ['id_assign_checklist' => $item->id],
-                            ['path_input_response' => $url]
-                        );
-                    }
-                }
-            }
-            // Save Response Answer
-            if ($request->has('responseAns') && !is_null($request->responseAns) && $request->responseAns !== 'undefined') {
-                if($model == 'perCheck'){
-                    $statusResp = ($request->responseAns == 'N/A' || $request->responseAns == 'Not Exist') ? 1
-                        : (ChecklistResponses::where('id_assign_checklist', $request->idActive)->whereNotNull('path_input_response')->exists() ? 1 : null);
-                } else {
-                    $statusResp = 1;
-                }
-
-                ChecklistResponses::updateOrCreate(
-                    ['id_assign_checklist' => $request->idActive],
-                    ['id_checklist_jaringan' => $id, 'response' => $request->responseAns, 'status_response' => $statusResp]
-                );
-                // Calculate points
-                $calculate = $this->calculatePoint($checkJar);
-                if ($calculate['success']) {
-                    $checkJar->update(['checklist_remaining' => $calculate['remaining'], 'total_point' => $calculate['totalPoint'], 'result_percentage' => $calculate['percentageResult']]);
                 }
             }
 

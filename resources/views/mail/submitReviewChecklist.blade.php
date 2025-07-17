@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html>
 <body>
     <span>
@@ -141,5 +141,119 @@
         <br> [Person In Charge Assessor] <br>
 
     </span>
+</body>
+</html> --}}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #000;
+        }
+        .en {
+            display: block;
+            font-size: 12px;
+            font-style: italic;
+            margin: 2px 0 8px 0;
+            line-height: 1.2;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .details-table td {
+            padding: 4px 8px;
+            vertical-align: top;
+            text-align: left;
+        }
+        .checklist-table th,
+        .checklist-table td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .checklist-table th {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <p style="margin:0 0 8px 0;">
+        @if($nextStatus == 2)
+            Tim Internal Auditor yang terhormat,
+            <span class="en">Dear Internal Auditor Team,</span>
+        @else
+            PIC NOS MD yang terhormat,
+            <span class="en">Dear PIC NOS MD,</span>
+        @endif
+    </p>
+    <p style="margin:0 0 8px 0;">
+        Kami ingin memberitahukan Anda bahwa kami telah meninjau audit checklist seperti rincian di bawah ini:
+        <span class="en">We would like to inform you that we already review checklist audit as below details:</span>
+    </p>
+
+    <table class="details-table" cellspacing="0" cellpadding="0">
+        <tr>
+            <td><strong>Nama Periode</strong><br><span class="en">Period Name</span></td>
+            <td>:</td>
+            <td>{{ $periodInfo->period }}</td>
+        </tr>
+        <tr>
+            <td><strong>Ditugaskan Kepada</strong><br><span class="en">Assign To</span></td>
+            <td>:</td>
+            <td>{{ $periodInfo->dealer_name }} ({{ $periodInfo->type }})</td>
+        </tr>
+        <tr>
+            <td><strong>Total Checklist</strong><br><span class="en">Checklist Total</span></td>
+            <td>:</td>
+            <td>{{ $periodInfo->totalChecklist }}</td>
+        </tr>
+        <tr>
+            <td><strong>Keputusan</strong><br><span class="en">Decision</span></td>
+            <td>:</td>
+            <td>{{ $nextStatus == 2 ? 'Rejected' : 'Approved' }}</td>
+        </tr>
+        <tr>
+            <td><strong>Catatan</strong><br><span class="en">Note</span></td>
+            <td>:</td>
+            <td>{!! $note == null ? '-' : $note !!}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <strong>Rincian Checklist:</strong><br>
+    <span class="en">Checklist Details:</span>
+    <table class="checklist-table" cellspacing="0" cellpadding="0">
+        <tr>
+            <th>Jenis Checklist<br><span class="en">Type Checklist</span></th>
+            <th>Jumlah Checklist<br><span class="en">Amount Checklist</span></th>
+            <th>Keputusan<br><span class="en">Decision</span></th>
+            <th>Alasan<br><span class="en">Reason</span></th>
+        </tr>
+        @foreach($checklistdetail as $item)
+        <tr>
+            <td>{{ $item->type_checklist }}</td>
+            <td>{{ $item->total_checklist }}</td>
+            <td>{{ $item->last_decision_assessor == 1 ? 'Rejected' : 'Approved' }}</td>
+            <td>{!! $item->last_reason_assessor == null ? '-' : $item->last_reason_assessor !!}</td>
+        </tr>
+        @endforeach
+    </table>
+
+    <br>
+
+    <p>Thank you.<br>Regards,</p>
+    <p>
+        {{ $emailSubmitter }}<br>
+        [Person In Charge Assessor]
+    </p>
 </body>
 </html>

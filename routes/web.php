@@ -10,6 +10,7 @@ use App\Http\Controllers\CaptchaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FormChecklistController;
+use App\Http\Controllers\ListAssignedChecklistController;
 use App\Http\Controllers\MstAssignChecklistController;
 use App\Http\Controllers\MstJaringanController;
 use App\Http\Controllers\MstParentChecklistController;
@@ -240,40 +241,46 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    // AUDITOR MENU
+    // LIST ASSIGNED CHECKLIST
+    Route::middleware('role:Super Admin,Admin,PIC Dealers,Internal Auditor Dealer,Assessor Main Dealer,PIC NOS MD')->group(function () {
+        Route::controller(ListAssignedChecklistController::class)->group(function () {
+            Route::prefix('listassigned')->group(function () {
+                Route::get('/period', 'periodList')->name('listassigned.periodList');
+                Route::get('/period/detail/{id}', 'periodDetail')->name('listassigned.periodDetail');
+                Route::get('/period/log-activity/{id}', 'logActivity')->name('listassigned.logActivity');
+                // Detail Checklist
+                Route::get('/checklist/detail/{id}', 'detailChecklist')->name('listassigned.detailChecklist');
+            });
+        });
+    });
+
+    // AUDITOR SECTION
     Route::middleware('role:Super Admin,Admin,Internal Auditor Dealer')->group(function () {
-        // Period List
         Route::controller(AuditorController::class)->group(function () {
             Route::prefix('auditor')->group(function () {
-                Route::get('/period-list', 'periodList')->name('auditor.periodList');
-                Route::get('/period-list/detail/{id}', 'periodDetail')->name('auditor.periodDetail');
                 Route::post('/start-checklist/{id}', 'startChecklist')->name('auditor.start');
                 Route::post('/submit-checklist/{id}', 'submitChecklist')->name('auditor.submit');
-                Route::get('/detail/{id}', 'detailChecklist')->name('auditor.detailChecklist');
             });
         });
         // Form Audit
         Route::controller(FormChecklistController::class)->group(function () {
             Route::prefix('form')->group(function () {
-                Route::get('/{id}', 'checklistForm')->name('form.checklistForm');
-                Route::get('/get-checklist/{id}', 'getChecklistForm')->name('form.getChecklistForm');
-                Route::get('/get-checklist-h1p/{id}', 'getChecklistFormH1P')->name('form.getChecklistFormH1P');
-                Route::post('/store-checklist-file', 'storeChecklistFile')->name('form.storeChecklistFile');
-                Route::post('/finish-checklist', 'finishChecklist')->name('form.finishChecklist');
-                Route::post('/store-checklist-file-h1p', 'storeChecklistFileH1P')->name('form.storeChecklistFileH1P');
-                Route::post('/finish-checklist-h1p', 'finishChecklistH1P')->name('form.finishChecklistH1P');
+                Route::get('/{id}', 'checklist')->name('form.checklist');
+                Route::get('/get-form-pc/{id}', 'getFormPerCheck')->name('form.getFormPC');
+                Route::get('/get-form-pp/{id}', 'getFormPerParent')->name('form.getFormPP');
+                Route::post('/store-file-form-pc', 'storeFileFormPerCheck')->name('form.storeFileFormPC');
+                Route::post('/store-file-form-pp', 'storeFileFormPerParent')->name('form.storeFileFormPP');
+                Route::post('/finish-checklist', 'finishChecklist')->name('form.finishCheck');
+                
             });
         });
     });
 
-    // APPROVAL MENU
-    Route::middleware('role:Super Admin,Admin,PIC Dealers,Assessor Main Dealer,PIC NOS MD')->group(function () {
-        // Period List & Review
+    // APPROVAL SECTION
+    Route::middleware('role:Super Admin,Admin,PIC Dealers,Internal Auditor Dealer,Assessor Main Dealer,PIC NOS MD')->group(function () {
         Route::controller(ReviewChecklistController::class)->group(function () {
             Route::prefix('review')->group(function () {
-                Route::get('/period-list', 'periodList')->name('review.periodList');
-                Route::get('/period-list/detail/{id}', 'periodDetail')->name('review.periodDetail');
-                Route::get('/detail/{id}', 'reviewChecklist')->name('review.reviewChecklist');
+                // Assesor
                 Route::post('/take-review/{id}', 'takeReview')->name('review.takeReview');
                 Route::post('/decision/{id}/approve', 'approve')->name('review.approve');
                 Route::post('/decision/{id}/reject', 'reject')->name('review.reject');
@@ -285,25 +292,12 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/note/{id}', 'updateNoteChecklist')->name('review.updateNoteChecklist');
                 Route::post('submit/{id}', 'submitReviewChecklist')->name('review.submitReviewChecklist');
                 Route::post('submitCorrection/{id}', 'submitCorrectionChecklist')->name('review.submitCorrectionChecklist');
+                // PIC NOS MD
                 Route::post('decisionpic/{id}', 'updateDecisionPIC')->name('review.updateDecisionPIC');
                 Route::post('submit-pic/{id}', 'submitPICReviewChecklist')->name('review.submitPICReviewChecklist');
             });
         });
     });
-
-    // APPROVAL MENU
-    // Route::middleware('role:Super Admin,Admin,PIC Dealers,Assessor Main Dealer,PIC NOS MD')->group(function () {
-    //     // Period List & Review
-    //     Route::controller(ReviewChecklistController::class)->group(function () {
-    //         Route::prefix('review')->group(function () {
-    //             Route::get('/detail/{id}', 'reviewChecklist')->name('review.reviewChecklist');
-    //             Route::post('/decision/{id}/approve', 'approve')->name('review.approve');
-    //             Route::post('/decision/{id}/reject', 'reject')->name('review.reject');
-    //             Route::post('/decision/{id}/reset', 'reset')->name('review.reset');
-    //             Route::post('/decision/{id}/renderCardOnly', 'renderCardOnly')->name('review.renderCardOnly');
-    //         });
-    //     });
-    // });
 
     // EXPORT
     Route::get('/export-period/{id}', [ExportController::class, 'exportPeriod'])->name('export.period')->middleware('role:Super Admin,Admin,PIC NOS MD');
@@ -320,6 +314,4 @@ Route::middleware(['auth'])->group(function () {
 
     // AUDIT LOG
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog')->middleware('role:Super Admin,Admin');
-    Route::get('auditor/period/log-activity/{id}', [AuditLogController::class, 'logActivityPeriod'])->name('auditor.logActivityPeriod');
-    Route::get('review/period/log-activity/{id}', [AuditLogController::class, 'logActivityPeriod'])->name('review.logActivityPeriod');
 });

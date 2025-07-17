@@ -17,7 +17,7 @@
                         <div class="row py-4">
                             <div class="col-12 text-center">
                                 File Format Or Size Not Accepted, <br>
-                                Accepted Format <b>(jpeg,png,jpg) Max 2MB</b>
+                                Accepted Format <b>(jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar) Max 2MB</b>
                             </div>
                         </div>
                     </div>
@@ -38,7 +38,7 @@
             $('#processing').removeClass('hidden');
 
             $.ajax({
-                url: "{{ route('form.getChecklistFormH1P', encrypt($id)) }}",
+                url: "{{ route('form.getFormPP', encrypt($id)) }}",
                 method: 'GET',
                 data: {
                     tabParent: tabParent,
@@ -49,6 +49,40 @@
                 success: function (response) {
                     // Clear the #buildForm content
                     $('#buildForm').html('');
+
+                    // Extract file path and extension
+                    var guideFilePath = response.question.path_guide_parent;
+                    var responseFilePath = response.question.path_input_response;
+                    var guideExtension = guideFilePath ? guideFilePath.split('.').pop().toLowerCase() : null;
+                    var responseExtension = responseFilePath ? responseFilePath.split('.').pop().toLowerCase() : null;
+
+                    // Helper function to determine media type for the modal content
+                    function getModalContent(filePath, extension) {
+                        let fullPath = `{{ url('${filePath}') }}`;
+                        if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+                            return `<img src="${fullPath}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">`;
+                        } else if (['mp4', 'webm', 'ogg'].includes(extension)) {
+                            return `<video controls class="custom-video-thumbnail"><source src="${fullPath}" type="video/${extension}">Your browser does not support the video tag.</video>`;
+                        } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
+                            return `<div class="row py-4">
+                                        <div class="col-12 text-center">
+                                            Preview
+                                        </div>
+                                        <div class="col-12 mt-2 text-center">
+                                            <audio controls class="custom-audio-thumbnail"><source src="${fullPath}" type="audio/${extension}">Your browser does not support the audio element.</audio>
+                                        </div>
+                                    </div>`;
+                        } else {
+                            return `<div class="row py-4">
+                                        <div class="col-12 text-center">
+                                            Preview Not Available
+                                        </div>
+                                        <div class="col-12 mt-2 text-center">
+                                            <a href="${fullPath}" class="btn btn-primary" download>Download File</a>
+                                        </div>
+                                    </div>`;
+                        }
+                    }
 
                     // Build the form dynamically with the response data
                     var formHtml = `
@@ -70,16 +104,90 @@
                                 </ul>
                                 <!-- Tab -->
                                 <div class="tab-content p-2">
-                                    <h4 class="text-bold">${response.tabParentAct}</h4>
-                                    <!-- Question Number -->
-                                    <div class="card-header mt-3 p-0">
-                                        ${response.points.map((item, index) => `
-                                            <a id="questBtn" dataTab="${response.tabParentAct}" dataQuest="${item.id}" class="btn pt-1 pb-1 mb-2 btn-outline-primary ${item.id === response.idQuestionAct ? 'active' : ''} ${item.approve == 2 ? 'btn-danger' : item.status_response !== null ? 'btn-success' : ''}">
-                                                ${index + 1}
-                                            </a>
-                                        `).join('')}
+                                    <div class="row">
+                                        <div class="col-7">
+                                            <h4 class="text-bold">${response.tabParentAct}</h4>
+                                            <!-- Question Number -->
+                                            <div class="mt-3 p-0">
+                                                ${response.points.map((item, index) => `
+                                                    <a id="questBtn" dataTab="${response.tabParentAct}" dataQuest="${item.id}" class="btn pt-1 pb-1 mb-2 btn-outline-primary ${item.id === response.idQuestionAct ? 'active' : ''} ${item.approve == 2 ? 'btn-danger' : item.status_response !== null ? 'btn-success' : ''}">
+                                                        ${index + 1}
+                                                    </a>
+                                                `).join('')}
+                                            </div>
+                                            <!-- Question -->
+                                        </div>
+                                        <div class="col-5">
+                                            <div class="row">
+                                                <div class="col-12 mt-2">
+                                                    <table class="table table-bordered w-100" style="font-size: 10px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="padding: 4px; width: 25%;"><b>Panduan</b></th>
+                                                                <th class ="${response.question.approve === 3 ? 'd-none' : ''}" style="padding: 4px; width: 50%;"><b>${response.question.path_input_response ? `Update` : `Upload`}</b></th>
+                                                                <th style="padding: 4px; width: 25%;"><b>Uploaded</b></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="padding: 4px;">
+                                                                    ${response.question.path_guide_parent ? `
+                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuide" class="btn btn-sm btn-info">
+                                                                        <i class="mdi mdi-eye label-icon"></i> View
+                                                                    </a>` : 'Tidak Ada Panduan'}
+                                                                </td>
+                                                                <td style="padding: 4px;" class="${response.question.approve === 3 ? 'd-none' : ''}">
+                                                                    <input class="form-control me-auto" type="file" name="file_checklist" style="height: 30px; font-size: 10px;">
+                                                                </td>
+                                                                <td style="padding: 4px;">
+                                                                    ${response.question.path_input_response ? `
+                                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailResp" class="btn btn-sm btn-info">
+                                                                        <i class="mdi mdi-eye label-icon"></i> View
+                                                                    </a>` : '-'}
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <!-- Question -->
+                                    
+                                    <!-- Modals for Guide and Response -->
+                                    ${guideFilePath ? `
+                                    <div class="modal fade" id="detailGuide" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="staticBackdropLabel">Panduan</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
+                                                    <div class="row">
+                                                        ${getModalContent(guideFilePath, guideExtension)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>` : ''}
+
+                                    ${responseFilePath ? `
+                                    <div class="modal fade" id="detailResp" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="staticBackdropLabel">File Anda</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
+                                                    <div class="row">
+                                                        ${getModalContent(responseFilePath, responseExtension)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>` : ''}
+                                    
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="table-responsive" style="max-height: 70vh;">
@@ -115,46 +223,9 @@
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="width: 60%;">
+                                                            <td style="width: 100%;">
                                                                 <div style="height: 15vh; overflow-y: auto; width: 100%; overflow-x-auto;">
                                                                     ${response.question.indikator}
-                                                                </div>
-                                                            </td>
-                                                            <td rowspan="2" style="border-left: double 4px black; width: 20%;">
-                                                                ${response.question.path_guide_checklist ? `
-                                                                <div class="row">
-                                                                    <div class="col-12">
-                                                                        <label>Gambar Panduan</label>
-                                                                        <div class="custom-image-container">
-                                                                            <div class="card">
-                                                                                <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuideImg">
-                                                                                    <img src="{{ url('${response.question.path_guide_checklist}') }}" style="width: 100%; height: auto;" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
-                                                                                    <div class="custom-overlay">
-                                                                                        <div class="custom-text mt-4">Lihat Gambar</div>
-                                                                                    </div>
-                                                                                </a>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>` : ''}
-                                                            </td>
-                                                            <td rowspan="2" style="width: 20%;">
-                                                                <div class="row">
-                                                                    <div class="col-12">
-                                                                        <label>${response.question.approve === 3 ? 'Gambar Anda' : (response.question.path_input_response ? 'Perbaharui Gambar Anda' : 'Upload Gambar Anda')}</label>
-                                                                        ${response.question.path_input_response ? `
-                                                                        <div class="custom-image-container">
-                                                                            <div class="card">
-                                                                                <a href="#" data-bs-toggle="modal" data-bs-target="#detailRspImg">
-                                                                                    <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
-                                                                                    <div class="custom-overlay">
-                                                                                        <div class="custom-text mt-4">Lihat Gambar</div>
-                                                                                    </div>
-                                                                                </a>
-                                                                            </div>
-                                                                        </div>` : ''}
-                                                                        <input class="form-control me-auto ${response.question.approve === 3 ? 'd-none' : ''}" type="file" name="file_checklist">
-                                                                    </div>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -215,47 +286,10 @@
                                             </button>
                                         </div>
                                     </div>
-                                </div
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Modals -->
-                    ${response.question.path_guide_checklist ? `
-                    <div class="modal fade" id="detailGuideImg" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="staticBackdropLabel">Gambar Panduan</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
-                                    <div class="row">
-                                        <img src="{{ url('${response.question.path_guide_checklist}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
-                                    </div>
-                                </div>
-                                <div class="modal-footer"></div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
-                    ${response.question.path_input_response ? `
-                    <div class="modal fade" id="detailRspImg" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-top" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="staticBackdropLabel">Gambar Anda</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
-                                    <div class="row">
-                                        <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
-                                    </div>
-                                </div>
-                                <div class="modal-footer"></div>
-                            </div>
-                        </div>
-                    </div>
-                    ` : ''}
                     `;
                     // Append the form HTML into the #buildForm div
                     $('#buildForm').html(formHtml);
@@ -298,7 +332,7 @@
                 formData.append('idActive', idActive);
                 formData.append('responseFile', responseFile);
                 $.ajax({
-                    url: "{{ route('form.storeChecklistFileH1P') }}",
+                    url: "{{ route('form.storeFileFormPP') }}",
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -348,7 +382,7 @@
             formData.append('responseAns', responseAns);
             formData.append('responseFile', responseFile);
             $.ajax({
-                url: "{{ route('form.finishChecklistH1P') }}",
+                url: "{{ route('form.finishCheck') }}",
                 type: 'POST',
                 data: formData,
                 processData: false,

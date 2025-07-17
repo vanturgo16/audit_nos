@@ -38,7 +38,7 @@
             $('#processing').removeClass('hidden');
 
             $.ajax({
-                url: "{{ route('form.getChecklistFormH1P', encrypt($id)) }}",
+                url: "{{ route('form.getFormPC', encrypt($id)) }}",
                 method: 'GET',
                 data: {
                     tabParent: tabParent,
@@ -298,7 +298,7 @@
                 formData.append('idActive', idActive);
                 formData.append('responseFile', responseFile);
                 $.ajax({
-                    url: "{{ route('form.storeChecklistFileH1P') }}",
+                    url: "{{ route('form.storeFileFormPC') }}",
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -348,7 +348,7 @@
             formData.append('responseAns', responseAns);
             formData.append('responseFile', responseFile);
             $.ajax({
-                url: "{{ route('form.finishChecklistH1P') }}",
+                url: "{{ route('form.finishCheck') }}",
                 type: 'POST',
                 data: formData,
                 processData: false,

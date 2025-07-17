@@ -224,9 +224,9 @@ class MstAssignChecklistController extends Controller
             return redirect()->back()->with(['fail' => 'Failed, Data Employee Internal Auditor Jaringan "' . $periodInfo->dealer_name . '" Not Exist']);
         }
         // Recepient Email
+        $toemail = $ccemail = null;
         if ($variableEmail['devRule'] == 1) {
-            $toemail = $ccemail = $variableEmail['emailDev'];
-            $ccemail = null;
+            $toemail = $variableEmail['emailDev'];
         } else {
             $toemail = $emailAuditor;
             $ccemail = $variableEmail['emailSubmitter'];

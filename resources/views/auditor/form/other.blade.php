@@ -261,7 +261,7 @@
                                     <!-- Button Nav -->
                                     <div class="row">
                                         <div class="col-3 text-start">
-                                            <a id="exitBtn" type="button" href="{{ route('auditor.periodDetail', encrypt($idPeriod)) }}" class="btn btn-sm btn-danger waves-effect waves-light loadButton">
+                                            <a id="exitBtn" type="button" href="{{ route('listassigned.periodDetail', encrypt($idPeriod)) }}" class="btn btn-sm btn-danger waves-effect waves-light loadButton">
                                                 <i class="mdi mdi-close-box label-icon"></i> | Exit
                                             </a>
                                         </div>
@@ -392,7 +392,7 @@
                 },
                 success: function (response) {
                     console.log(response);
-                    window.location.href = "{{ route('auditor.periodDetail', encrypt($idPeriod)) }}";
+                    window.location.href = "{{ route('listassigned.periodDetail', encrypt($idPeriod)) }}";
                 },
                 error: function (error) {
                     console.log(error); 

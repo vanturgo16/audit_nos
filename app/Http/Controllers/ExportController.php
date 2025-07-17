@@ -21,7 +21,7 @@ class ExportController extends Controller
         $periodInfo = MstPeriodeChecklists::leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
             ->where('mst_periode_checklists.id', $id)
             ->first();
-        $dataCheck = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.path_input_response')
+        $dataCheck = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.response_correction', 'checklist_responses.path_input_response')
             ->leftJoin('checklist_responses', 'mst_assign_checklists.id', 'checklist_responses.id_assign_checklist')
             ->where('mst_assign_checklists.id_periode_checklist', $id)
             ->orderby('mst_assign_checklists.order_no_parent')

@@ -107,7 +107,7 @@
 
                     <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
                     <li>
-                        <a href="{{ route('review.periodList') }}" class="{{ request()->is('review*') ? 'bg-light active' : '' }}" id="reviewNav">
+                        <a href="{{ route('listassigned.periodList') }}" class="{{ request()->is('listassigned*') ? 'bg-light active' : '' }}" id="reviewNav">
                             <i class="mdi mdi-message-draw"></i>
                             <span>Review Checklist</span>
                         </a>
@@ -181,7 +181,7 @@
 
                     <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
                     <li>
-                        <a href="{{ route('review.periodList') }}" class="{{ request()->is('review*') ? 'bg-light active' : '' }}" id="reviewNav">
+                        <a href="{{ route('listassigned.periodList') }}" class="{{ request()->is('listassigned*') ? 'bg-light active' : '' }}" id="reviewNav">
                             <i class="mdi mdi-message-draw"></i>
                             <span>Review Checklist</span>
                         </a>
@@ -192,7 +192,7 @@
                 @if(Auth::user()->role == 'Internal Auditor Dealer')
                     <li class="menu-title" data-key="t-menu">Auditor Menu</li>
                     <li>
-                        <a href="{{ route('auditor.periodList') }}" class="{{ (request()->is('auditor*') || request()->is('form*')) ? 'bg-light active' : '' }}" id="assignedNav">
+                        <a href="{{ route('listassigned.periodList') }}" class="{{ (request()->is('listassigned*') || request()->is('form*')) ? 'bg-light active' : '' }}" id="assignedNav">
                             <i class="mdi mdi-file-check"></i>
                             <span>Assigned Checklist</span>
                         </a>
@@ -203,7 +203,7 @@
                 @if(in_array(Auth::user()->role, ['Assessor Main Dealer','PIC NOS MD']))
                     <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
                     <li>
-                        <a href="{{ route('review.periodList') }}" class="{{ request()->is('review*') ? 'bg-light active' : '' }}" id="reviewNav">
+                        <a href="{{ route('listassigned.periodList') }}" class="{{ request()->is('listassigned*') ? 'bg-light active' : '' }}" id="reviewNav">
                             <i class="mdi mdi-message-draw"></i>
                             <span>Review Checklist</span>
                         </a>

@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", function () {
     scrollToNavItem("periodNameNav", "periodname");
     scrollToNavItem("periodNav", "periodchecklist");
     scrollToNavItem("reviewNav", "review");
+    scrollToNavItem("reviewNav", "listassigned");
     scrollToNavItem("assignedNav", "auditor");
+    scrollToNavItem("assignedNav", "form");
     scrollToNavItem("auditlogNav", "auditlog");
 });

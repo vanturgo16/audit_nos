@@ -54,7 +54,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('periodname.update', encrypt($data->id)) }}" id="formedit{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                <form class="formLoad" action="{{ route('periodname.update', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
@@ -68,7 +68,9 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-update{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Update</button>
+                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light">
+                            <i class="mdi mdi-update label-icon"></i>Update
+                        </button>
                     </div>
                 </form>
             </div>
@@ -76,16 +78,4 @@
     </div>
 </div>
 
-<script>
-$(document).ready(function () {
-    let idList = "{{ $data->id }}";
-    $('#formedit' + idList).submit(function(e) {
-        if (!$('#formedit' + idList).valid()){
-            e.preventDefault();
-        } else {
-            $('#sb-update' + idList).attr("disabled", "disabled");
-            $('#sb-update' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-        }
-    });
-});
-</script>
+<script src="{{ asset('assets/js/formLoad.js') }}"></script>

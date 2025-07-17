@@ -2,32 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChecklistResponse;
-use App\Models\FileInputResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 
 //model
 use App\Models\MstAssignChecklists;
 use App\Models\MstDropdowns;
-use App\Models\MstEmployees;
 use App\Models\MstGrading;
-use App\Models\MstJaringan;
-use App\Models\MstParentChecklists;
 use App\Models\MstPeriodeChecklists;
-use App\Models\TransFileResponse;
-use App\Models\MstRules;
 use App\Models\User;
 use App\Models\ChecklistJaringan;
-use Carbon\Carbon;
 
 // Mail
 use App\Mail\SubmitChecklist;
 use App\Models\ChecklistResponses;
-use Mockery\Undefined;
 
 // Trait
 use App\Traits\AuditLogsTrait;
@@ -38,99 +27,6 @@ class AuditorController extends Controller
     use AuditLogsTrait;
     use MailingTrait;
 
-    public function periodList(Request $request)
-    {
-        $idJaringan = MstEmployees::where('email', auth()->user()->email)->first()->id_dealer;
-        $jaringanDetail = MstJaringan::where('id', $idJaringan)->first();
-
-        if ($request->ajax()) {
-            $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
-                'a.name as auditor_name', 'b.name as assesor_name')
-                ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
-                ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
-                ->whereNotNull('mst_periode_checklists.status')
-                ->where('mst_periode_checklists.status', '!=', 0)
-                ->where('mst_periode_checklists.id_branch', $idJaringan)
-                ->orderBy('mst_periode_checklists.created_at', 'desc')
-                ->get();
-                
-            return DataTables::of($query)
-                ->addColumn('action', function ($data) {
-                    return view('auditor.period.action', compact('data'));
-                })->toJson();
-        }
-
-        //Audit Log
-        $this->auditLogsShort('View List Assign Period Checklist Auditor');
-
-        return view('auditor.period.index', compact('jaringanDetail'));
-    }
-
-    public function periodDetail(Request $request, $id)
-    {
-        $id = decrypt($id);
-        $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
-            'a.name as auditor_name', 'b.name as assesor_name')
-            ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
-            ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
-            ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
-            ->where('mst_periode_checklists.id', $id)
-            ->first();
-        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
-
-        $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
-        $checkJars = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")->get();
-        foreach ($checkJars as $item) {
-            $responsCounts = ChecklistResponses::join('mst_assign_checklists', 'checklist_responses.id_assign_checklist', 'mst_assign_checklists.id')
-                ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-                ->join('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
-                ->where('mst_assign_checklists.type_checklist', $item->type_checklist)
-                ->where('mst_periode_checklists.id', $id)
-                ->groupBy('checklist_responses.response')
-                ->selectRaw('checklist_responses.response as type_response, COUNT(*) as count')
-                ->get()->toArray();
-            $item->point = $responsCounts;
-
-            if(in_array($item->type_checklist, $typeChecklistPerCheck)) {
-                $isComplete = ($item->checklist_remaining == 0) ? 1 : 0;
-            } else {
-                if ($item->checklist_remaining == 0) {
-                    $isComplete = ChecklistResponses::join('mst_assign_checklists', 'checklist_responses.id_assign_checklist', 'mst_assign_checklists.id')
-                        ->join('mst_periode_checklists', 'mst_assign_checklists.id_periode_checklist', 'mst_periode_checklists.id')
-                        ->where('mst_assign_checklists.type_checklist', $item->type_checklist)
-                        ->where('mst_periode_checklists.id', $id)
-                        ->whereNull('checklist_responses.path_input_response')
-                        ->exists() ? 0 : 1;
-                } else {
-                    $isComplete = 0;
-                }
-            }
-            $item->isComplete = $isComplete;
-        }
-
-        $allComplete = $checkJars->contains(function ($item) {
-            return $item->isComplete === 0;
-        }) ? 0 : 1;
-
-        if ($request->ajax()) {
-            $statusPeriod = $periodInfo->is_active;
-            $startPeriod = $periodInfo->start_date;
-            $today = Carbon::today()->format('Y-m-d');
-
-            return DataTables::of($checkJars)
-                ->addColumn('action', function ($data) use ($statusPeriod, $startPeriod, $today) {
-                    return view('auditor.period.detail.action', compact('data', 'statusPeriod', 'startPeriod', 'today'));
-                })
-                ->toJson();
-        }
-
-        // Audit Log
-        $this->auditLogsShort('View Data Checklist, Period: ', $id);
-
-        return view('auditor.period.detail.index', compact('id', 'periodInfo', 'allComplete'));
-    }
-
     public function startChecklist($id)
     {
         $id = decrypt($id);
@@ -138,8 +34,14 @@ class AuditorController extends Controller
         DB::beginTransaction();
         try {
             $checklist = ChecklistJaringan::findOrFail($id);
-            $period = MstPeriodeChecklists::findOrFail($checklist->id_periode);
-
+            // Lock the row for update to prevent race condition
+            $period = MstPeriodeChecklists::where('id', $checklist->id_periode)->lockForUpdate()->firstOrFail();
+            // If already claimed by another auditor, abort
+            if (!is_null($period->id_auditor) && $period->id_auditor !== auth()->id()) {
+                DB::rollBack();
+                return redirect()->back()->with(['fail' => 'Checklist already claimed by another auditor.']);
+            }
+            // Assign current user if not yet assigned
             if (is_null($period->id_auditor)) {
                 $period->update(['id_auditor' => auth()->id()]);
             }
@@ -153,6 +55,7 @@ class AuditorController extends Controller
             DB::commit();
             return redirect()->back()->with(['success' => 'Success Start Checklist']);
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->with(['fail' => 'Failed to Start Checklist!']);
         }
     }
@@ -174,9 +77,9 @@ class AuditorController extends Controller
             ->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")
             ->get();
         // Recepient Email
+        $toemail = $ccemail = null;
         if ($variableEmail['devRule'] == 1) {
             $toemail = $variableEmail['emailDev'];
-            $ccemail = null;
         } else {
             $toemail = User::where('role', 'Assessor Main Dealer')->pluck('email')->toArray();
             $ccemail = $variableEmail['emailSubmitter'];
@@ -244,45 +147,10 @@ class AuditorController extends Controller
             $this->auditLogsShort('Submit answer Checklist Period (' . $id . ')');
 
             DB::commit();
-            return redirect()->route('auditor.periodList')->with(['success' => 'Success Submit Your Answer Checklist']);
+            return redirect()->route('listassigned.periodList')->with(['success' => 'Success Submit Your Answer Checklist']);
         } catch (Exception $e) {
             DB::rollBack();
             return redirect()->back()->with(['fail' => 'Failed to Submit Checklist!']);
         }
-    }
-
-    public function detailChecklist(Request $request, $id)
-    {
-        $id = decrypt($id);
-        $chekJar = ChecklistJaringan::where('id', $id)->first();
-        $period = MstPeriodeChecklists::where('id', $chekJar->id_periode)->first();
-        $typeCheck = $chekJar->type_checklist;
-        $assignChecks = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.path_input_response')
-            ->leftjoin('checklist_responses', 'mst_assign_checklists.id', 'checklist_responses.id_assign_checklist')
-            ->where('mst_assign_checklists.id_periode_checklist', $chekJar->id_periode)
-            ->where('mst_assign_checklists.type_checklist', $chekJar->type_checklist)
-            ->orderby('mst_assign_checklists.order_no_parent')
-            ->orderby('mst_assign_checklists.order_no_checklist')
-            ->get();
-
-        if ($request->ajax()) {
-            return DataTables::of($assignChecks)
-                ->addColumn('file', function ($data) {
-                    return view('review.file', compact('data'));
-                })
-                ->addColumn('detail', function ($data) {
-                    return view('review.detail', compact('data'));
-                })
-                ->addColumn('photo', function ($data) {
-                    return view('review.photo', compact('data'));
-                })->toJson();
-        }
-
-        //Audit Log
-        $this->auditLogsShort('View Review Checklist');
-
-        $typeChecklistPerCheck = MstRules::where('rule_name', 'Type Checklist Per Checklist')->pluck('rule_value')->toArray();
-        $view = in_array($typeCheck, $typeChecklistPerCheck) ? 'auditor.detail.index-h1' : 'auditor.detail.index-other';
-        return view($view, compact('id', 'chekJar', 'assignChecks', 'period', 'typeCheck'));
     }
 }
