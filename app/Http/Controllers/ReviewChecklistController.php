@@ -340,17 +340,26 @@ class ReviewChecklistController extends Controller
             }
 
             // SEND EMAIL
-            Mail::to($toemail)->cc($ccemail)->send($mailStructure);
+            // Mail::to($toemail)->cc($ccemail)->send($mailStructure);
 
             //Log Period
             $this->storeLogPeriod($id, $nextStatus, $request->note);
             //Audit Log
             $this->auditLogsShort('PIC NOS MD Submit Review Checklist Jaringan :' . $id);
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Submit Review']);
+            // return redirect()->back()->with(['success' => 'Success Submit Review']);
         } catch (\Exception $e) {
             dd($e);
             return redirect()->back()->with(['fail' => 'Failed to Submit Review!']);
+        }
+
+        // Sementara ini hanya mengirim email diluar
+        try {
+            // SEND EMAIL
+            Mail::to($toemail)->cc($ccemail)->send($mailStructure);
+            return redirect()->back()->with(['success' => 'Success Submit Review']);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['fail' => 'Success Submit Review, But Failed to Send Email!']);
         }
     }
 }
