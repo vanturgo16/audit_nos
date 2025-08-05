@@ -162,7 +162,7 @@
         var filterBranch = `
             <label>
                 <select id="filterBranch">
-                    @if (in_array(Auth::user()->role, ['Super Admin', 'Admin', 'PIC NOS MD']))
+                    @if (in_array(Auth::user()->role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD']))
                         <option value="">-- All Jaringan --</option>
                     @endif
                     ${branchs.map(branch => `<option value="${branch.id}">${branch.dealer_name}</option>`).join('')}

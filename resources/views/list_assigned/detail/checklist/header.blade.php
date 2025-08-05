@@ -48,7 +48,7 @@
         $idUser = Auth::user()->id;
         $role = Auth::user()->role;
         $status = $checkJar->status;
-        $idAssesor = $period->id_assesor;
+        $idAssesor = $checkJar->id_assesor;
         $isReviewer = in_array($role, ['Assessor Main Dealer', 'PIC NOS MD']);
         $isAssesorReview = $role == 'Assessor Main Dealer' && $status === 2 && $idUser == $idAssesor;
         $isPICReview = $role == 'PIC NOS MD' && $status === 3;
@@ -154,7 +154,7 @@
         </div>
     </div>
 
-    @if($checkJar->last_correction_assessor === 0 && $idUser == $period->id_assesor)
+    @if($checkJar->last_correction_assessor === 0 && $idUser == $idAssesor)
         <div class="col-12 mb-4">
             <button type="button" class="btn btn-success waves-effect btn-label waves-light fixed-bottom-center" data-bs-toggle="modal" data-bs-target="#recalculate">
                 <i class="mdi mdi-sync label-icon"></i>

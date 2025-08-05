@@ -5,7 +5,7 @@
         $status = $data->status;
         $detailUrl = route('listassigned.periodDetail', encrypt($data->id));
         $showAudit = in_array($status, [1, 2]) && (is_null($data->idAuditor) || $userId == $data->idAuditor);
-        $showReviewAssessor = $status == 3 && $idDealerUser == $data->id_dealer;
+        $showReviewAssessor = $status == 3 && $idDealerUser == $data->id_branch;
         $showReviewNosMd = $status == 4;
     @endphp
 

@@ -112,11 +112,9 @@
 
     {{-- Assesor --}}
     @if($role == 'Assessor Main Dealer')
-        @if($status == 2)
-            @php $isAssesor = $userId == $idAssesor; @endphp
-
-            @if($idAssesor)
-                @if($isAssesor)
+        @if($status == 2 && $isHisDealer)
+            @if($data->id_assesor)
+                @if($userId === $data->id_assesor)
                     <a href="{{ route('listassigned.detailChecklist', encrypt($data->id)) }}" type="button" class="btn btn-sm btn-primary">
                         {{ $data->last_correction_assessor === null ? 'Review' : 'Correction' }}
                     </a>
@@ -133,7 +131,7 @@
                                 <h5 class="modal-title" id="staticBackdropLabel">Take Review</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <form class="formLoad" action="{{ route('review.takeReview', encrypt($data->id_periode)) }}" method="POST">
+                            <form class="formLoad" action="{{ route('review.takeReview', encrypt($data->id)) }}" method="POST">
                                 @csrf
                                 <div class="modal-body">
                                     <div class="row">

@@ -159,7 +159,7 @@
                             $userId = Auth::id();
                             $status = $periodInfo->status;
                             $showSubmitAuditor = $role == 'Internal Auditor Dealer' && $userId == $periodInfo->idAuditor && in_array($status, [1, 2]);
-                            $showSubmitAssesor = $role == 'Assessor Main Dealer' && $userId == $periodInfo->idAssesor && $status == 3;
+                            $showSubmitAssesor = $role == 'Assessor Main Dealer' && in_array($userId, $idAssesors) && $status == 3;
                             $showSubmitPIC = $role == 'PIC NOS MD' && $status == 4;
                         @endphp
 
@@ -557,6 +557,7 @@
                     className: 'align-top text-center',
                     render: function(data, type, row) {
                         var html = '';
+                        var assesorName = row.assesor_name ?? '-';
                         if (row.last_decision_assessor == 0) {
                             html = '<span class="badge bg-warning text-white"><i class="mdi mdi-refresh label-icon"></i></span>';
                         } else if (row.last_decision_assessor == 1) {
@@ -573,7 +574,7 @@
                             html = '-';
                         }
                         
-                        return html;
+                        return html + '<br><br>' + assesorName;
                     },
                 },
                 {

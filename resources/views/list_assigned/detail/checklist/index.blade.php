@@ -15,7 +15,7 @@
                     @if ($renderImmediately)
                         @include('list_assigned.detail.checklist.card_item', ['item' => $item, 'index' => $index + 1,
                             'perCheck' => $perCheck, 'statusCorrection' => $checkJar->last_correction_assessor,
-                            'idAssesor' => $period->id_assesor
+                            'idAssesor' => $checkJar->id_assesor
                             ])
                     @else
                         <div class="card mb-3 skeleton-card" style="min-height: 300px;">

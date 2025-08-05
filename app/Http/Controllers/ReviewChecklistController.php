@@ -98,18 +98,18 @@ class ReviewChecklistController extends Controller
         $id = decrypt($id);
         DB::beginTransaction();
         try {
-            $period = MstPeriodeChecklists::findOrFail($id);
-            if (is_null($period->id_assesor)) {
-                $period->update(['id_assesor' => auth()->id()]);
+            $check = ChecklistJaringan::findOrFail($id);
+            if (is_null($check->id_assesor)) {
+                $check->update(['id_assesor' => auth()->id()]);
             } else {
-                return redirect()->back()->with(['fail' => 'Has Any Other Assesor Take This Checklist for Review!']);
+                return redirect()->back()->with(['fail' => 'Has Any Other Assesor Take This Type Checklist for Review!']);
             }
             //Audit Log
-            $this->auditLogsShort('Take Review Period Checklist ID: ' . $id);
+            $this->auditLogsShort('Take Review Checklist Jaringan ID: ' . $id);
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Take Review This Checklist']);
+            return redirect()->back()->with(['success' => 'Success Take Review This Type Checklist']);
         } catch (\Exception $e) {
-            return redirect()->back()->with(['fail' => 'Failed to Take Review This Checklist!']);
+            return redirect()->back()->with(['fail' => 'Failed to Take Review This Type Checklist!']);
         }
     }
 
@@ -156,7 +156,8 @@ class ReviewChecklistController extends Controller
         $statusCorrection = optional(ChecklistJaringan::where('id_periode', $updatedItem->id_periode_checklist)
             ->where('type_checklist', $updatedItem->type_checklist)
             ->first())->last_correction_assessor;
-        $idAssesor = optional(MstPeriodeChecklists::where('id', $updatedItem->id_periode_checklist)
+        $idAssesor = optional(ChecklistJaringan::where('id_periode', $updatedItem->id_periode_checklist)
+            ->where('type_checklist', $updatedItem->type_checklist)
             ->first())->id_assesor;
         $assignChecks = MstAssignChecklists::where('id_periode_checklist', $updatedItem->id_periode_checklist)
             ->where('type_checklist', $updatedItem->type_checklist)
@@ -323,6 +324,13 @@ class ReviewChecklistController extends Controller
     public function submitReviewChecklist(Request $request, $id)
     {
         $id = decrypt($id);
+
+        // Check IF has submitted another assesor or not
+        $period = MstPeriodeChecklists::where('id', $id)->first();
+        if(in_array($period->status, [2,3])){
+            return redirect()->back()->with(['info' => 'Has Any Other Assesor Submit This Checklist!']);
+        }
+        
         $nextStatus = (MstAssignChecklists::where('id_periode_checklist', $id)->whereNotIn('approve', [1, 3])->exists()) ? 2 : 3;
         // Except Done Checklist
         $chekJars = ChecklistJaringan::where('id_periode', $id)->where('status', '!=', 5)->get();
@@ -411,6 +419,12 @@ class ReviewChecklistController extends Controller
         $id = decrypt($id);
         $nextStatus = 4;
         $chekJars = ChecklistJaringan::where('id_periode', $id)->where('status', '!=', 5)->get();
+
+        // Check IF has submitted another assesor or not
+        $period = MstPeriodeChecklists::where('id', $id)->first();
+        if($period->status == 4){
+            return redirect()->back()->with(['info' => 'Has Any Other Assesor Submit Correction This Checklist!']);
+        }
 
         DB::beginTransaction();
         try {
@@ -561,6 +575,12 @@ class ReviewChecklistController extends Controller
         $id = decrypt($id);
         $chekJars = ChecklistJaringan::where('id_periode', $id)->get();
         $nextStatus = (ChecklistJaringan::where('id_periode', $id)->where('last_decision_pic', 1)->exists()) ? 3 : 5;
+
+        // Check IF has submitted another PIC NOS MD or not
+        $period = MstPeriodeChecklists::where('id', $id)->first();
+        if(in_array($period->status, [3,5])){
+            return redirect()->back()->with(['info' => 'Has Any Other PIC NOS MD Submit Review This Checklist!']);
+        }
 
         // MAILING
         // [ INITIATE VARIABLE ] 

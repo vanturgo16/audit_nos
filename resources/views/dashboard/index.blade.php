@@ -195,9 +195,6 @@
                             @else
                                 <div class="col-12">
                                     <div class="card">
-                                        <div class="card-header text-center">
-                                            <h5 class="fw-bold">Auditor Version</h5>
-                                        </div>
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-12">
@@ -227,7 +224,7 @@
                                                                         @if(in_array($statusPeriod, [1,2]))
                                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                                         @else
-                                                                            <td class="align-middle text-center">{{ $result->result_percentage }}%</th>
+                                                                            <td class="align-middle text-center">{{ $result->result_percentage_assesor ?? $result->result_percentage }}%</th>
                                                                         @endif
                                                                     @endforeach
                                                                 </tr>
@@ -251,7 +248,7 @@
                                                                         @if(in_array($statusPeriod, [0,1,2]))
                                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                                         @else
-                                                                            <td class="align-middle text-center">{{ $result->audit_result }}</th>
+                                                                            <td class="align-middle text-center">{{ $result->audit_result_assesor ?? $result->audit_result }}</th>
                                                                         @endif
                                                                     @endforeach
                                                                 </tr>
@@ -261,7 +258,7 @@
                                                                         @if(in_array($statusPeriod, [0,1,2]))
                                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                                         @else
-                                                                            <td class="align-middle text-center">{{ $result->mandatory_item }}</th>
+                                                                            <td class="align-middle text-center">{{ $result->mandatory_item_assesor ?? $result->mandatory_item }}</th>
                                                                         @endif
                                                                     @endforeach
                                                                 </tr>
@@ -281,7 +278,7 @@
                                                                         @if(in_array($statusPeriod, [0,1,2]))
                                                                             <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
                                                                         @else
-                                                                            <td class="align-middle text-center">{{ $result->result_final }}</th>
+                                                                            <td class="align-middle text-center">{{ $result->result_final_assesor ?? $result->result_final }}</th>
                                                                         @endif
                                                                     @endforeach
                                                                 </tr>

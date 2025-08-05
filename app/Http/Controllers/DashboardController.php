@@ -53,21 +53,27 @@ class DashboardController extends Controller
                 'status',
                 'audit_result',
                 'mandatory_item',
-                'result_final'
+                'result_final',
+
+                'result_percentage_assesor',
+                'audit_result_assesor',
+                'mandatory_item_assesor',
+                'result_final_assesor'
             )
                 ->where('id_periode', $idPeriod)
                 ->orderByRaw("FIELD(type_checklist, '" . implode("','", $typechecklistValues) . "')")
                 ->get();
             if ($resultchecklist) {
                 foreach ($resultchecklist as $result) {
+                    $mandatoryItem = $result->mandatory_item_assesor ?? $result->mandatory_item;
                     //Formula % Graph
-                    if ($result->mandatory_item == 'Platinum') {
+                    if ($mandatoryItem == 'Platinum') {
                         $graph_percentage = 91;
-                    } elseif ($result->mandatory_item == 'Gold') {
+                    } elseif ($mandatoryItem == 'Gold') {
                         $graph_percentage = 71;
-                    } elseif ($result->mandatory_item == 'Silver') {
+                    } elseif ($mandatoryItem == 'Silver') {
                         $graph_percentage = 61;
-                    } elseif ($result->mandatory_item == 'Bronze') {
+                    } elseif ($mandatoryItem == 'Bronze') {
                         $graph_percentage = 1;
                     } else {
                         $graph_percentage = 0;
@@ -136,7 +142,17 @@ class DashboardController extends Controller
                 ->where('parent_point_checklist', $item->parent_point_checklist)
                 ->pluck('id')->toArray();
             $item->countTotalChecked = ChecklistResponses::whereIn('id_assign_checklist', $idAssigns)->count();
-            $item->countTotalCheckedEG = ChecklistResponses::whereIn('id_assign_checklist', $idAssigns)->where('checklist_responses.response', 'Exist, Good')->count();
+
+            // Check IF has Response Correction or not
+            $hasCorrection = ChecklistResponses::whereIn('id_assign_checklist', $idAssigns)
+                ->whereNotNull('response_correction')
+                ->exists();
+            if ($hasCorrection) {
+                $item->countTotalCheckedEG = ChecklistResponses::whereIn('id_assign_checklist', $idAssigns)->where('checklist_responses.response_correction', 'Exist, Good')->count();
+            } else {
+                $item->countTotalCheckedEG = ChecklistResponses::whereIn('id_assign_checklist', $idAssigns)->where('checklist_responses.response', 'Exist, Good')->count();
+            }
+            
             $item->resultPercentage = intval($item->countTotalCheckedEG > 0 ? round(($item->countTotalCheckedEG / $item->countTotalChecked) * 100) : 0);
 
             // Update totals

@@ -31,7 +31,7 @@ class ListAssignedChecklistController extends Controller
         $idDealerUser = MstEmployees::where('email', $user->email)->value('id_dealer');
 
         // Get branches based on role
-        $branchs = in_array($role, ['Super Admin', 'Admin', 'Assesor', 'PIC NOS MD'])
+        $branchs = in_array($role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD'])
             ? MstJaringan::all()
             : MstJaringan::where('id', MstEmployees::where('email', $user->email)->value('id_dealer'))->get();
 
@@ -43,7 +43,7 @@ class ListAssignedChecklistController extends Controller
                 ->whereNotNull('mst_periode_checklists.status')
                 ->where('mst_periode_checklists.status', '!=', 0);
     
-            if(in_array($role, ['Super Admin', 'Admin', 'PIC NOS MD'])){
+            if(in_array($role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD'])){
                 if ($request->filled('filterBranch') && $request->filterBranch !== 'All') {
                     $query->where('mst_periode_checklists.id_branch', $request->filterBranch);
                 }
@@ -69,15 +69,21 @@ class ListAssignedChecklistController extends Controller
     {
         $id = decrypt($id);
         $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
-            'a.id as idAuditor', 'a.name as auditor_name', 'b.id as idAssesor', 'b.name as assesor_name')
+            'users.id as idAuditor', 'users.name as auditor_name')
             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
-            ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
-            ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
+            ->leftjoin('users', 'mst_periode_checklists.id_auditor', 'users.id')
             ->where('mst_periode_checklists.id', $id)
             ->first();
+            
+        $user = auth()->user();
+        $isHisDealer = MstEmployees::where('email', $user->email)->value('id_dealer') === $periodInfo->id_branch;
 
         $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
-        $checkJars = ChecklistJaringan::where('id_periode', $id)->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")->get();
+        $checkJars = ChecklistJaringan::select('checklist_jaringan.*', 'users.name as assesor_name')
+            ->leftjoin('users', 'checklist_jaringan.id_assesor', 'users.id')
+            ->where('checklist_jaringan.id_periode', $id)
+            ->orderByRaw("FIELD(type_checklist, '" . $sortOrder->implode("','") . "')")
+            ->get();
 
         foreach ($checkJars as $item) {
             $responsCounts = ChecklistResponses::join('mst_assign_checklists', 'checklist_responses.id_assign_checklist', 'mst_assign_checklists.id')
@@ -118,16 +124,17 @@ class ListAssignedChecklistController extends Controller
             return $item->last_decision_pic === 0;
         }) ? 0 : 1;
 
+        $idAssesors = $checkJars->pluck('id_assesor')->filter()->toArray();
+
         if ($request->ajax()) {
             $statusPeriod = $periodInfo->is_active;
             $startPeriod = $periodInfo->start_date;
             $today = Carbon::today()->format('Y-m-d');
 
             $idAuditor = $periodInfo->id_auditor;
-            $idAssesor = $periodInfo->id_assesor;
             return DataTables::of($checkJars)
-                ->addColumn('action', function ($data) use ($statusPeriod, $startPeriod, $today, $idAuditor, $idAssesor) {
-                    return view('list_assigned.detail.action', compact('data', 'statusPeriod', 'startPeriod', 'today', 'idAuditor', 'idAssesor'));
+                ->addColumn('action', function ($data) use ($statusPeriod, $startPeriod, $today, $idAuditor, $isHisDealer) {
+                    return view('list_assigned.detail.action', compact('data', 'statusPeriod', 'startPeriod', 'today', 'idAuditor', 'isHisDealer'));
                 })
                 ->toJson();
         }
@@ -135,7 +142,7 @@ class ListAssignedChecklistController extends Controller
         // Audit Log
         $this->auditLogsShort('View Data Checklist, Period: ', $id);
 
-        return view('list_assigned.detail.index', compact('id', 'periodInfo', 'allCompleteCheck', 'allReviewedAssesor', 'isCorrection', 'allReviewedPIC'));
+        return view('list_assigned.detail.index', compact('id', 'periodInfo', 'allCompleteCheck', 'allReviewedAssesor', 'isCorrection', 'allReviewedPIC', 'idAssesors'));
     }
 
     public function detailChecklist(Request $request, $id)
