@@ -82,11 +82,6 @@
                                         <td class="align-top no-left-border">{{ $periodInfo->auditor_name ?? '-' }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="align-top fw-bold">Assessor</td>
-                                        <td class="align-top no-right-border" style="width: 1%">:</td>
-                                        <td class="align-top no-left-border">{{ $periodInfo->assesor_name ?? '-' }}</td>
-                                    </tr>
-                                    <tr>
                                         <td class="align-top fw-bold">Log Activity</td>
                                         <td class="align-top no-right-border" style="width: 1%">:</td>
                                         <td class="align-top no-left-border">

@@ -3,7 +3,7 @@
         <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-                {{-- <a href="{{ route('dashboard') }}" class="logo logo-dark">
+                <a href="{{ route('dashboard') }}" class="logo logo-dark">
                     <span class="logo-sm">
                         <img src="{{ asset('assets/images/LOGO_MSK_PUTIH_VERTIKAL.jpg') }}" alt="" height="50">
                     </span>
@@ -18,7 +18,7 @@
                     <span class="logo-lg">
                         <img src="{{ asset('assets/images/logosampingDark.png') }}" alt="" height="50">
                     </span>
-                </a> --}}
+                </a>
             </div>
 
             <button type="button" class="btn btn-sm px-3 font-size-16 header-item" id="vertical-menu-btn">
@@ -32,7 +32,7 @@
             @endif
             <form class="app-search d-none d-lg-block">
                 <div class="position-relative">
-                    {{-- <h3 class="d-inline-block me-2"><span class="badge bg-danger text-white">{{ Auth::user()->role }}</span></h3> --}}
+                    <h3 class="d-inline-block me-2"><span class="badge bg-danger text-white">{{ Auth::user()->role }}</span></h3>
                 </div>
             </form>
         </div>
@@ -55,7 +55,7 @@
             <div class="dropdown d-inline-block">
                 @php use Illuminate\Support\Facades\File; $defaultImagePath = public_path('assets/images/users/userbg.png'); @endphp
                 <button type="button" class="btn header-item bg-light-subtle border-start border-end" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {{-- @if(Auth::user()->photo_path)
+                    @if(Auth::user()->photo_path)
                         @php $userImagePath = public_path(Auth::user()->photo_path); @endphp
                         @if(File::exists($userImagePath))
                             <img class="rounded-circle header-profile-user" src="{{ asset(Auth::user()->photo_path) }}" alt="Header Avatar">
@@ -69,7 +69,7 @@
                             <img class="rounded-circle header-profile-user" src="{{ asset('assets/images/users/userbg.png') }}" alt="Header Avatar">
                         @endif
                     @endif
-                    <span class="d-none d-xl-inline-block ms-1 fw-medium">{{ Auth::user()->name }}</span> <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i> --}}
+                    <span class="d-none d-xl-inline-block ms-1 fw-medium">{{ Auth::user()->name }}</span> <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="{{ route('profile.index') }}"><i class="mdi mdi mdi-face-man font-size-16 align-middle me-1"></i> Profile</a>

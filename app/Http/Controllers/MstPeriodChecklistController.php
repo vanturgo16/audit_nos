@@ -92,29 +92,29 @@ class MstPeriodChecklistController extends Controller
                 'status' => 0
             ]);
 
-            // Get Mapping Checklist
-            $type = MstJaringan::where('id', $request->id_branch)->first()->type;
-            $mapCheck = MstMapChecklists::select('mst_checklists.id')
-                ->leftjoin('mst_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_checklists.id_parent_checklist')
-                ->where('mst_mapchecklists.type_jaringan', $type)
-                ->get();
-            foreach ($mapCheck as $item) {
-                if($item->id){
-                    MstAssignChecklists::create([
-                        'id_periode_checklist' => $period->id,
-                        'id_mst_checklist' => $item->id
-                    ]);
-                }
-            }
-            
-            // // Dummy Testing 
-            // $testShort = ['47','49','52','353','354','366'];
-            // foreach ($testShort as $item) {
-            //     MstAssignChecklists::create([
-            //         'id_periode_checklist' => $period->id,
-            //         'id_mst_checklist' => $item
-            //     ]);
+            // // Get Mapping Checklist
+            // $type = MstJaringan::where('id', $request->id_branch)->first()->type;
+            // $mapCheck = MstMapChecklists::select('mst_checklists.id')
+            //     ->leftjoin('mst_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_checklists.id_parent_checklist')
+            //     ->where('mst_mapchecklists.type_jaringan', $type)
+            //     ->get();
+            // foreach ($mapCheck as $item) {
+            //     if($item->id){
+            //         MstAssignChecklists::create([
+            //             'id_periode_checklist' => $period->id,
+            //             'id_mst_checklist' => $item->id
+            //         ]);
+            //     }
             // }
+            
+            // Dummy Testing 
+            $testShort = ['47','49','52','353','354','366'];
+            foreach ($testShort as $item) {
+                MstAssignChecklists::create([
+                    'id_periode_checklist' => $period->id,
+                    'id_mst_checklist' => $item
+                ]);
+            }
 
             //Log Period
             $this->storeLogPeriod($period->id, 0, 'Initiate');

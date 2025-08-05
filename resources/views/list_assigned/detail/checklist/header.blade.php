@@ -156,8 +156,10 @@
 
     @if($checkJar->last_correction_assessor === 0 && $idUser == $period->id_assesor)
         <div class="col-12 mb-4">
-            <button type="button" class="btn btn-success waves-effect btn-label waves-light float-end" data-bs-toggle="modal" data-bs-target="#recalculate">
-                <i class="mdi mdi-sync label-icon"></i>Re-Calculate Result Correction
+            <button type="button" class="btn btn-success waves-effect btn-label waves-light fixed-bottom-center" data-bs-toggle="modal" data-bs-target="#recalculate">
+                <i class="mdi mdi-sync label-icon"></i>
+                <span class="d-none d-sm-inline">Re-Calculate Result Correction</span>
+                <span class="d-sm-none">Re-Calculate</span>
             </button>
             <div class="modal fade" id="recalculate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-top" role="document">

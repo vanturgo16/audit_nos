@@ -18,16 +18,12 @@
                         <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th rowspan="2" class="align-middle text-center">No</th>
-                                    <th rowspan="2" class="align-middle text-center">Period Checklist</th>
-                                    <th rowspan="2" class="align-middle text-center">Jaringan</th>
-                                    <th colspan="2" class="align-middle text-center">Handle By</th>
-                                    <th rowspan="2" class="align-middle text-center">Status</th>
-                                    <th rowspan="2" class="align-middle text-center">Action</th>
-                                </tr>
-                                <tr>
+                                    <th class="align-middle text-center">No</th>
+                                    <th class="align-middle text-center">Period Checklist</th>
+                                    <th class="align-middle text-center">Jaringan</th>
                                     <th class="align-middle text-center">Auditor</th>
-                                    <th class="align-middle text-center">Assesor</th>
+                                    <th class="align-middle text-center">Status</th>
+                                    <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
                         </table>
@@ -96,16 +92,6 @@
                 {
                     data: 'auditor_name',
                     name: 'auditor_name',
-                    orderable: true,
-                    searchable: true,
-                    className: 'align-top',
-                    render: function(data, type, row) {
-                        return data ?? '-';
-                    }
-                },
-                {
-                    data: 'assesor_name',
-                    name: 'assesor_name',
                     orderable: true,
                     searchable: true,
                     className: 'align-top',

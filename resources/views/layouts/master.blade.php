@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- <title>Dashboard NOS | AHASS BANTEN</title> --}}
+    <title>Dashboard NOS | AHASS BANTEN</title>
     <title>-</title>
-    {{-- <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}"> --}}
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
     
     <!-- plugin css -->
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}" />

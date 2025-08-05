@@ -220,3 +220,11 @@
     white-space: nowrap;
     line-height: 1;
 }
+
+.fixed-bottom-center {
+    position: fixed;
+    bottom: 40px;
+    left: 55%;
+    transform: translateX(-50%);
+    z-index: 1050; /* higher than modals/other content */
+}

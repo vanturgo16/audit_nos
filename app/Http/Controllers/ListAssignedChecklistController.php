@@ -28,18 +28,18 @@ class ListAssignedChecklistController extends Controller
     {
         $user = auth()->user();
         $role = $user->role;
+        $idDealerUser = MstEmployees::where('email', $user->email)->value('id_dealer');
 
         // Get branches based on role
-        $branchs = in_array($role, ['Super Admin', 'Admin', 'PIC NOS MD'])
+        $branchs = in_array($role, ['Super Admin', 'Admin', 'Assesor', 'PIC NOS MD'])
             ? MstJaringan::all()
             : MstJaringan::where('id', MstEmployees::where('email', $user->email)->value('id_dealer'))->get();
 
         if ($request->ajax()) {
             $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
-                'a.id as idAuditor', 'a.name as auditor_name', 'b.id as idAssesor', 'b.name as assesor_name')
+                'a.id as idAuditor', 'a.name as auditor_name')
                 ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
                 ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
-                ->leftjoin('users as b', 'mst_periode_checklists.id_assesor', 'b.id')
                 ->whereNotNull('mst_periode_checklists.status')
                 ->where('mst_periode_checklists.status', '!=', 0);
     
@@ -54,8 +54,8 @@ class ListAssignedChecklistController extends Controller
             $query = $query->orderBy('mst_periode_checklists.created_at', 'desc')->get();
 
             return DataTables::of($query)
-                ->addColumn('action', function ($data) use ($branchs) {
-                    return view('list_assigned.action', compact('data', 'branchs'));
+                ->addColumn('action', function ($data) use ($branchs, $idDealerUser) {
+                    return view('list_assigned.action', compact('data', 'branchs', 'idDealerUser'));
                 })->toJson();
         }
 
