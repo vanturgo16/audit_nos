@@ -327,7 +327,8 @@ class ReviewChecklistController extends Controller
 
         // Check IF has submitted another assesor or not
         $period = MstPeriodeChecklists::where('id', $id)->first();
-        if(in_array($period->status, [2,3])){
+        $checklist = ChecklistJaringan::where('id_periode', $id)->first();
+        if($period->status == 2 || $checklist->last_correction_assessor === 0){
             return redirect()->back()->with(['info' => 'Has Any Other Assesor Submit This Checklist!']);
         }
         
