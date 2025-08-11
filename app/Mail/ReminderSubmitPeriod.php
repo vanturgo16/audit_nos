@@ -13,11 +13,11 @@ class ReminderSubmitPeriod extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $periodinfo;
+    public $periodInfo;
 
-    public function __construct($periodinfo)
+    public function __construct($periodInfo)
     {
-        $this->periodinfo = $periodinfo;
+        $this->periodInfo = $periodInfo;
     }
 
     public function build()

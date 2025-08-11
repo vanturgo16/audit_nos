@@ -2,24 +2,8 @@
 @section('konten')
 <link rel="stylesheet" href="{{ asset('assets/css/style-form.css') }}" type="text/css"/>
 
-{{-- LOADING BLANK ACTION --}}
-<div class="process-container hidden" id="processing">
-    <div class="card p-4" style="background-color: rgba(0, 0, 0, 0.7);">
-        <div class="col-12 text-center d-flex justify-content-center align-items-center">
-            <div class="dotLoading"></div>
-        </div>
-        <div class="col-12 text-center d-flex justify-content-center align-items-center mt-4">
-            <h4 class="text-white textLoading">
-                Please Wait
-            </h4>
-        </div>
-    </div>
-</div>
-
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
-
         <div class="row" id="buildForm"></div>
         <!-- Error Modal -->
         <div class="modal fade" id="errorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -103,7 +87,31 @@
                                                     <tbody>
                                                         <tr>
                                                             <td colspan="3" class="py-0">
-                                                                <h4><span class="badge bg-primary text-bold">${response.question.sub_point_checklist}</span></h4>
+                                                                <div class="row">
+                                                                    <div class="col-10">
+                                                                        <h4><span class="badge bg-primary text-bold">${response.question.sub_point_checklist}</span></h4>
+                                                                    </div>
+                                                                    <div class="col-2 text-end">
+                                                                        ${response.question.note_assesor ? `
+                                                                            <button class="btn btn-sm btn-danger waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#noteAssesor">
+                                                                                <i class="mdi mdi-close-circle-outline label-icon"></i> Note Reject
+                                                                            </button>
+                                                                            <div class="modal fade" id="noteAssesor" tabindex="-1">
+                                                                                <div class="modal-dialog modal-lg">
+                                                                                    <div class="modal-content">
+                                                                                        <div class="modal-header">
+                                                                                            <h5 class="modal-title">Note Reject From Assesor</h5>
+                                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                                                        </div>
+                                                                                        <div class="modal-body text-start p-4">
+                                                                                            ${response.question.note_assesor}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ` : ''}
+                                                                    </div>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -182,7 +190,7 @@
                                     <!-- Button Nav -->
                                     <div class="row">
                                         <div class="col-3 text-start">
-                                            <a id="exitBtn" type="button" href="{{ route('auditor.periodDetail', encrypt($idPeriod)) }}" class="btn btn-sm btn-danger waves-effect waves-light loadButton">
+                                            <a id="exitBtn" type="button" href="{{ route('listassigned.periodDetail', encrypt($idPeriod)) }}" class="btn btn-sm btn-danger waves-effect waves-light loadButton">
                                                 <i class="mdi mdi-close-box label-icon"></i> | Exit
                                             </a>
                                         </div>
@@ -350,7 +358,7 @@
                 },
                 success: function (response) {
                     console.log(response);
-                    window.location.href = "{{ route('auditor.periodDetail', encrypt($idPeriod)) }}";
+                    window.location.href = "{{ route('listassigned.periodDetail', encrypt($idPeriod)) }}";
                 },
                 error: function (error) {
                     console.log(error); 

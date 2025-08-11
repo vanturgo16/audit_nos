@@ -1,6 +1,41 @@
 @extends('layouts.master')
 
 @section('konten')
+
+<style>    
+    /* Style Image Hover */
+    .custom-image-container {
+        position: relative;
+        width: 100%;
+        height: 7vh;
+        overflow: hidden;
+    }
+    .custom-image-container:hover .custom-overlay {
+        opacity: 1;
+    }
+    .custom-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .custom-overlay {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+    .custom-text {
+        color: white;
+        font-size: 10px;
+        text-align: center;
+    }
+</style>
+
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -24,7 +59,7 @@
             </div>
         </div>
 
-        @include('layouts.alert')
+        {{-- @include('layouts.alert') --}}
 
         <div class="row">
             @php
@@ -210,6 +245,7 @@
                                     <th class="align-middle text-center">Sub Point</th>
                                     <th class="align-middle text-center">Detail</th>
                                     <th class="align-middle text-center">Response</th>
+                                    <th class="align-middle text-center">Photo</th>
                                     <th class="align-middle text-center">Assessor<br>Decision</th>
                                     @if(Auth::user()->role == 'Assessor Main Dealer')
                                         <th class="align-middle text-center">Action</th>
@@ -224,61 +260,6 @@
     </div>
 </div>
 
-@foreach($assignChecks as $data)
-{{-- Modal --}}
-<div class="modal fade" id="file{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-top" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Photo Response</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
-                <div class="row">
-                    @php
-                        $extension = strtolower(pathinfo($data->path_input_response, PATHINFO_EXTENSION));
-                        $imageExtensions = ['png', 'jpg', 'jpeg', 'gif'];
-                        $videoExtensions = ['mp4', 'webm', 'ogg'];
-                        $audioExtensions = ['mp3', 'wav', 'ogg'];
-                    @endphp
-                    @if (in_array($extension, $imageExtensions))
-                        <img src="{{ asset($data->path_input_response) }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}'; this.alt='Image not found';">
-                    @elseif (in_array($extension, $videoExtensions))
-                        <video controls class="custom-video-thumbnail">
-                            <source src="{{ asset($data->path_input_response) }}" type="video/{{ $extension }}">
-                            Your browser does not support the video tag.
-                        </video>
-                    @elseif (in_array($extension, $audioExtensions))
-                        <div class="row py-4">
-                            <div class="col-12 text-center">
-                                Preview
-                            </div>
-                            <div class="col-12 mt-2 text-center">
-                                <audio controls class="custom-audio-thumbnail">
-                                    <source src="{{ asset($data->path_input_response) }}" type="audio/{{ $extension }}">
-                                    Your browser does not support the audio element.
-                                </audio>
-                            </div>
-                        </div>
-                    @else
-                        <div class="row py-4">
-                            <div class="col-12 text-center">
-                                Preview Not Available
-                            </div>
-                            <div class="col-12 mt-2 text-center">
-                                <a href="{{ asset($data->path_input_response) }}" class="btn btn-primary" download>Download File</a>
-                            </div>
-                        </div>
-                    @endif
-                    {{-- <img src="{{ asset($data->path_input_response) }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}'; this.alt='Image not found';"> --}}
-                </div>
-            </div>
-            <div class="modal-footer"></div>
-        </div>
-    </div>
-</div>
-@endforeach
-
 <script>
     var userRole = "{{ Auth::user()->role }}";
     $(function() {
@@ -287,7 +268,9 @@
                 processing: true,
                 serverSide: true,
                 ajax: '{!! route('review.reviewChecklist', encrypt($id)) !!}',
-                pageLength: 100,
+                // pageLength: 100,
+                pageLength: -1, // Show all rows
+                lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
                 columns: [
                     {
                         data: null,
@@ -304,9 +287,6 @@
                         orderable: true,
                         searchable: true,
                         className: 'align-top',
-                        render: function(data, type, row) {
-                            return row.parent_point_checklist + '<br><br><button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#file' + row.id +'">View File Response</button>';
-                        },
                     },
                     {
                         data: 'child_point_checklist',
@@ -345,6 +325,13 @@
                     {
                         data: 'response',
                         name: 'response',
+                        orderable: true,
+                        searchable: true,
+                        className: 'align-top',
+                    },
+                    {
+                        data: 'photo',
+                        name: 'photo',
                         orderable: true,
                         searchable: true,
                         className: 'align-top',
@@ -377,7 +364,7 @@
                         orderable: false,
                         searchable: false,
                         className: 'align-top text-center',
-                    },
+                    }
                 ],
                 drawCallback: function(settings) {
                     var api = this.api();
@@ -409,9 +396,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: '{!! route('review.reviewChecklist', encrypt($id)) !!}',
-                // pageLength: 100,
-                pageLength: -1, // Show all rows
-                lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
+                pageLength: 100,
                 columns: [
                     {
                         data: null,
@@ -428,9 +413,6 @@
                         orderable: true,
                         searchable: true,
                         className: 'align-top',
-                        render: function(data, type, row) {
-                            return row.parent_point_checklist + '<br><br><button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#file' + row.id +'">View File Response</button>';
-                        },
                     },
                     {
                         data: 'child_point_checklist',
@@ -469,6 +451,13 @@
                     {
                         data: 'response',
                         name: 'response',
+                        orderable: true,
+                        searchable: true,
+                        className: 'align-top',
+                    },
+                    {
+                        data: 'photo',
+                        name: 'photo',
                         orderable: true,
                         searchable: true,
                         className: 'align-top',
@@ -522,7 +511,6 @@
                 }
             });
         }
-        
     });
 </script>
 

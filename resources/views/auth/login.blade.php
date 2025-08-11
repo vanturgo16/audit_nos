@@ -1,25 +1,25 @@
 <!doctype html>
 <html lang="en">
-
     <head>
-
         <meta charset="utf-8" />
         <title>Login | NOS Honda Banten</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- App favicon -->
         <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}">
-        <!-- preloader css -->
-        {{-- <link rel="stylesheet" href="{{ asset('assets/css/preloader.min.css') }}" type="text/css" /> --}}
         <!-- Bootstrap Css -->
-        <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" />
         <!-- Icons Css -->
-        <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/icons.min.css') }}" />
         <!-- App Css-->
-        <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/app.min.css') }}" id="app-style" />
+        <!-- CAPTCHA CSS -->
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/captcha.css') }}"/>
     </head>
 
     <body>
+        <!-- Loading -->
+        @include('layouts.loading')
+
         <div class="auth-page">
             <div class="container-fluid p-0">
                 <div class="row g-0">
@@ -27,7 +27,7 @@
                         <div class="auth-full-page-content d-flex p-sm-5 p-4">
                             <div class="w-100">
                                 <div class="d-flex flex-column h-100">
-                                    <div class="mb-4 mb-md-5 text-center">
+                                    <div class="mb-2 text-center">
                                         <a href="index.html" class="d-block auth-logo">
                                             <img src="{{ asset('assets/images/logo.png') }}" alt="" height="40">
                                         </a>
@@ -36,22 +36,11 @@
                                         <div class="text-center">
                                             <h5 class="mb-0">Welcome Back !</h5>
                                             <p class="text-muted mt-2">Sign in to continue</p>
-
-                                            @if (session('success'))
-                                                <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show" role="alert">
-                                                    <i class="mdi mdi-check-all label-icon"></i><strong>Success</strong> - {{ session('success') }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                            @endif
-                                            @if (session('fail'))
-                                                <div class="alert alert-danger alert-dismissible alert-label-icon label-arrow fade show" role="alert">
-                                                    <i class="mdi mdi-block-helper label-icon"></i><strong>Failed</strong> - {{ session('fail') }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                            @endif
-                                            
+                                            <div class="text-start">
+                                                @include('layouts.alert')
+                                            </div>
                                         </div>
-                                        <form action="{{ route('postlogin') }}" id="login" method="POST" enctype="multipart/form-data">
+                                        <form class="formLoad" action="{{ route('postlogin') }}" id="login" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             <div class="mb-3">
                                                 <label class="form-label">Email / Username</label>
@@ -69,6 +58,24 @@
                                                     <button class="btn btn-light shadow-none ms-0" type="button" id="password-addon"><i class="mdi mdi-eye-outline"></i></button>
                                                 </div>
                                             </div>
+                                            
+                                            <!-- CAPTCHA display and refresh -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Captcha<span class="text-danger">*</span></label>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="captcha-container me-2">
+                                                        <div class="captcha" id="captcha-text">
+                                                            @foreach(str_split(session('captcha_code')) as $index => $char)
+                                                                <span class="captcha-char" style="--i:{{ $index }}; --rand:{{ rand(0, 4) }};">{{ $char }}</span>
+                                                            @endforeach
+                                                        </div>
+                                                        <div class="middle-line"></div>
+                                                    </div>
+                                                    <button type="button" id="refresh-captcha" title="Refresh Kode Captcha">↻</button>
+                                                </div>
+                                                <input type="text" class="form-control mt-2" name="captcha_input" placeholder="Masukkan kode CAPTCHA" required/>
+                                            </div>
+
                                             <div class="row mb-4">
                                                 <div class="col">
                                                     <div class="form-check">
@@ -78,55 +85,33 @@
                                                         </label>
                                                     </div>  
                                                 </div>
-                                                
                                             </div>
                                             <div class="mb-3">
-                                                <button class="btn btn-primary w-100 waves-effect waves-light" type="submit" name="sb">Log In</button>
+                                                <button class="btn btn-danger w-100 waves-effect waves-light" type="submit" name="sb">Log In</button>
                                             </div>
                                         </form>
-                                        <script>
-                                            document.getElementById('login').addEventListener('submit', function(event) {
-                                                if (!this.checkValidity()) {
-                                                    event.preventDefault(); // Prevent form submission if it's not valid
-                                                    return false;
-                                                }
-                                                var submitButton = this.querySelector('button[name="sb"]');
-                                                submitButton.disabled = true;
-                                                submitButton.textContent   = 'Please Wait...';
-                                                return true; // Allow form submission
-                                            });
-                                        </script>
                                     </div>
-                                    <div class="mt-4 mt-md-5 text-center">
-                                        <p class="mb-0">
-                                            © Dashboard NOS PT Mitra Sendang Kemakmuran Banten 2024
-                                        </p>
+                                    <div class="mt-4 mt-md-5 text-center footer-text">
+                                        &copy; Dashboard NOS PT Mitra Sendang Kemakmuran Banten {{ date('Y') }}
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!-- end auth full page content -->
                     </div>
-                    <!-- end col -->
+                    <!-- end col -->    
+                    
                     <div class="col-xxl-9 col-lg-8 col-md-7">
-                        <div class="auth-bg pt-md-5 p-4 d-flex" style="background-image: url('{{ asset('assets/images/auth-bg.jpg') }}');">
-                            <div class="bg-overlay bg-primary"></div>
+                        <div class="auth-bg pt-md-5 p-4 d-flex" style="background-image: url('{{ asset('assets/images/background/MSK.png') }}');">
+                            <div class="bg-overlay bg-secondary-subtle" style="opacity: 0.85"></div>
+                            <!-- bubble effect -->
                             <ul class="bg-bubbles">
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                                <li></li>
+                                @foreach(range(1, 10) as $i)
+                                    <li></li>
+                                @endforeach
                             </ul>
-                            <!-- end bubble effect -->
                         </div>
                     </div>
-                    <!-- end col -->
                 </div>
                 <!-- end row -->
             </div>
@@ -142,9 +127,11 @@
         <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
         <!-- pace js -->
         <script src="{{ asset('assets/libs/pace-js/pace.min.js') }}"></script>
+        <!-- FORM LOAD JS -->
+        <script src="{{ asset('assets/js/formLoad.js') }}"></script>
         <!-- password addon init -->
         <script src="{{ asset('assets/js/pages/pass-addon.init.js') }}"></script>
-
+        <!-- CAPTCHA JS -->
+        <script src="{{ asset('assets/js/captcha.js') }}"></script>
     </body>
-
 </html>

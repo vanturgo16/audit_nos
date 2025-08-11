@@ -6,6 +6,8 @@
             <th style="border: 1px solid #000;" rowspan="2">Indikator</th>
             <th style="border: 1px solid #000;" rowspan="2">Mandatory</th>
             <th style="border: 1px solid #000;" rowspan="2">Response</th>
+            <th style="border: 1px solid #000;" rowspan="2">Correction Assesor</th>
+            <th style="border: 1px solid #000;" rowspan="2">Note Assesor</th>
             <th style="border: 1px solid #000;" rowspan="2">File Response</th>
         </tr>
         <tr>
@@ -41,6 +43,8 @@
                         @if($item->mp == 1) (P) @endif
                     </td>
                     <td style="border: 1px solid #000;">{!! $item->response ?? '-' !!}</td>
+                    <td style="border: 1px solid #000;">{!! $item->response_correction ?? '-' !!}</td>
+                    <td style="border: 1px solid #000;">{!! $item->note_assesor ?? '-' !!}</td>
                     <td style="border: 1px solid #000;">
                         @if($item->path_input_response)
                             <a href="{{ url($item->path_input_response) }}">View File</a>
@@ -66,6 +70,8 @@
                         @if($item->mp == 1) (P) @endif
                     </td>
                     <td style="border: 1px solid #000;">{!! $item->response ?? '-' !!}</td>
+                    <td style="border: 1px solid #000;">{!! $item->response_correction ?? '-' !!}</td>
+                    <td style="border: 1px solid #000;">{!! $item->note_assesor ?? '-' !!}</td>
                     <td style="border: 1px solid #000;">
                         @if($item->path_input_response)
                             <a href="{{ url($item->path_input_response) }}">View File</a>
@@ -90,6 +96,12 @@
 @foreach($items as $item)
     @if($item instanceof App\Models\ChecklistJaringan)
         <table style="border-collapse: collapse; width: 100%; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <td></td>
+                    <th style="border: 1px solid #000;" colspan="2"><b>Auditor Version</b></th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
                     <td></td>
@@ -110,6 +122,37 @@
                     <td></td>
                     <td style="border: 1px solid #000;"><b>RESULT FINAL</b></td>
                     <td style="border: 1px solid #000;">{{ $item->result_final }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table style="border-collapse: collapse; width: 100%; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <td></td>
+                    <th style="border: 1px solid #000;" colspan="2"><b>Assesor Version</b></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td style="border: 1px solid #000;"><b>% Result</b></td>
+                    <td style="border: 1px solid #000;">{{ $item->result_percentage_assesor ?? '-' }}%</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="border: 1px solid #000;"><b>Result Audit</b></td>
+                    <td style="border: 1px solid #000;">{{ $item->audit_result_assesor ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="border: 1px solid #000;"><b>Mandatory Item</b></td>
+                    <td style="border: 1px solid #000;">{{ $item->audit_result_assesor ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="border: 1px solid #000;"><b>RESULT FINAL</b></td>
+                    <td style="border: 1px solid #000;">{{ $item->result_final_assesor ?? '-' }}</td>
                 </tr>
             </tbody>
         </table>

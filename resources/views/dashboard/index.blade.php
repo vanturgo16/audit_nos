@@ -57,12 +57,6 @@
                 </div>
             </div>
         </div>
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible alert-label-icon label-arrow fade show" role="alert">
-                <i class="mdi mdi-check-all label-icon"></i><strong>Success</strong> - {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
 
         <div class="row">
             <div class="col-lg-12">
@@ -84,8 +78,8 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="card">
-                    <div class="card-header p-3">
-                        <p class="text-center text-bold">Final Result Checklist</p>
+                    <div class="card-header text-center p-3">
+                        <h4 class="fw-bold">Final Result Checklist</h4>
                     </div>
                     <div class="card-body">
                         <div class="card py-3">
@@ -200,187 +194,194 @@
                                 </div>
                             @else
                                 <div class="col-12">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered border-success nowrap w-100">
-                                            <thead>
-                                                <tr>
-                                                    <th colspan="2" class="align-middle text-center">Indikator</th>
-                                                    @foreach($typechecklist as $type)
-                                                        <th class="align-middle text-center">
-                                                            <b>{{ $type->type_checklist }}</b>
-                                                            <br>
-                                                            <small><u><a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank">View Detail</a></u></small>
-                                                            {{-- <a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank"
-                                                                type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">
-                                                                <i class="mdi mdi-information label-icon"></i>{{ $type->type_checklist }}
-                                                            </a> --}}
-                                                        </th>
-                                                    @endforeach
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td rowspan="6" class="align-middle text-center text-bold">Result Summary</td>
-                                                    <td>% Result</td>
-                                                    @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [1,2]))
-                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
-                                                        @else
-                                                            <td class="align-middle text-center">{{ $result->result_percentage }}%</th>
-                                                        @endif
-                                                    @endforeach
-                                                </tr>
-                                                <tr>
-                                                    <td>Status</td>
-                                                    @foreach($resultchecklist as $result)
-                                                        <td class="align-middle text-center">
-                                                            @if($result->status == "" || $result->status == null)
-                                                                <span class="badge bg-secondary text-white">Not Started</span>
-                                                            @elseif(in_array($result->status, [0, 1]))
-                                                                <span class="badge bg-warning text-white">Not Complete</span>
-                                                            @else
-                                                                <span class="badge bg-success text-white">Complete</span>
-                                                            @endif
-                                                        </th>
-                                                    @endforeach
-                                                </tr>
-                                                <tr>
-                                                    <td>Result Audit</td>
-                                                    @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [0,1,2]))
-                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
-                                                        @else
-                                                            <td class="align-middle text-center">{{ $result->audit_result }}</th>
-                                                        @endif
-                                                    @endforeach
-                                                </tr>
-                                                <tr>
-                                                    <td>Mandatory Item</td>
-                                                    @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [0,1,2]))
-                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
-                                                        @else
-                                                            <td class="align-middle text-center">{{ $result->mandatory_item }}</th>
-                                                        @endif
-                                                    @endforeach
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [0,1,2]))
-                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
-                                                        @else
-                                                            <td class="align-middle text-center">{{ $result->graph_percentage }}%</th>
-                                                        @endif
-                                                    @endforeach
-                                                </tr>
-                                                <tr>
-                                                    <td>Result Final</td>
-                                                    @foreach($resultchecklist as $result)
-                                                        @if(in_array($statusPeriod, [0,1,2]))
-                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
-                                                        @else
-                                                            <td class="align-middle text-center">{{ $result->result_final }}</th>
-                                                        @endif
-                                                    @endforeach
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                
-                                <div class="row justify-content-center mt-3">
-                                    <div class="col-12">
-                                    <hr>
-                                        <div class="text-center">
-                                            <figure class="highcharts-figure">
-                                                <div id="container"></div>
-                                            </figure>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered border-success nowrap w-100">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th colspan="2" class="align-middle text-center">Indikator</th>
+                                                                    @foreach($typechecklist as $type)
+                                                                        <th class="align-middle text-center">
+                                                                            <b>{{ $type->type_checklist }}</b>
+                                                                            <br>
+                                                                            <small><u><a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank">View Detail</a></u></small>
+                                                                            {{-- <a href="{{ route('dashboard.detailresult', encrypt($type->id_checklist_jaringan)) }}" target="blank"
+                                                                                type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light">
+                                                                                <i class="mdi mdi-information label-icon"></i>{{ $type->type_checklist }}
+                                                                            </a> --}}
+                                                                        </th>
+                                                                    @endforeach
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td rowspan="6" class="align-middle text-center text-bold">Result Summary</td>
+                                                                    <td>% Result</td>
+                                                                    @foreach($resultchecklist as $result)
+                                                                        @if(in_array($statusPeriod, [1,2]))
+                                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
+                                                                        @else
+                                                                            <td class="align-middle text-center">{{ $result->result_percentage_assesor ?? $result->result_percentage }}%</th>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Status</td>
+                                                                    @foreach($resultchecklist as $result)
+                                                                        <td class="align-middle text-center">
+                                                                            @if($result->status == "" || $result->status == null)
+                                                                                <span class="badge bg-secondary text-white">Not Started</span>
+                                                                            @elseif(in_array($result->status, [0, 1]))
+                                                                                <span class="badge bg-warning text-white">Not Complete</span>
+                                                                            @else
+                                                                                <span class="badge bg-success text-white">Complete</span>
+                                                                            @endif
+                                                                        </th>
+                                                                    @endforeach
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Result Audit</td>
+                                                                    @foreach($resultchecklist as $result)
+                                                                        @if(in_array($statusPeriod, [0,1,2]))
+                                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
+                                                                        @else
+                                                                            <td class="align-middle text-center">{{ $result->audit_result_assesor ?? $result->audit_result }}</th>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Mandatory Item</td>
+                                                                    @foreach($resultchecklist as $result)
+                                                                        @if(in_array($statusPeriod, [0,1,2]))
+                                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
+                                                                        @else
+                                                                            <td class="align-middle text-center">{{ $result->mandatory_item_assesor ?? $result->mandatory_item }}</th>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </tr>
+                                                                <tr>
+                                                                    <td></td>
+                                                                    @foreach($resultchecklist as $result)
+                                                                        @if(in_array($statusPeriod, [0,1,2]))
+                                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
+                                                                        @else
+                                                                            <td class="align-middle text-center">{{ $result->graph_percentage }}%</th>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Result Final</td>
+                                                                    @foreach($resultchecklist as $result)
+                                                                        @if(in_array($statusPeriod, [0,1,2]))
+                                                                            <td class="align-middle text-center"><span class="badge bg-secondary text-white">Not Yet Submit</span></td>
+                                                                        @else
+                                                                            <td class="align-middle text-center">{{ $result->result_final_assesor ?? $result->result_final }}</th>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row justify-content-center mt-3">
+                                                    <div class="col-12">
+                                                    <hr>
+                                                        <div class="text-center">
+                                                            <figure class="highcharts-figure">
+                                                                <div id="container"></div>
+                                                            </figure>
+                                                        </div>
+                                                        <script>
+                                                            var typechecklistValues = {!! json_encode($typechecklistValues) !!};
+                                                            var categories = typechecklistValues.map(function(value) {
+                                                                return value;
+                                                            });
+
+                                                            var dataGraph = {!! json_encode($dataGraph) !!};
+
+                                                            Highcharts.chart('container', {
+                                                                chart: {
+                                                                    polar: true,
+                                                                    type: 'line'
+                                                                },
+                                                                title: {
+                                                                    text: 'Final Result',
+                                                                    x: -80
+                                                                },
+                                                                pane: {
+                                                                    size: '80%'
+                                                                },
+                                                                xAxis: {
+                                                                    categories: categories,
+                                                                    tickmarkPlacement: 'on',
+                                                                    lineWidth: 0
+                                                                },
+                                                                yAxis: {
+                                                                    gridLineInterpolation: 'polygon',
+                                                                    min: 0, 
+                                                                    max: 110, 
+                                                                    tickInterval: 10, 
+                                                                    lineWidth: 0,
+                                                                    labels: {
+                                                                        format: '{value}%', 
+                                                                        style: {
+                                                                            fontSize: '8px'
+                                                                        }
+                                                                    },
+                                                                    tickPositions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
+                                                                },
+                                                                tooltip: {
+                                                                    shared: true,
+                                                                    pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}%</b><br/>'
+                                                                },
+                                                                legend: {
+                                                                    align: 'right',
+                                                                    verticalAlign: 'middle',
+                                                                    layout: 'vertical'
+                                                                },
+                                                                series: [{
+                                                                    name: 'Nilai',
+                                                                    data: dataGraph,
+                                                                    pointPlacement: 'on',
+                                                                    color: 'orange',
+                                                                    marker: {
+                                                                        enabled: true,
+                                                                        symbol: 'circle', 
+                                                                        radius: 3, 
+                                                                        fillColor: 'red', 
+                                                                        lineWidth: 3, 
+                                                                        lineColor: null 
+                                                                    }
+                                                                }],
+                                                                responsive: {
+                                                                    rules: [{
+                                                                        condition: {
+                                                                            maxWidth: 500
+                                                                        },
+                                                                        chartOptions: {
+                                                                            legend: {
+                                                                                align: 'center',
+                                                                                verticalAlign: 'bottom',
+                                                                                layout: 'horizontal'
+                                                                            },
+                                                                            pane: {
+                                                                                size: '70%'
+                                                                            }
+                                                                        }
+                                                                    }]
+                                                                }
+                                                            });
+                                                        </script>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <script>
-                                            var typechecklistValues = {!! json_encode($typechecklistValues) !!};
-                                            var categories = typechecklistValues.map(function(value) {
-                                                return value;
-                                            });
-
-                                            var dataGraph = {!! json_encode($dataGraph) !!};
-
-                                            Highcharts.chart('container', {
-                                                chart: {
-                                                    polar: true,
-                                                    type: 'line'
-                                                },
-                                                title: {
-                                                    text: 'Final Result',
-                                                    x: -80
-                                                },
-                                                pane: {
-                                                    size: '80%'
-                                                },
-                                                xAxis: {
-                                                    categories: categories,
-                                                    tickmarkPlacement: 'on',
-                                                    lineWidth: 0
-                                                },
-                                                yAxis: {
-                                                    gridLineInterpolation: 'polygon',
-                                                    min: 0, 
-                                                    max: 110, 
-                                                    tickInterval: 10, 
-                                                    lineWidth: 0,
-                                                    labels: {
-                                                        format: '{value}%', 
-                                                        style: {
-                                                            fontSize: '8px'
-                                                        }
-                                                    },
-                                                    tickPositions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110]
-                                                },
-                                                tooltip: {
-                                                    shared: true,
-                                                    pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}%</b><br/>'
-                                                },
-                                                legend: {
-                                                    align: 'right',
-                                                    verticalAlign: 'middle',
-                                                    layout: 'vertical'
-                                                },
-                                                series: [{
-                                                    name: 'Nilai',
-                                                    data: dataGraph,
-                                                    pointPlacement: 'on',
-                                                    color: 'orange',
-                                                    marker: {
-                                                        enabled: true,
-                                                        symbol: 'circle', 
-                                                        radius: 3, 
-                                                        fillColor: 'red', 
-                                                        lineWidth: 3, 
-                                                        lineColor: null 
-                                                    }
-                                                }],
-                                                responsive: {
-                                                    rules: [{
-                                                        condition: {
-                                                            maxWidth: 500
-                                                        },
-                                                        chartOptions: {
-                                                            legend: {
-                                                                align: 'center',
-                                                                verticalAlign: 'bottom',
-                                                                layout: 'horizontal'
-                                                            },
-                                                            pane: {
-                                                                size: '70%'
-                                                            }
-                                                        }
-                                                    }]
-                                                }
-                                            });
-                                        </script>
                                     </div>
                                 </div>
-
                             @endif
                         </div>
                     </div>
@@ -388,327 +389,6 @@
             </div>
         </div>
 
-
-
-
-        {{-- <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row justify-content-center mt-3">
-                            <div class="col-lg-6 col-md-12">
-                                <h6><b>H1 PREMISES</b></h6>
-                                <table class="table table-bordered dt-responsive nowrap w-100">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle text-center">No</th>
-                                            <th class="align-middle text-center">POIN</th>
-                                            <th class="align-middle text-center">EXIST GOOD</th>
-                                            <th class="align-middle text-center">TOTAL POIN</th>
-                                            <th class="align-middle text-center">RESULT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Kebersihan Network</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Approval Layout New VinCi</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>Eksterior</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>4</td>
-                                            <td>Material Promosi Eksterior</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>5</td>
-                                            <td>Parking Area</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>6</td>
-                                            <td>Interior</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-lg-6 col-md-12">
-                                <hr>
-                                <figure class="highcharts-figure">
-                                    <div id="container1"></div>
-                                    <!-- <p class="highcharts-description">
-                                        A spiderweb chart or radar chart is a variant of the polar chart.
-                                        Spiderweb charts are commonly used to compare multivariate data sets,
-                                        like this demo using six variables of comparison.
-                                    </p> -->
-                                </figure>
-                                <script>
-                                    Highcharts.chart('container1', {
-                                        chart: {
-                                            polar: true,
-                                            type: 'line'
-                                        },
-
-                                        title: {
-                                            text: 'H1 PREMISES',
-                                            x: -80
-                                        },
-
-                                        pane: {
-                                            size: '80%'
-                                        },
-
-                                        xAxis: {
-                                            categories: ['Kebersihan Network', 'Approval Layout New VinCi', 'Eksterior', 'Material Promosi Eksterior', 'Parking Area', 'Interior'],
-                                            tickmarkPlacement: 'on',
-                                            lineWidth: 0,
-                                            labels: {
-                                                style: {
-                                                    fontSize: '10px' // Setel ukuran font di sini
-                                                }
-                                            }
-                                        },
-
-                                        yAxis: {
-                                            gridLineInterpolation: 'polygon',
-                                            min: 0, 
-                                            max: 100, 
-                                            tickInterval: 10, 
-                                            lineWidth: 0,
-                                            labels: {
-                                                format: '{value}%', 
-                                                style: {
-                                                    fontSize: '8px'
-                                                }
-                                            },
-                                            tickPositions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-                                        },
-
-                                        tooltip: {
-                                            shared: true,
-                                            pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}%</b><br/>'
-                                        },
-
-                                        legend: {
-                                            align: 'right',
-                                            verticalAlign: 'middle',
-                                            layout: 'vertical'
-                                        },
-
-                                        series: [{
-                                            name: 'Result',
-                                            data: [80, 80, 80, 80, 70, 60],
-                                            pointPlacement: 'on',
-                                            color: 'orange'
-                                        }],
-
-                                        responsive: {
-                                            rules: [{
-                                                condition: {
-                                                    maxWidth: 500
-                                                },
-                                                chartOptions: {
-                                                    legend: {
-                                                        align: 'center',
-                                                        verticalAlign: 'bottom',
-                                                        layout: 'horizontal'
-                                                    },
-                                                    pane: {
-                                                        size: '70%'
-                                                    }
-                                                }
-                                            }]
-                                        }
-                                    });
-                                </script>
-                                <hr>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row justify-content-center mt-3">
-                            <div class="col-lg-6 col-md-12">
-                                <h6><b>H1 PEOPLE</b></h6>
-                                <table class="table table-bordered dt-responsive nowrap w-100">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle text-center">No</th>
-                                            <th class="align-middle text-center">POIN</th>
-                                            <th class="align-middle text-center">EXIST GOOD</th>
-                                            <th class="align-middle text-center">TOTAL POIN</th>
-                                            <th class="align-middle text-center">RESULT</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Kebersihan Network</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Approval Layout New VinCi</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>Eksterior</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>4</td>
-                                            <td>Material Promosi Eksterior</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>5</td>
-                                            <td>Parking Area</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>6</td>
-                                            <td>Interior</td>
-                                            <td>2</td>
-                                            <td>2</td>
-                                            <td>100%</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-lg-6 col-md-12">
-                                <hr>
-                                <figure class="highcharts-figure">
-                                    <div id="container2"></div>
-                                    <!-- <p class="highcharts-description">
-                                        A spiderweb chart or radar chart is a variant of the polar chart.
-                                        Spiderweb charts are commonly used to compare multivariate data sets,
-                                        like this demo using six variables of comparison.
-                                    </p> -->
-                                </figure>
-                                <script>
-                                    Highcharts.chart('container2', {
-                                        chart: {
-                                            polar: true,
-                                            type: 'line'
-                                        },
-
-                                        title: {
-                                            text: 'H1 PEOPLE',
-                                            x: -80
-                                        },
-
-                                        pane: {
-                                            size: '80%'
-                                        },
-
-                                        xAxis: {
-                                            categories: ['Kebersihan Network', 'Approval Layout New VinCi', 'Eksterior', 'Material Promosi Eksterior', 'Parking Area', 'Interior'],
-                                            tickmarkPlacement: 'on',
-                                            lineWidth: 0,
-                                            labels: {
-                                                style: {
-                                                    fontSize: '10px' // Setel ukuran font di sini
-                                                }
-                                            }
-                                        },
-
-                                        yAxis: {
-                                            gridLineInterpolation: 'polygon',
-                                            min: 0, 
-                                            max: 100, 
-                                            tickInterval: 10, 
-                                            lineWidth: 0,
-                                            labels: {
-                                                format: '{value}%', 
-                                                style: {
-                                                    fontSize: '8px'
-                                                }
-                                            },
-                                            tickPositions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-                                        },
-
-                                        tooltip: {
-                                            shared: true,
-                                            pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y}%</b><br/>'
-                                        },
-
-                                        legend: {
-                                            align: 'right',
-                                            verticalAlign: 'middle',
-                                            layout: 'vertical'
-                                        },
-
-                                        series: [{
-                                            name: 'Result',
-                                            data: [80, 80, 80, 80, 70, 60],
-                                            pointPlacement: 'on',
-                                            color: 'orange'
-                                        }],
-
-                                        responsive: {
-                                            rules: [{
-                                                condition: {
-                                                    maxWidth: 500
-                                                },
-                                                chartOptions: {
-                                                    legend: {
-                                                        align: 'center',
-                                                        verticalAlign: 'bottom',
-                                                        layout: 'horizontal'
-                                                    },
-                                                    pane: {
-                                                        size: '70%'
-                                                    }
-                                                }
-                                            }]
-                                        }
-                                    });
-                                </script>
-                                <hr>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
 
     </div>
 </div>

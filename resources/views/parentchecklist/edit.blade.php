@@ -25,7 +25,7 @@
             </div>
         </div>
         
-        @include('layouts.alert')
+        {{-- @include('layouts.alert') --}}
 
         <form action="{{ route('parentchecklist.update', encrypt($parent->id)) }}" id="formupdate" method="POST" enctype="multipart/form-data">
             @csrf
