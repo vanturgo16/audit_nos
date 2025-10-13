@@ -14,17 +14,17 @@ class SubmitReviewChecklist extends Mailable
     use Queueable, SerializesModels;
 
     public $nextStatus;
-    public $periodinfo;
+    public $periodInfo;
     public $checklistdetail;
-    public $emailsubmitter;
+    public $emailSubmitter;
     public $note;
 
-    public function __construct($nextStatus, $periodinfo, $checklistdetail, $emailsubmitter, $note)
+    public function __construct($nextStatus, $periodInfo, $checklistdetail, $emailSubmitter, $note)
     {
         $this->nextStatus = $nextStatus;
-        $this->periodinfo = $periodinfo;
+        $this->periodInfo = $periodInfo;
         $this->checklistdetail = $checklistdetail;
-        $this->emailsubmitter = $emailsubmitter;
+        $this->emailSubmitter = $emailSubmitter;
         $this->note = $note;
     }
 

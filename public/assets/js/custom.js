@@ -62,3 +62,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+
+const scrollBtn = document.querySelector('.scroll-to-top');
+window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = (scrollTop / docHeight) * 100;
+    // Only show button after scrolling some pixels
+    scrollBtn.style.display = scrollTop > 100 ? 'flex' : 'none';
+    // Set scroll percentage via CSS variable
+    scrollBtn.style.setProperty('--scroll', scrollPercent);
+});
+// Scroll to top action
+scrollBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});

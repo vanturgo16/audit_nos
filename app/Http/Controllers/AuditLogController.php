@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Traits\AuditLogsTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 
 // Model
@@ -17,23 +18,46 @@ class AuditLogController extends Controller
 
     public function index(Request $request)
     {
+        if (!$request->has('monthYear') || $request->monthYear == "") {
+            $monthYear = Carbon::now()->format('Y-m');
+        } else {
+            $monthYear = $request->monthYear;
+        }
+        [$year, $month] = explode('-', $monthYear);
+        $datas = AuditLog::select('audit_logs.*', 'created_at as created')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->orderBy('id', 'desc')
+            ->get();
+
         if ($request->ajax()) {
-            $data = $this->getData();
-            return $data;
+            return DataTables::of($datas)->toJson();
         }
 
-        //Audit Log
+        // Audit Log
         $this->auditLogsShort('View List Audit Log');
-
-        return view('auditlog.index');
+        return view('auditlog.index', compact('monthYear'));
     }
 
-    private function getData()
-    {
-        $query = AuditLog::orderBy('created_at')->get();
-        $data = DataTables::of($query)->toJson();
-        return $data;
-    }
+    // public function index(Request $request)
+    // {
+    //     if ($request->ajax()) {
+    //         $data = $this->getData();
+    //         return $data;
+    //     }
+
+    //     //Audit Log
+    //     $this->auditLogsShort('View List Audit Log');
+
+    //     return view('auditlog.index');
+    // }
+
+    // private function getData()
+    // {
+    //     $query = AuditLog::orderBy('created_at')->get();
+    //     $data = DataTables::of($query)->toJson();
+    //     return $data;
+    // }
 
     public function logActivityPeriod(Request $request, $id)
     {

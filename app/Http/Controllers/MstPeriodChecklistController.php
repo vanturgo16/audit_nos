@@ -106,6 +106,15 @@ class MstPeriodChecklistController extends Controller
                     ]);
                 }
             }
+            
+            // // Dummy Testing 
+            // $testShort = ['47','49','52','353','354','366'];
+            // foreach ($testShort as $item) {
+            //     MstAssignChecklists::create([
+            //         'id_periode_checklist' => $period->id,
+            //         'id_mst_checklist' => $item
+            //     ]);
+            // }
 
             //Log Period
             $this->storeLogPeriod($period->id, 0, 'Initiate');
@@ -175,7 +184,6 @@ class MstPeriodChecklistController extends Controller
                         }
                     }
                 }
-
                 MstPeriodeChecklists::where('id', $id)->update([
                     'period' => $request->period,
                     'id_branch' => $request->id_branch,

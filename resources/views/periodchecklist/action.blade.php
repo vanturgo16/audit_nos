@@ -128,7 +128,7 @@
                         <h5 class="modal-title" id="staticBackdropLabel">Edit</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{ route('periodchecklist.update', encrypt($data->id)) }}" id="formedit{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                    <form class="formLoad" action="{{ route('periodchecklist.update', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <div class="row">
@@ -165,22 +165,9 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-update{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Update</button>
+                            <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="mdi mdi-update label-icon"></i>Update</button>
                         </div>
                     </form>
-                    <script>
-                        $(document).ready(function() {
-                            let idList = "{{ $data->id }}";
-                            $('#formedit' + idList).submit(function(e) {
-                                if (!$('#formedit' + idList).valid()){
-                                    e.preventDefault();
-                                } else {
-                                    $('#sb-update' + idList).attr("disabled", "disabled");
-                                    $('#sb-update' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                                }
-                            });
-                        });
-                    </script>
                 </div>
             </div>
         </div>
@@ -195,7 +182,7 @@
                         <h5 class="modal-title" id="staticBackdropLabel">Extend Period</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{ route('periodchecklist.updateexpired', encrypt($data->id)) }}" id="formeditexpired{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                    <form class="formLoad" action="{{ route('periodchecklist.updateexpired', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <div class="row">
@@ -240,22 +227,11 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-updateexpired{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Update</button>
+                            <button type="submit" class="btn btn-primary waves-effect btn-label waves-light">
+                                <i class="mdi mdi-update label-icon"></i>Update
+                            </button>
                         </div>
                     </form>
-                    <script>
-                        $(document).ready(function() {
-                            let idList = "{{ $data->id }}";
-                            $('#formeditexpired' + idList).submit(function(e) {
-                                if (!$('#formeditexpired' + idList).valid()){
-                                    e.preventDefault();
-                                } else {
-                                    $('#sb-updateexpired' + idList).attr("disabled", "disabled");
-                                    $('#sb-updateexpired' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                                }
-                            });
-                        });
-                    </script>
                 </div>
             </div>
         </div>
@@ -270,7 +246,7 @@
                         <h5 class="modal-title" id="staticBackdropLabel">Delete Period</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="{{ route('periodchecklist.delete', encrypt($data->id)) }}" id="formdelete{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                    <form class="formLoad" action="{{ route('periodchecklist.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
                             <div class="text-center">
@@ -279,25 +255,15 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-danger waves-effect btn-label waves-light" id="sb-delete{{ $data->id }}"><i class="mdi mdi-close-circle label-icon"></i>Delete</button>
+                            <button type="submit" class="btn btn-danger waves-effect btn-label waves-light">
+                                <i class="mdi mdi-close-circle label-icon"></i>Delete
+                            </button>
                         </div>
                     </form>
-                    <script>
-                        $(document).ready(function() {
-                            let idList = "{{ $data->id }}";
-                            $('#formdelete' + idList).submit(function(e) {
-                                if (!$('#formdelete' + idList).valid()){
-                                    e.preventDefault();
-                                } else {
-                                    $('#sb-delete' + idList).attr("disabled", "disabled");
-                                    $('#sb-delete' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                                }
-                            });
-                        });
-                    </script>
                 </div>
             </div>
         </div>
     @endif
 </div>
 
+<script src="{{ asset('assets/js/formLoad.js') }}"></script>
