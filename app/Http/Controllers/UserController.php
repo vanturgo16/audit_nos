@@ -228,50 +228,50 @@ class UserController extends Controller
         }
     }
 
-    public function activate($id)
+    public function toggleStatus($id, $field, $value)
     {
         $id = decrypt($id);
 
         DB::beginTransaction();
         try {
-            User::where('id', $id)->update([
-                'is_active' => 1
-            ]);
+            $user = User::findOrFail($id);
+            $user->update([$field => $value]);
 
-            $name = User::where('id', $id)->first();
+            // Log Action
+            if ($field === 'is_active') {
+                $action = $value ? 'Activate' : 'Deactivate';
+            } elseif ($field === 'is_two_fa') {
+                $action = $value ? 'Enable 2FA' : 'Disable 2FA';
+            } else {
+                $action = 'Update';
+            }
 
-            //Audit Log
-            $this->auditLogsShort('Activate User (' . $name->email . ')');
+            $this->auditLogsShort("{$action} User ({$user->email})");
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Activate User ' . $name->email]);
+            return back()->with('success', "Success {$action} User {$user->email}");
         } catch (Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Activate User ' . $name->email . '!']);
+            DB::rollBack();
+            return back()->with('fail', "Failed to {$action} User {$user->email}!");
         }
     }
 
+    public function activate($id)
+    {
+        return $this->toggleStatus($id, 'is_active', 1);
+    }
     public function deactivate($id)
     {
-        $id = decrypt($id);
+        return $this->toggleStatus($id, 'is_active', 0);
+    }
 
-        DB::beginTransaction();
-        try {
-            User::where('id', $id)->update([
-                'is_active' => 0
-            ]);
-
-            $name = User::where('id', $id)->first();
-
-            //Audit Log
-            $this->auditLogsShort('Deactivate User (' . $name->email . ')');
-
-            DB::commit();
-            return redirect()->back()->with(['success' => 'Success Deactivate User ' . $name->email]);
-        } catch (Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Deactivate User ' . $name->email . '!']);
-        }
+    public function enable2fa($id)
+    {
+        return $this->toggleStatus($id, 'is_two_fa', 1);
+    }
+    public function disable2fa($id)
+    {
+        return $this->toggleStatus($id, 'is_two_fa', null);
     }
 
     public function check_email(Request $request)

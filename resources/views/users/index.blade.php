@@ -107,6 +107,7 @@
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Name</th>
                                     <th class="align-middle text-center">Role</th>
+                                    <th class="align-middle text-center">Enable 2-FA</th>
                                     <th class="align-middle text-center">Status</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
@@ -149,19 +150,28 @@
                     className: 'align-top',
                 },
                 {
+                    data: 'is_two_fa',
+                    orderable: true,
+                    className: 'align-top text-center',
+                    render: function(data) {
+                        if (data == 1) {
+                            return '<i class="mdi mdi-check-circle text-success fs-5"></i>';
+                        } else {
+                            return '<i class="mdi mdi-close-circle text-danger fs-5"></i>';
+                        }
+                    }
+                },
+                {
                     data: 'is_active',
                     orderable: true,
                     className: 'align-top text-center',
-                    render: function(data, type, row) {
-                        var html
-                        if(row.is_active == 1){
-                            html = '<span class="badge bg-success text-white">Active</span>';
-                        } else {
-                            html = '<span class="badge bg-danger text-white">Inactive</span>';
-                        }
-                        return html;
-                    },
+                    render: function(data) {
+                        return data == 1
+                            ? '<span class="badge bg-success-subtle text-success px-2 py-1">Active</span>'
+                            : '<span class="badge bg-danger-subtle text-danger px-2 py-1">Inactive</span>';
+                    }
                 },
+
                 {
                     data: 'action',
                     name: 'action',

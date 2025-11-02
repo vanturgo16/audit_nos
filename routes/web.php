@@ -34,6 +34,11 @@ use App\Http\Controllers\UserController;
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::get('/captcha/generate', [CaptchaController::class, 'generate'])->name('captcha.generate');
 Route::post('auth/login', [AuthController::class, 'postlogin'])->name('postlogin')->middleware("throttle:5,2");
+
+Route::get('/verify-2fa', [AuthController::class, 'show2fa'])->name('verify.2fa');
+Route::post('/verify-2fa', [AuthController::class, 'verify2fa'])->name('verify.2fa.post');
+Route::post('/resend-2fa', [AuthController::class, 'resend2fa'])->name('resend.2fa');
+
 // LOGOUT
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -65,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', 'index')->name('user.index');
                 Route::post('/create', 'store')->name('user.store');
                 Route::post('/update/{id}', 'update')->name('user.update');
+                Route::post('/enable2fa/{id}', 'enable2fa')->name('user.enable2fa');
+                Route::post('/disable2fa/{id}', 'disable2fa')->name('user.disable2fa');
                 Route::post('/reset/{id}', 'reset')->name('user.reset');
                 Route::post('/activate/{id}', 'activate')->name('user.activate');
                 Route::post('/deactivate/{id}', 'deactivate')->name('user.deactivate');
