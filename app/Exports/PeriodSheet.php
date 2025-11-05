@@ -48,7 +48,7 @@ class PeriodSheet implements FromView, WithHeadings, ShouldAutoSize, WithStyles,
         $sheet->freezePane('A3');
 
         // Header
-        $sheet->getStyle('A1:H2')->applyFromArray([
+        $sheet->getStyle('A1:J2')->applyFromArray([
             'font' => [
                 'size' => 12,
                 'bold' => true,
@@ -69,6 +69,7 @@ class PeriodSheet implements FromView, WithHeadings, ShouldAutoSize, WithStyles,
         $sheet->getStyle($cellRange)->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_TOP,
             ]
         ]);
 

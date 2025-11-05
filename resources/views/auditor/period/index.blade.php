@@ -4,7 +4,6 @@
 
 <div class="page-content">
     <div class="container-fluid">
-        @include('layouts.alert')
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -17,13 +16,18 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive nowrap w-100" id="server-side-table">
-                            <thead>
+                        <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
+                            <thead class="table-light">
                                 <tr>
-                                    <th class="align-middle text-center">No</th>
-                                    <th class="align-middle text-center">Period Checklist</th>
-                                    <th class="align-middle text-center">Status</th>
-                                    <th class="align-middle text-center">Action</th>
+                                    <th rowspan="2" class="align-middle text-center">No</th>
+                                    <th rowspan="2" class="align-middle text-center">Period Checklist</th>
+                                    <th colspan="2" class="align-middle text-center">Handle By</th>
+                                    <th rowspan="2" class="align-middle text-center">Status</th>
+                                    <th rowspan="2" class="align-middle text-center">Action</th>
+                                </tr>
+                                <tr>
+                                    <th class="align-middle text-center">Auditor</th>
+                                    <th class="align-middle text-center">Assesor</th>
                                 </tr>
                             </thead>
                         </table>
@@ -47,7 +51,7 @@
             default: '<span class="badge bg-secondary text-white">Null</span>'
         };
 
-        $('#server-side-table').DataTable({
+        $('#ssTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
@@ -64,14 +68,14 @@
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
                 {
                     data: 'period',
                     name: 'period',
                     orderable: true,
                     searchable: true,
-                    className: 'align-middle',
+                    className: 'align-top',
                     render: function(data, type, row) {
                         var startDate = new Date(row.start_date);
                         var endDate = new Date(row.end_date);
@@ -79,9 +83,29 @@
                     },
                 },
                 {
+                    data: 'auditor_name',
+                    name: 'auditor_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top',
+                    render: function(data, type, row) {
+                        return data ?? '-';
+                    }
+                },
+                {
+                    data: 'assesor_name',
+                    name: 'assesor_name',
+                    orderable: true,
+                    searchable: true,
+                    className: 'align-top',
+                    render: function(data, type, row) {
+                        return data ?? '-';
+                    }
+                },
+                {
                     data: 'status',
                     orderable: true,
-                    className: 'align-middle',
+                    className: 'align-top',
                     render: function(data, type, row) {
                         if (row.is_active == 1) {
                             return statusLabels[row.status] || statusLabels.default;
@@ -95,7 +119,7 @@
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
             ],
         });

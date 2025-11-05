@@ -25,7 +25,7 @@
             </div>
         </div>
         
-        @include('layouts.alert')
+        {{-- @include('layouts.alert') --}}
 
         <form action="{{ route('checklist.exc_order.update', encrypt($checklist->id)) }}" id="formupdate" method="POST" enctype="multipart/form-data">
             @csrf

@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        @include('layouts.alert')
+        {{-- @include('layouts.alert') --}}
 
         <div class="row">
             <div class="col-12">
@@ -40,7 +40,7 @@
                                             <h5 class="modal-title" id="staticBackdropLabel">Add New Assign Checklist</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <form action="{{ route('assignchecklist.store', encrypt($period->id)) }}" id="formadd" method="POST" enctype="multipart/form-data">
+                                        <form class="formLoad" action="{{ route('assignchecklist.store', encrypt($period->id)) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             <div class="modal-body">
                                                 <div class="row">
@@ -108,21 +108,9 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
+                                                <button type="submit" class="btn btn-success waves-effect btn-label waves-light"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
                                             </div>
                                         </form>
-                                        <script>
-                                            document.getElementById('formadd').addEventListener('submit', function(event) {
-                                                if (!this.checkValidity()) {
-                                                    event.preventDefault(); // Prevent form submission if it's not valid
-                                                    return false;
-                                                }
-                                                var submitButton = this.querySelector('button[name="sb"]');
-                                                submitButton.disabled = true;
-                                                submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                                return true; // Allow form submission
-                                            });
-                                        </script>
                                     </div>
                                 </div>
                             </div>

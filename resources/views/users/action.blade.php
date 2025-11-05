@@ -6,6 +6,20 @@
     <ul class="dropdown-menu" aria-labelledby="btnGroupDrop{{ $data->id }}">
         <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#edit-user{{ $data->id }}"><span class="mdi mdi-file-edit"></span> | Edit</a></li>
         <li><a class="dropdown-item drpdwn" href="#" data-bs-toggle="modal" data-bs-target="#reset{{ $data->id }}"><span class="mdi mdi-update"></span> | Reset Password</a></li>
+        {{-- ✅ Enable/Disable Two-Factor Authentication --}}
+        @if($data->is_two_fa == 1)
+            <li>
+                <a class="dropdown-item drpdwn-dgr" href="#" data-bs-toggle="modal" data-bs-target="#disable2FA{{ $data->id }}">
+                    <span class="mdi mdi-lock-open-remove"></span> | Disable 2FA
+                </a>
+            </li>
+        @else
+            <li>
+                <a class="dropdown-item drpdwn-scs" href="#" data-bs-toggle="modal" data-bs-target="#enable2FA{{ $data->id }}">
+                    <span class="mdi mdi-lock-check"></span> | Enable 2FA
+                </a>
+            </li>
+        @endif
         @if($data->is_active == 0)
             <li><a class="dropdown-item drpdwn-scs" href="#" data-bs-toggle="modal" data-bs-target="#activate{{ $data->id }}"><span class="mdi mdi-check-circle"></span> | Activate</a></li>
         @else
@@ -25,7 +39,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Edit User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('user.update', encrypt($data->id)) }}" id="formedit{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                <form class="formLoad" action="{{ route('user.update', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
@@ -44,27 +58,14 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-edit{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Update</button>
+                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="mdi mdi-update label-icon"></i>Update</button>
                     </div>
                 </form>
-                <script>
-                    $(document).ready(function() {
-                        let userId = "{{ $data->id }}";
-                        $('#formedit' + userId).submit(function(e) {
-                            if (!$('#formedit' + userId).valid()){
-                                e.preventDefault();
-                            } else {
-                                $('#sb-edit' + userId).attr("disabled", "disabled");
-                                $('#sb-edit' + userId).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                            }
-                        });
-                    });
-                </script>
             </div>
         </div>
     </div>
 
-    {{-- Modal Reset --}}
+    {{-- Modal Reset Password --}}
     <div class="modal fade" id="reset{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
@@ -72,7 +73,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Reset Password User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('user.reset', encrypt($data->id)) }}" id="formreset{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                <form class="formLoad" action="{{ route('user.reset', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="text-center">
@@ -81,60 +82,52 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light" id="sb-reset{{ $data->id }}"><i class="mdi mdi-update label-icon"></i>Reset</button>
+                        <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="mdi mdi-update label-icon"></i>Reset</button>
                     </div>
                 </form>
-                <script>
-                    $(document).ready(function() {
-                        let idList = "{{ $data->id }}";
-                        $('#formreset' + idList).submit(function(e) {
-                            if (!$('#formreset' + idList).valid()){
-                                e.preventDefault();
-                            } else {
-                                $('#sb-reset' + idList).attr("disabled", "disabled");
-                                $('#sb-reset' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                            }
-                        });
-                    });
-                </script>
             </div>
         </div>
     </div>
 
-    {{-- Modal Delete User --}}
-    <div class="modal fade" id="delete-user{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-top" role="document">
+    <!-- Enable 2FA Modal -->
+    <div class="modal fade" id="enable2FA{{ $data->id }}" tabindex="-1" aria-labelledby="enable2FALabel{{ $data->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-top">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Delete User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="enable2FALabel{{ $data->id }}"><i class="mdi mdi-lock-check"></i> Enable Two-Factor Authentication</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('user.delete', encrypt($data->id)) }}" id="formdelete{{ $data->id }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <p class="text-center">Are You Sure to Delete this user?</p>
-                            <p class="text-center"><b>{{ $data->name }}</b></p>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light" id="sb-delete{{ $data->id }}"><i class="mdi mdi-delete label-icon"></i>Delete</button>
-                    </div>
-                </form>
-                <script>
-                    $(document).ready(function() {
-                        let userId = "{{ $data->id }}";
-                        $('#formdelete' + userId).submit(function(e) {
-                            if (!$('#formdelete' + userId).valid()){
-                                e.preventDefault();
-                            } else {
-                                $('#sb-delete' + userId).attr("disabled", "disabled");
-                                $('#sb-delete' + userId).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                            }
-                        });
-                    });
-                </script>
+                <div class="modal-body text-center">
+                    Are you sure you want to <b>enable 2FA</b> for <b>{{ $data->name }}</b>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <form class="formLoad" action="{{ route('user.enable2fa', encrypt($data->id)) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light"><i class="mdi mdi-lock-check label-icon"></i>Enable</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Disable 2FA Modal -->
+    <div class="modal fade" id="disable2FA{{ $data->id }}" tabindex="-1" aria-labelledby="disable2FALabel{{ $data->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-top">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="disable2FALabel{{ $data->id }}"><i class="mdi mdi-lock-open-remove"></i> Disable Two-Factor Authentication</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    Are you sure you want to <b>disable 2FA</b> for <b>{{ $data->name }}</b>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <form class="formLoad" action="{{ route('user.disable2fa', encrypt($data->id)) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light"><i class="mdi mdi-lock-open-remove label-icon"></i>Disable</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -147,7 +140,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Activate User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('user.activate', encrypt($data->id)) }}" id="formactivate{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                <form class="formLoad" action="{{ route('user.activate', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="text-center">
@@ -156,26 +149,12 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light" id="sb-activate{{ $data->id }}"><i class="mdi mdi-check-circle label-icon"></i>Activate</button>
+                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light"><i class="mdi mdi-check-circle label-icon"></i>Activate</button>
                     </div>
                 </form>
-                <script>
-                    $(document).ready(function() {
-                        let idList = "{{ $data->id }}";
-                        $('#formactivate' + idList).submit(function(e) {
-                            if (!$('#formactivate' + idList).valid()){
-                                e.preventDefault();
-                            } else {
-                                $('#sb-activate' + idList).attr("disabled", "disabled");
-                                $('#sb-activate' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                            }
-                        });
-                    });
-                </script>
             </div>
         </div>
     </div>
-
     {{-- Modal Deactivate --}}
     <div class="modal fade" id="deactivate{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-top" role="document">
@@ -184,7 +163,7 @@
                     <h5 class="modal-title" id="staticBackdropLabel">Deactivate User</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('user.deactivate', encrypt($data->id)) }}" id="formdeactivate{{ $data->id }}" method="POST" enctype="multipart/form-data">
+                <form class="formLoad" action="{{ route('user.deactivate', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="text-center">
@@ -193,23 +172,37 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light" id="sb-deactivate{{ $data->id }}"><i class="mdi mdi-close-circle label-icon"></i>Deactivate</button>
+                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light"><i class="mdi mdi-close-circle label-icon"></i>Deactivate</button>
                     </div>
                 </form>
-                <script>
-                    $(document).ready(function() {
-                        let idList = "{{ $data->id }}";
-                        $('#formdeactivate' + idList).submit(function(e) {
-                            if (!$('#formdeactivate' + idList).valid()){
-                                e.preventDefault();
-                            } else {
-                                $('#sb-deactivate' + idList).attr("disabled", "disabled");
-                                $('#sb-deactivate' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                            }
-                        });
-                    });
-                </script>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Delete User --}}
+    <div class="modal fade" id="delete-user{{ $data->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-top" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Delete User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="formLoad" action="{{ route('user.delete', encrypt($data->id)) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <p class="text-center">Are You Sure to Delete this user?</p>
+                            <p class="text-center"><b>{{ $data->name }}</b></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light"><i class="mdi mdi-delete label-icon"></i>Delete</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<script src="{{ asset('assets/js/formLoad.js') }}"></script>

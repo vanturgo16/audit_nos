@@ -25,8 +25,6 @@
             </div>
         </div>
 
-        @include('layouts.alert')
-
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -104,8 +102,8 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered dt-responsive w-100" id="server-side-table">
-                            <thead>
+                        <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
+                            <thead class="table-light">
                                 <tr>
                                     <th class="align-middle text-center">Order No</th>
                                     <th class="align-middle text-center">Parent Point</th>
@@ -123,7 +121,7 @@
 
 <script>
     $(function() {
-        $('#server-side-table').DataTable({
+        $('#ssTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: '{!! route('parentchecklist.index', $type) !!}',
