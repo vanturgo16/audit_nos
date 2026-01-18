@@ -212,7 +212,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ASSIGN CHECKLIST MENU
-    Route::middleware('role:Super Admin,Admin,PIC Dealers')->group(function () {
+    Route::middleware('role:Super Admin,Admin,PIC Dealers,PIC NOS MD')->group(function () {
         // Naming Period
         Route::controller(MstPeriodNameController::class)->group(function () {
             Route::prefix('periodname')->group(function () {
@@ -221,6 +221,9 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/update/{id}', 'update')->name('periodname.update');
                 Route::post('/activate/{id}', 'activate')->name('periodname.activate');
                 Route::post('/deactivate/{id}', 'deactivate')->name('periodname.deactivate');
+
+                Route::get('/list-assesor-assign/{id}', 'indexAssesorAssign')->name('periodname.indexAssesorAssign');
+                Route::post('/list-assesor-assign/update/{id}', 'updateAssesorAssign')->name('periodname.updateAssesorAssign');
             });
         });
         // Period Checklist
@@ -257,6 +260,11 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/period/log-activity/{id}', 'logActivity')->name('listassigned.logActivity');
                 // Detail Checklist
                 Route::get('/checklist/detail/{id}', 'detailChecklist')->name('listassigned.detailChecklist');
+
+                // Modal
+                Route::get('/checklist/detail/diff/{id}', 'diffDetail')->name('listassigned.diffDetail');
+                Route::get('/checklist/detail/log-summary/{id}', 'logDetailSummary')->name('listassigned.logDetailSummary');
+                Route::get('/checklist/detail/log/{id}', 'logDetail')->name('listassigned.logDetail');
             });
         });
     });

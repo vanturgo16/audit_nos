@@ -117,33 +117,54 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-3 text-start">
-                        <strong>Response</strong><br>
-                        {{ $item->response ?? '-' }}<br>
+                        @php
+                            // $showHistory = true;
+                            $showHistory = !empty($item->log_response);
+                        @endphp
 
-                        <div class="mt-3">
-                            <strong>{{ $perCheck ? 'Photo' : 'Response File' }}</strong>
-                            @if($item->path_input_response)
-                                @if($perCheck)
-                                    <div class="custom-image-container">
-                                        <div class="card">
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#detailRspFile{{ $item->id }}">
-                                                <img src="{{ asset($item->path_input_response) }}" style="width: 100%; height:auto;" 
-                                                        onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}'; this.alt='Image not found';">
-                                                <div class="custom-overlay">
-                                                    <div class="custom-text mt-4">Lihat Gambar</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                @else
-                                    <br>
-                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#detailRspFile{{ $item->id }}">
-                                        View File Response
-                                    </button>
-                                @endif
-                            @else
-                                -
+                        <div class="row">
+                            @if($showHistory)
+                                <div class="col-auto me-2">
+                                    <a href="javascript:void(0)" title="see log history response"
+                                        class="btn btn-secondary btn-sm openAjaxModal"
+                                        data-id="log_{{ $item->id }}" 
+                                        data-size="xl" 
+                                        data-url="{{ route('listassigned.logDetail', encrypt($item->id)) }}">
+                                        <i class="mdi mdi-history arrow-icon"></i>
+                                    </a>
+                                </div>
                             @endif
+
+                            <div class="{{ $showHistory ? 'col' : 'col-12' }}">
+                                <strong>Response</strong><br>
+                                {{ $item->response ?? '-' }}<br>
+
+                                <div class="mt-3">
+                                    <strong>{{ $perCheck ? 'Photo' : 'Response File' }}</strong>
+                                    @if($item->path_input_response)
+                                        @if($perCheck)
+                                            <div class="custom-image-container">
+                                                <div class="card">
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#detailRspFile{{ $item->id }}">
+                                                        <img src="{{ asset($item->path_input_response) }}" style="width: 100%; height:auto;" 
+                                                            onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}'; this.alt='Image not found';">
+                                                        <div class="custom-overlay">
+                                                            <div class="custom-text mt-4">Lihat Gambar</div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <br>
+                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#detailRspFile{{ $item->id }}">
+                                                View File Response
+                                            </button>
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-3 text-start">

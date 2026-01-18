@@ -28,7 +28,8 @@ use App\Models\MstEmployees;
 // Mail
 use App\Mail\SubmitReviewChecklist;
 use App\Mail\SubmitPICReviewChecklist;
-
+use App\Models\ChecklistJaringanLog;
+use App\Models\ChecklistResponsesLog;
 // Trait
 use App\Traits\AuditLogsTrait;
 use App\Traits\MailingTrait;
@@ -113,12 +114,56 @@ class ReviewChecklistController extends Controller
         }
     }
 
+    private function buildLastReasonAssessorHtml($checklistJaringan)
+    {
+        $items = MstAssignChecklists::where('id_periode_checklist', $checklistJaringan->id_periode)
+            ->where('type_checklist', $checklistJaringan->type_checklist)
+            ->whereNotNull('note_assesor')
+            ->orderBy('updated_at')
+            ->get();
+        if ($items->isEmpty()) {
+            return null;
+        }
+        $html = '<ul>';
+        foreach ($items as $item) {
+            // Build key from point checklist
+            $keys = array_filter([
+                $item->parent_point_checklist,
+                $item->child_point_checklist,
+                $item->sub_point_checklist,
+            ]);
+            $keyText = implode(', ', $keys);
+            $html .= '<li>';
+            $html .= '<strong>' . e($keyText) . '</strong><br>';
+            $html .= '<span>' . nl2br(e($item->note_assesor)) . '</span>';
+            $html .= '</li>';
+        }
+        $html .= '</ul>';
+        return $html;
+    }
+    private function syncLastReasonAssessor(MstAssignChecklists $item)
+    {
+        $checklistJaringan = ChecklistJaringan::where('id_periode', $item->id_periode_checklist)
+            ->where('type_checklist', $item->type_checklist)
+            ->first();
+        if (!$checklistJaringan) {
+            return;
+        }
+        $html = $this->buildLastReasonAssessorHtml($checklistJaringan);
+        $checklistJaringan->updateQuietly([
+            'last_reason_assessor' => $html,
+        ]);
+    }
+
+
     // DECISION ASSESSOR
     public function approve($id, Request $request) {
         $item = MstAssignChecklists::findOrFail($id);
         $item->approve = 1;
         $item->note_assesor = null;
         $item->save();
+        $this->syncLastReasonAssessor($item);
+
         return $this->returnChecklistCard($id, $request->index);
     }
     public function reject($id, Request $request) {
@@ -126,6 +171,8 @@ class ReviewChecklistController extends Controller
         $item->approve = 0;
         $item->note_assesor = $request->note;
         $item->save();
+        $this->syncLastReasonAssessor($item);
+
         return $this->returnChecklistCard($id, $request->index);
     }
     public function reset($id, Request $request) {
@@ -133,12 +180,15 @@ class ReviewChecklistController extends Controller
         $item->approve = null;
         // $item->note_assesor = null;
         $item->save();
+        $this->syncLastReasonAssessor($item);
+
         return $this->returnChecklistCard($id, $request->index);
     }
     public function correction($id, Request $request) {
         $item = MstAssignChecklists::findOrFail($id);
         $item->note_assesor = $request->note;
         $item->save();
+        $this->syncLastReasonAssessor($item);
         ChecklistResponses::where('id_assign_checklist', $id)->update(['response_correction' => $request->responseCorrection]);
         return $this->returnChecklistCard($id, $request->index);
     }
@@ -397,6 +447,13 @@ class ReviewChecklistController extends Controller
                             'response_correction' => $response->response
                         ]);
                     }
+                    
+                    // Update Summary Note Assesor
+                    $checklistJaringan = ChecklistJaringan::where('id', $item->id)->first();
+                    $html = $this->buildLastReasonAssessorHtml($checklistJaringan);
+                    $checklistJaringan->updateQuietly([
+                        'last_reason_assessor' => $html,
+                    ]);
                 }
                 $msgResponse = $note = 'Move To Correction Assesor Section';
             }
@@ -628,6 +685,48 @@ class ReviewChecklistController extends Controller
             foreach ($chekJars as $item) {
                 // If Reject
                 if ($item->last_decision_pic == 1) {
+                    $responses = MstAssignChecklists::select(
+                            'mst_assign_checklists.id',
+                            'mst_assign_checklists.note_assesor',
+                            'checklist_responses.response',
+                            'checklist_responses.response_correction',
+                            'checklist_responses.path_input_response'
+                        )
+                        ->leftJoin('checklist_responses', 'mst_assign_checklists.id', 'checklist_responses.id_assign_checklist')
+                        ->where('mst_assign_checklists.id_periode_checklist', $id)
+                        ->where('mst_assign_checklists.type_checklist', $item->type_checklist)
+                        ->get();
+                    
+                    // Copy to Log with updateOrCreate
+                    ChecklistJaringanLog::updateOrCreate(
+                        ['id_checklist_jaringan' => $item->id], // unique identifier
+                        [
+                            'log_total_point' => $item->total_point,
+                            'log_total_point_assesor' => $item->total_point_assesor,
+                            'log_result_percentage' => $item->result_percentage,
+                            'log_result_percentage_assesor' => $item->result_percentage_assesor,
+                            'log_audit_result' => $item->audit_result,
+                            'log_audit_result_assesor' => $item->audit_result_assesor,
+                            'log_mandatory_item' => $item->mandatory_item,
+                            'log_mandatory_item_assesor' => $item->mandatory_item_assesor,
+                            'log_result_final' => $item->result_final,
+                            'log_result_final_assesor' => $item->result_final_assesor,
+                            'log_sum_note_assesor' => $item->last_reason_assessor,
+                            'log_note_pic' => $item->last_reason_pic,
+                        ]
+                    );
+                    foreach ($responses as $rsp) {
+                        ChecklistResponsesLog::updateOrCreate(
+                            ['id_assign_checklist' => $rsp->id], // unique identifier
+                            [
+                                'log_response' => $rsp->response,
+                                'log_response_correction' => $rsp->response_correction,
+                                'log_path_input_response' => $rsp->path_input_response,
+                                'log_note_assesor' => $rsp->note_assesor,
+                            ]
+                        );
+                    }
+                    
                     // Update Assign Checklist
                     MstAssignChecklists::where('id_periode_checklist', $id)->where('type_checklist', $item->type_checklist)->update(['approve' => 1, 'note_assesor' => null]);
 

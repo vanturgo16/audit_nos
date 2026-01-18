@@ -23,6 +23,7 @@ use App\Models\MstPeriodName;
 // Mail
 use App\Mail\UpdateExpired;
 use App\Models\MstEmployees;
+use App\Models\PeriodDealerAssesor;
 
 class MstPeriodChecklistController extends Controller
 {
@@ -80,6 +81,15 @@ class MstPeriodChecklistController extends Controller
             return redirect()->back()->withInput()->with(['fail' => $message]);
         }
 
+        $mstPeriodNameId = MstPeriodName::where('period_name', $request->period)->value('id');
+        $mappingPDA = PeriodDealerAssesor::where('mst_period_name_id', $mstPeriodNameId)
+            ->where('mst_dealers_id', $request->id_branch)
+            ->first();
+        $assesorIds = json_decode($mappingPDA->assesor_ids, true);
+        if (!$mappingPDA || empty($assesorIds)) {
+            return redirect()->back()->withInput()->with('fail', 'Dealer / Jaringan in this period has no assessor assigned yet');
+        }
+
         DB::beginTransaction();
         try {
             $period = MstPeriodeChecklists::create([
@@ -90,6 +100,13 @@ class MstPeriodChecklistController extends Controller
                 'created_by' => auth()->user()->email,
                 'is_active' => 1,
                 'status' => 0
+            ]);
+
+            PeriodDealerAssesor::where('id', $mappingPDA->id)->update([
+                'status' => 1
+            ]);
+            MstPeriodName::where('period_name', $request->period)->where('status', 0)->update([
+                'status' => 1
             ]);
 
             // Get Mapping Checklist
@@ -267,6 +284,19 @@ class MstPeriodChecklistController extends Controller
 
         DB::beginTransaction();
         try {
+            $data = MstPeriodeChecklists::where('id', $id)->first();
+            $count = MstPeriodeChecklists::where('period', $data->period)->count();
+            $mst_period_name_id = MstPeriodName::where('period_name', $data->period)->first()->id;
+            $mappingPDA = PeriodDealerAssesor::where('mst_period_name_id', $mst_period_name_id)->where('mst_dealers_id', $data->id_branch)->first();
+            PeriodDealerAssesor::where('id', $mappingPDA->id)->update([
+                'status' => 0
+            ]);
+            if($count == 1) {
+                MstPeriodName::where('period_name', $data->period)->update([
+                    'status' => 0
+                ]);
+            }
+
             MstPeriodeChecklists::where('id', $id)->delete();
 
             //Audit Log
