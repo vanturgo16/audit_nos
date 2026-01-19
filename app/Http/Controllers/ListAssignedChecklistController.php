@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Models\MstPeriodeChecklists;
 use App\Models\MstJaringan;
 use App\Models\ChecklistJaringan;
+use App\Models\ChecklistJaringanLog;
 use App\Models\MstAssignChecklists;
 use App\Models\MstDropdowns;
 use App\Models\ChecklistResponses;
@@ -28,7 +29,7 @@ class ListAssignedChecklistController extends Controller
     {
         $user = auth()->user();
         $role = $user->role;
-        $idDealerUser = MstEmployees::where('email', $user->email)->value('id_dealer');
+        // $idDealerUser = MstEmployees::where('email', $user->email)->value('id_dealer');
 
         // Get branches based on role
         $branchs = in_array($role, ['Super Admin', 'Admin', 'Assessor Main Dealer', 'PIC NOS MD'])
@@ -37,9 +38,16 @@ class ListAssignedChecklistController extends Controller
 
         if ($request->ajax()) {
             $query = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
-                'a.id as idAuditor', 'a.name as auditor_name')
+                'a.id as idAuditor', 'a.name as auditor_name', 'period_dealer_assessors.assesor_ids')
                 ->leftjoin('mst_dealers', 'mst_periode_checklists.id_branch', 'mst_dealers.id')
                 ->leftjoin('users as a', 'mst_periode_checklists.id_auditor', 'a.id')
+                
+                ->leftjoin('mst_period_name', 'mst_periode_checklists.period', 'mst_period_name.period_name')
+                ->leftJoin('period_dealer_assessors', function ($join) {
+                    $join->on('mst_period_name.id', '=', 'period_dealer_assessors.mst_period_name_id')
+                        ->on('period_dealer_assessors.mst_dealers_id', '=', 'mst_periode_checklists.id_branch');
+                })
+
                 ->whereNotNull('mst_periode_checklists.status')
                 ->where('mst_periode_checklists.status', '!=', 0);
     
@@ -54,8 +62,8 @@ class ListAssignedChecklistController extends Controller
             $query = $query->orderBy('mst_periode_checklists.created_at', 'desc')->get();
 
             return DataTables::of($query)
-                ->addColumn('action', function ($data) use ($branchs, $idDealerUser) {
-                    return view('list_assigned.action', compact('data', 'branchs', 'idDealerUser'));
+                ->addColumn('action', function ($data) use ($branchs) {
+                    return view('list_assigned.action', compact('data', 'branchs'));
                 })->toJson();
         }
 
@@ -69,14 +77,23 @@ class ListAssignedChecklistController extends Controller
     {
         $id = decrypt($id);
         $periodInfo = MstPeriodeChecklists::select('mst_periode_checklists.*', 'mst_dealers.dealer_name', 'mst_dealers.type',
-            'users.id as idAuditor', 'users.name as auditor_name')
+            'users.id as idAuditor', 'users.name as auditor_name', 'period_dealer_assessors.assesor_ids')
             ->leftJoin('mst_dealers', 'mst_periode_checklists.id_branch', '=', 'mst_dealers.id')
             ->leftjoin('users', 'mst_periode_checklists.id_auditor', 'users.id')
+                
+            ->leftjoin('mst_period_name', 'mst_periode_checklists.period', 'mst_period_name.period_name')
+            ->leftJoin('period_dealer_assessors', function ($join) {
+                $join->on('mst_period_name.id', '=', 'period_dealer_assessors.mst_period_name_id')
+                    ->on('period_dealer_assessors.mst_dealers_id', '=', 'mst_periode_checklists.id_branch');
+            })
+
             ->where('mst_periode_checklists.id', $id)
             ->first();
             
         $user = auth()->user();
-        $isHisDealer = MstEmployees::where('email', $user->email)->value('id_dealer') === $periodInfo->id_branch;
+        // $isHisDealer = MstEmployees::where('email', $user->email)->value('id_dealer') === $periodInfo->id_branch;
+        $assesorIds = is_array($periodInfo->assesor_ids) ? $periodInfo->assesor_ids : (array) json_decode($periodInfo->assesor_ids, true);
+        $isHisDealer = in_array($user->id, $assesorIds, true);
 
         $sortOrder = MstDropdowns::where('category', 'Type Checklist')->orderBy('created_at')->pluck('name_value');
         $checkJars = ChecklistJaringan::select('checklist_jaringan.*', 'users.name as assesor_name')
@@ -133,6 +150,9 @@ class ListAssignedChecklistController extends Controller
 
             $idAuditor = $periodInfo->id_auditor;
             return DataTables::of($checkJars)
+                ->addColumn('diff', function ($data) {
+                    return view('list_assigned.detail.diff', compact('data'));
+                })
                 ->addColumn('action', function ($data) use ($statusPeriod, $startPeriod, $today, $idAuditor, $isHisDealer) {
                     return view('list_assigned.detail.action', compact('data', 'statusPeriod', 'startPeriod', 'today', 'idAuditor', 'isHisDealer'));
                 })
@@ -149,11 +169,17 @@ class ListAssignedChecklistController extends Controller
     {
         $id = decrypt($id);
         $checkJar = ChecklistJaringan::where('id', $id)->first();
+        $isAnyHist = ChecklistJaringanLog::where('id_checklist_jaringan', $id)->exists();
         $period = MstPeriodeChecklists::where('id', $checkJar->id_periode)->first();
         $typeCheck = $checkJar->type_checklist;
 
-        $assignChecks = MstAssignChecklists::select('mst_assign_checklists.*', 'checklist_responses.response', 'checklist_responses.response_correction', 'checklist_responses.path_input_response')
+        $assignChecks = MstAssignChecklists::select(
+                'mst_assign_checklists.*', 
+                'checklist_responses.response', 'checklist_responses.response_correction', 'checklist_responses.path_input_response',
+                'checklist_responses_log.log_response'
+            )
             ->leftjoin('checklist_responses', 'mst_assign_checklists.id', 'checklist_responses.id_assign_checklist')
+            ->leftjoin('checklist_responses_log', 'mst_assign_checklists.id', '=', 'checklist_responses_log.id_assign_checklist')
             ->where('mst_assign_checklists.id_periode_checklist', $checkJar->id_periode)
             ->where('mst_assign_checklists.type_checklist', $checkJar->type_checklist)
             ->orderby('mst_assign_checklists.order_no_parent')
@@ -172,7 +198,60 @@ class ListAssignedChecklistController extends Controller
         //Audit Log
         $this->auditLogsShort('View Review Checklist');
         
-        return view('list_assigned.detail.checklist.index', compact('checkJar', 'period', 'typeCheck', 'assignChecks', 'perCheck', 'progressReviewed'));
+        return view('list_assigned.detail.checklist.index', compact('checkJar', 'isAnyHist', 'period', 'typeCheck', 'assignChecks', 'perCheck', 'progressReviewed'));
+    }
+
+    public function diffDetail($id)
+    {
+        $id = decrypt($id);
+        $checkJar = ChecklistJaringan::where('id', $id)->first();
+        $datas = MstAssignChecklists::select(
+                'mst_assign_checklists.parent_point_checklist',
+                'mst_assign_checklists.child_point_checklist',
+                'mst_assign_checklists.sub_point_checklist',
+                'mst_assign_checklists.note_assesor',
+                'checklist_responses.response',
+                'checklist_responses.response_correction',
+            )
+            ->leftjoin('checklist_responses', 'mst_assign_checklists.id', 'checklist_responses.id_assign_checklist')
+            ->where('mst_assign_checklists.id_periode_checklist', $checkJar->id_periode)
+            ->where('mst_assign_checklists.type_checklist', $checkJar->type_checklist)
+            ->whereNotNull('checklist_responses.response_correction')
+            ->whereColumn(
+                'checklist_responses.response',
+                '!=',
+                'checklist_responses.response_correction'
+            )
+            ->get();
+        return view('list_assigned.detail.modal.difference', compact('datas'));
+    }
+
+    public function logDetailSummary($id)
+    {
+        $id = decrypt($id);
+        $summCheckJar = ChecklistJaringanLog::where('id_checklist_jaringan', $id)->first();
+
+        return view('list_assigned.detail.checklist.modal.logSummary', compact('summCheckJar'));
+    }
+    
+    public function logDetail($id)
+    {
+        $id = decrypt($id);
+        $logResponse = MstAssignChecklists::select(
+            'mst_assign_checklists.note_assesor', 
+            'checklist_responses.response', 
+            'checklist_responses.response_correction', 
+            'checklist_responses.path_input_response',
+            'checklist_responses_log.log_response', 
+            'checklist_responses_log.log_response_correction', 
+            'checklist_responses_log.log_note_assesor'
+        )
+        ->leftJoin('checklist_responses', 'mst_assign_checklists.id', '=', 'checklist_responses.id_assign_checklist')
+        ->leftJoin('checklist_responses_log', 'mst_assign_checklists.id', '=', 'checklist_responses_log.id_assign_checklist')
+        ->where('mst_assign_checklists.id', $id)
+        ->first();
+
+        return view('list_assigned.detail.checklist.modal.log', compact('logResponse'));
     }
 
     public function logActivity(Request $request, $id)

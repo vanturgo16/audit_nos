@@ -5,7 +5,12 @@
         $status = $data->status;
         $detailUrl = route('listassigned.periodDetail', encrypt($data->id));
         $showAudit = in_array($status, [1, 2]) && (is_null($data->idAuditor) || $userId == $data->idAuditor);
-        $showReviewAssessor = $status == 3 && $idDealerUser == $data->id_branch;
+        
+        $assesorIds = is_array($data->assesor_ids)
+            ? $data->assesor_ids
+            : (array) json_decode($data->assesor_ids, true);
+        $showReviewAssessor = $status == 3 && in_array($userId, $assesorIds, true);
+
         $showReviewNosMd = $status == 4;
     @endphp
 

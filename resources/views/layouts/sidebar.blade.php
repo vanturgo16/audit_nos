@@ -199,8 +199,27 @@
                     </li>
                 @endif
 
-                <!-- Assessor Main Dealer && PIC NOS MD -->
-                @if(in_array(Auth::user()->role, ['Assessor Main Dealer','PIC NOS MD']))
+                <!-- Assessor Main Dealer -->
+                @if(in_array(Auth::user()->role, ['Assessor Main Dealer']))
+                    <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
+                    <li>
+                        <a href="{{ route('listassigned.periodList') }}" class="{{ request()->is('listassigned*') ? 'bg-light active' : '' }}" id="reviewNav">
+                            <i class="mdi mdi-message-draw"></i>
+                            <span>Review Checklist</span>
+                        </a>
+                    </li>
+                @endif
+
+                <!-- PIC NOS MD -->
+                @if(in_array(Auth::user()->role, ['PIC NOS MD']))
+                    <li class="menu-title mt-2" data-key="t-menu">Assign Checklist Audit</li>
+                    <li>
+                        <a href="{{ route('periodname.index') }}" class="{{ request()->is('periodname*') ? 'bg-light active' : '' }}" id="periodNameNav">
+                            <i class="mdi mdi-clipboard-text-clock"></i>
+                            <span>Master Period Name</span>
+                        </a>
+                    </li>
+
                     <li class="menu-title mt-2" data-key="t-menu">Review Menu</li>
                     <li>
                         <a href="{{ route('listassigned.periodList') }}" class="{{ request()->is('listassigned*') ? 'bg-light active' : '' }}" id="reviewNav">

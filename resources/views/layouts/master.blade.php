@@ -49,6 +49,9 @@
 <body @if (Auth::user()->is_darkmode) data-bs-theme="dark" data-topbar="dark" data-sidebar="dark" @endif>
     @include('layouts.loading')
     @include('layouts.toast')
+    
+    <!-- General Modal -->
+    @include('layouts.modal.dynamic')
 
     <!-- ========== BEGIN page ========== -->
     <div id="layout-wrapper">

@@ -205,3 +205,8 @@ div.dataTables_processing > div:last-child > div {
 [data-bs-theme="dark"] .scroll-to-top:hover {
     background-color: #5a6268;
 }
+
+.md-body-scroll {
+    overflow-y: auto;
+    max-height: 67vh;
+}
