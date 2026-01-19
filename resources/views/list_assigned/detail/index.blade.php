@@ -1,6 +1,121 @@
 @extends('layouts.master')
 @section('konten')
 
+<style>
+    .compare-box {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        font-size: 8px;
+    }
+
+    .compare-col {
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 12px 14px;
+        min-height: 140px; /* ensures visual balance */
+    }
+
+    .compare-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #6b7280;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    /* Points container grows */
+    .compare-body {
+        flex: 1;
+    }
+
+    /* Each point item */
+    .compare-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        margin-bottom: 8px; /* MORE SPACE between points */
+    }
+
+    .compare-label {
+        color: #6b7280;
+        line-height: 1.35; /* allow multi-line text */
+        word-break: break-word;
+    }
+
+    .compare-value {
+        font-weight: 700;
+        color: #111827;
+        min-width: 18px;
+        text-align: right;
+    }
+
+    /* Total always at bottom */
+    .compare-total {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        padding-top: 8px;
+        margin-top: 10px;
+        border-top: 1px dashed #d1d5db;
+        font-weight: 800;
+    }
+
+    .compare-total .compare-label {
+        color: #111827;
+        letter-spacing: 0.3px;
+    }
+
+    .compare-total .compare-value {
+        font-size: 13px;
+    }
+
+
+
+
+
+
+    .card-compare {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 11px;
+        align-items: flex-start; /* align content to left */
+    }
+
+    .card-block {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 12px;
+        background-color: #f9fafb; /* light card background */
+        border: 1px solid #e5e7eb; /* subtle border */
+        border-radius: 8px;
+        width: 120px; /* fixed card width */
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .card-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+
+    .card-value {
+        font-weight: 700;
+        font-size: 12px;
+        color: #111827;
+    }
+
+
+
+</style>
+
 <div class="page-content">
     <div class="container-fluid">
         <div class="row">
@@ -134,20 +249,15 @@
                             <tr>
                                 <th rowspan="2" class="align-middle text-center">No</th>
                                 <th rowspan="2" class="align-middle text-center">Type Checklist</th>
-                                <th colspan="2" class="align-middle text-center">Total Point</th>
-                                <th colspan="2" class="align-middle text-center">% Result</th>
-                                <th colspan="2" class="align-middle text-center">Result Final</th>
+                                <th rowspan="2" class="align-middle text-center">Total Point</th>
+                                <th rowspan="2" class="align-middle text-center">% Result</th>
+                                <th rowspan="2" class="align-middle text-center">Result Final</th>
+                                <th rowspan="2" class="align-middle text-center">Difference</th>
                                 <th rowspan="2" class="align-middle text-center">Status</th>
                                 <th colspan="2" class="align-middle text-center">Approval</th>
                                 <th rowspan="2" class="align-middle text-center">Action</th>
                             </tr>
                             <tr>
-                                <th class="align-middle text-center">Auditor</th>
-                                <th class="align-middle text-center">Assesor</th>
-                                <th class="align-middle text-center">Auditor</th>
-                                <th class="align-middle text-center">Assesor</th>
-                                <th class="align-middle text-center">Auditor</th>
-                                <th class="align-middle text-center">Assesor</th>
                                 <th class="align-middle text-center">Assessor</th>
                                 <th class="align-middle text-center">PIC MD</th>
                             </tr>
@@ -327,6 +437,64 @@
 </div>
 
 <script>
+    function formatDate(date) {
+        if (!date) return '-';
+        return new Date(date).toLocaleDateString('es-CL').replace(/\//g, '-');
+    }
+
+    function renderCompare(pointsAuditor, totalAuditor, pointsAssesor, totalAssesor) {
+
+        const renderRows = (points) =>
+            points.map(p => `
+                <div class="compare-row">
+                    <span class="compare-label">${p.type_response}</span>
+                    <span class="compare-value">${p.count}</span>
+                </div>
+            `).join('');
+
+        const renderColumn = (title, points, total) => {
+            if (
+                !Array.isArray(points) ||
+                points.length === 0 ||
+                points[0]?.type_response == null
+            ) {
+                return `
+                    <div class="compare-col">
+                        <div class="compare-title">${title}</div>
+                        <div class="compare-body text-center text-muted">
+                            -
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="compare-col">
+                    <div class="compare-title">${title}</div>
+                    <div class="compare-body">
+                        ${renderRows(points)}
+                    </div>
+                    <div class="compare-total">
+                        <span class="compare-label">POINT</span>
+                        <span class="compare-value">
+                            ${total ?? '-'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        };
+
+        return `
+            <div class="compare-box">
+                ${renderColumn('AUDITOR', pointsAuditor, totalAuditor)}
+                ${renderColumn('ASSESSOR', pointsAssesor, totalAssesor)}
+            </div>
+        `;
+    }
+
+
+
+
     $(function() {
         var role = "{{ Auth::user()->role }}";
         $('#ssTable').DataTable({
@@ -348,171 +516,266 @@
                     // visible: false,
                     className: 'align-top text-center fw-bold',
                 },
+
+                // Type Checklist
                 {
                     data: 'type_checklist',
-                    name: 'type_checklist',
-                    orderable: true,
-                    searchable: true,
                     className: 'align-top',
-                    render: function(data, type, row) {
-                        var check = row.total_checklist - row.checklist_remaining;
-                        var start;
-                        if (row.start_date === null) {
-                            start = '-';
-                        } else {
-                            var startDate = new Date(row.start_date);
-                            start = startDate.toLocaleDateString('es-CL').replace(/\//g, '-');
-                        }
+                    render: (d, t, r) => `
+                        <div class="checklist-box">
+                            <div class="fw-bold text-decoration-underline">${d}</div>
+                            <div class="text-muted small">
+                                ${r.total_checklist - r.checklist_remaining}
+                                of ${r.total_checklist}
+                            </div>
+                            <div class="small mt-2">
+                                <b>Start Audit</b><br>
+                                ${formatDate(r.start_date)}
+                            </div>
+                        </div>
+                    `
+                },
+                // Auditor vs Assessor (POINT COMPARISON)
+                {
+                    data: null,
+                    orderable: false,
+                    className: 'align-top',
+                    render: (d, t, r) =>
+                        renderCompare(
+                            r.point,
+                            r.total_point,
+                            r.point_correction,
+                            r.total_point_assesor
+                        )
+                },
+                {
+                    data: null,
+                    orderable: true,
+                    className: 'align-top text-start', // align left in table cell
+                    render: function (data, type, row) {
+                        const auditor =
+                            row.result_percentage == null || row.result_percentage === ''
+                                ? '-'
+                                : row.result_percentage + ' %';
+                        const assesor =
+                            row.result_percentage_assesor == null || row.result_percentage_assesor === ''
+                                ? '-'
+                                : row.result_percentage_assesor + ' %';
 
                         return `
-                            <div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 100px;">
-                                <div>
-                                    <h5><u><b>${row.type_checklist}</b></u></h5>
-                                    ${check} <b>of</b> ${row.total_checklist}
+                            <div class="card-compare">
+                                <div class="card-block">
+                                    <div class="card-title">AUDITOR</div>
+                                    <div class="card-value">${auditor}</div>
                                 </div>
-                                <div class="mt-2">
-                                    <small><b>Start Audit:</b> ${start}</small>
+                                <div class="card-block">
+                                    <div class="card-title">ASSESSOR</div>
+                                    <div class="card-value">${assesor}</div>
                                 </div>
-                            </div>`;
-                        return  `
-                            <h5><u><b>${row.type_checklist}</b></u></h5>
-                            ${check} <b>of</b> ${row.total_checklist}<br>
-                            <br><small><b>Start Audit:</b> ${start}</small>`;
-                    },
+                            </div>
+                        `;
+                    }
                 },
                 {
-                    data: 'total_point',
+                    data: null,
                     orderable: true,
-                    className: 'align-top',
-                    render: function(data, type, row) {
-                        if (data === "" || data === null) {
-                            return '-';
-                        }
-                        let tableRows = '';
-                        row.point.forEach(function(point) {
-                            tableRows += `
-                                <tr>
-                                    <th class="align-top px-2 py-0" style="font-weight: bold; border: none;">
-                                        <small>${point.type_response}</small>
-                                    </th>
-                                    <th class="align-top px-0 py-0" style="font-weight: bold; border: none;">
-                                        <small>:</small>
-                                    </th>
-                                    <td class="align-top px-2 py-0" style="border: none;">
-                                        <small><b>${point.count}</b></small>
-                                    </td>
-                                </tr>`;
-                        });
+                    className: 'align-top text-start', // align left in table cell
+                    render: function (data, type, row) {
+                        const auditor =
+                            row.result_final == null || row.result_final === ''
+                                ? '-'
+                                : row.result_final;
+                        const assesor =
+                            row.result_final_assesor == null || row.result_final_assesor === ''
+                                ? '-'
+                                : row.result_final_assesor;
 
                         return `
-                            <div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 100px;">
-                                <div>
-                                    <table class="mb-0" style="border-collapse: collapse; width: 100%;">
-                                        <tbody>
-                                            ${tableRows}
-                                        </tbody>
-                                    </table>
+                            <div class="card-compare">
+                                <div class="card-block">
+                                    <div class="card-title">AUDITOR</div>
+                                    <div class="card-value">${auditor}</div>
                                 </div>
-                                <div class="align-top px-2 py-0">
-                                    <strong>Total Point : <b><u>${data}</u></b></strong>
+                                <div class="card-block">
+                                    <div class="card-title">ASSESSOR</div>
+                                    <div class="card-value">${assesor}</div>
                                 </div>
-                            </div>`;
-                    },
+                            </div>
+                        `;
+                    }
                 },
-                {
-                    data: 'total_point_assesor',
-                    orderable: true,
-                    className: 'align-top',
-                    render: function(data, type, row) {
-                        if (data === "" || data === null) {
-                            return '-';
-                        }
-                        let tableRows = '';
-                        row.point_correction.forEach(function(point) {
-                            tableRows += `
-                                <tr>
-                                    <th class="align-top px-2 py-0" style="font-weight: bold; border: none;">
-                                        <small>${point.type_response}</small>
-                                    </th>
-                                    <th class="align-top px-0 py-0" style="font-weight: bold; border: none;">
-                                        <small>:</small>
-                                    </th>
-                                    <td class="align-top px-2 py-0" style="border: none;">
-                                        <small><b>${point.count}</b></small>
-                                    </td>
-                                </tr>`;
-                        });
+                // {
+                //     data: 'type_checklist',
+                //     name: 'type_checklist',
+                //     orderable: true,
+                //     searchable: true,
+                //     className: 'align-top',
+                //     render: function(data, type, row) {
+                //         var check = row.total_checklist - row.checklist_remaining;
+                //         var start;
+                //         if (row.start_date === null) {
+                //             start = '-';
+                //         } else {
+                //             var startDate = new Date(row.start_date);
+                //             start = startDate.toLocaleDateString('es-CL').replace(/\//g, '-');
+                //         }
 
-                        return `
-                            <div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 100px;">
-                                <div>
-                                    <table class="mb-0" style="border-collapse: collapse; width: 100%;">
-                                        <tbody>
-                                            ${tableRows}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="align-top px-2 py-0">
-                                    <strong>Total Point : <b><u>${data}</u></b></strong>
-                                </div>
-                            </div>`;
-                    },
-                },
+                //         return `
+                //             <div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 100px;">
+                //                 <div>
+                //                     <h5><u><b>${row.type_checklist}</b></u></h5>
+                //                     ${check} <b>of</b> ${row.total_checklist}
+                //                 </div>
+                //                 <div class="mt-2">
+                //                     <small><b>Start Audit:</b> <br>${start}</small>
+                //                 </div>
+                //             </div>`;
+                //         return  `
+                //             <h5><u><b>${row.type_checklist}</b></u></h5>
+                //             ${check} <b>of</b> ${row.total_checklist}<br>
+                //             <br><small><b>Start Audit:</b> ${start}</small>`;
+                //     },
+                // },
+                // {
+                //     data: 'total_point',
+                //     orderable: true,
+                //     className: 'align-top',
+                //     render: function(data, type, row) {
+                //         if (data === "" || data === null) {
+                //             return '-';
+                //         }
+                //         let tableRows = '';
+                //         row.point.forEach(function(point) {
+                //             tableRows += `
+                //                 <tr>
+                //                     <th class="align-top px-2 py-0" style="font-weight: bold; border: none;">
+                //                         <small>${point.type_response}</small>
+                //                     </th>
+                //                     <th class="align-top px-0 py-0" style="font-weight: bold; border: none;">
+                //                         <small>:</small>
+                //                     </th>
+                //                     <td class="align-top px-2 py-0" style="border: none;">
+                //                         <small><b>${point.count}</b></small>
+                //                     </td>
+                //                 </tr>`;
+                //         });
+
+                //         return `
+                //             <div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 100px;">
+                //                 <div>
+                //                     <table class="mb-0" style="border-collapse: collapse; width: 100%;">
+                //                         <tbody>
+                //                             ${tableRows}
+                //                         </tbody>
+                //                     </table>
+                //                 </div>
+                //                 <div class="align-top px-2 py-0">
+                //                     <strong>Total Point : <b><u>${data}</u></b></strong>
+                //                 </div>
+                //             </div>`;
+                //     },
+                // },
+                // {
+                //     data: 'total_point_assesor',
+                //     orderable: true,
+                //     className: 'align-top',
+                //     render: function(data, type, row) {
+                //         if (data === "" || data === null) {
+                //             return '-';
+                //         }
+                //         let tableRows = '';
+                //         row.point_correction.forEach(function(point) {
+                //             tableRows += `
+                //                 <tr>
+                //                     <th class="align-top px-2 py-0" style="font-weight: bold; border: none;">
+                //                         <small>${point.type_response}</small>
+                //                     </th>
+                //                     <th class="align-top px-0 py-0" style="font-weight: bold; border: none;">
+                //                         <small>:</small>
+                //                     </th>
+                //                     <td class="align-top px-2 py-0" style="border: none;">
+                //                         <small><b>${point.count}</b></small>
+                //                     </td>
+                //                 </tr>`;
+                //         });
+
+                //         return `
+                //             <div style="display: flex; flex-direction: column; justify-content: space-between; min-height: 100px;">
+                //                 <div>
+                //                     <table class="mb-0" style="border-collapse: collapse; width: 100%;">
+                //                         <tbody>
+                //                             ${tableRows}
+                //                         </tbody>
+                //                     </table>
+                //                 </div>
+                //                 <div class="align-top px-2 py-0">
+                //                     <strong>Total Point : <b><u>${data}</u></b></strong>
+                //                 </div>
+                //             </div>`;
+                //     },
+                // },
+                // {
+                //     data: 'result_percentage',
+                //     orderable: true,
+                //     className: 'align-top text-center',
+                //     render: function(data, type, row) {
+                //         var html = '';
+                //         if (row.result_percentage === "" || row.result_percentage === null) {
+                //             html = '-';
+                //         } else {
+                //             html = row.result_percentage + ' %';
+                //         }
+                //         return html;
+                //     },
+                // },
+                // {
+                //     data: 'result_percentage_assesor',
+                //     orderable: true,
+                //     className: 'align-top text-center',
+                //     render: function(data, type, row) {
+                //         var html = '';
+                //         if (row.result_percentage_assesor === "" || row.result_percentage_assesor === null) {
+                //             html = '-';
+                //         } else {
+                //             html = row.result_percentage_assesor + ' %';
+                //         }
+                //         return html;
+                //     },
+                // },
+                // {
+                //     data: 'result_final',
+                //     orderable: true,
+                //     className: 'align-top text-center',
+                //     render: function(data, type, row) {
+                //         var html = '';
+                //         if (row.result_final === "" || row.result_final === null) {
+                //             html = '-';
+                //         } else {
+                //             html = row.result_final;
+                //         }
+                //         return html;
+                //     },
+                // },
+                // {
+                //     data: 'result_final_assesor',
+                //     orderable: true,
+                //     className: 'align-top text-center',
+                //     render: function(data, type, row) {
+                //         var html = '';
+                //         if (row.result_final_assesor === "" || row.result_final_assesor === null) {
+                //             html = '-';
+                //         } else {
+                //             html = row.result_final_assesor;
+                //         }
+                //         return html;
+                //     },
+                // },
                 {
-                    data: 'result_percentage',
-                    orderable: true,
+                    data: 'diff',
+                    name: 'diff',
+                    orderable: false,
+                    searchable: false,
                     className: 'align-top text-center',
-                    render: function(data, type, row) {
-                        var html = '';
-                        if (row.result_percentage === "" || row.result_percentage === null) {
-                            html = '-';
-                        } else {
-                            html = row.result_percentage + ' %';
-                        }
-                        return html;
-                    },
-                },
-                {
-                    data: 'result_percentage_assesor',
-                    orderable: true,
-                    className: 'align-top text-center',
-                    render: function(data, type, row) {
-                        var html = '';
-                        if (row.result_percentage_assesor === "" || row.result_percentage_assesor === null) {
-                            html = '-';
-                        } else {
-                            html = row.result_percentage_assesor + ' %';
-                        }
-                        return html;
-                    },
-                },
-                {
-                    data: 'result_final',
-                    orderable: true,
-                    className: 'align-top text-center',
-                    render: function(data, type, row) {
-                        var html = '';
-                        if (row.result_final === "" || row.result_final === null) {
-                            html = '-';
-                        } else {
-                            html = row.result_final;
-                        }
-                        return html;
-                    },
-                },
-                {
-                    data: 'result_final_assesor',
-                    orderable: true,
-                    className: 'align-top text-center',
-                    render: function(data, type, row) {
-                        var html = '';
-                        if (row.result_final_assesor === "" || row.result_final_assesor === null) {
-                            html = '-';
-                        } else {
-                            html = row.result_final_assesor;
-                        }
-                        return html;
-                    },
                 },
                 {
                     data: 'status',

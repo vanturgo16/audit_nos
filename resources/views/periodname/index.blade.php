@@ -10,6 +10,7 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-4">
+                                @if(in_array(Auth::user()->role, ['Super Admin', 'Admin', 'PIC Dealers']))
                                 <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Period Name</button>
                                 {{-- Modal Add --}}
                                 <div class="modal fade" id="add-new" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -41,6 +42,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             </div>
                             <div class="col-4 d-flex justify-content-center align-items-center">
                                 <h4 class="mb-sm-0 font-size-18">Master Period Name</h4>
@@ -53,6 +55,7 @@
                                 <tr>
                                     <th class="align-middle text-center">No</th>
                                     <th class="align-middle text-center">Period Name</th>
+                                    <th class="align-middle text-center">Status</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -77,20 +80,40 @@
                     },
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
                 {
                     orderable: true,
                     data: 'period_name',
                     name: 'period_name',
-                    className: 'align-middle text-bold',
+                    className: 'align-top text-bold',
+                },
+                {
+                    orderable: true,
+                    data: 'status',
+                    name: 'status',
+                    className: 'align-top',
+                    render: function (data, type, row) {
+                        if (data == 1) {
+                            return `
+                            <span class="badge bg-secondary text-white">
+                                <i class="mdi mdi-lock-outline me-1"></i>In Use
+                            </span>
+                            `;
+                        }
+                        return `
+                                <span class="badge bg-info text-white">
+                                    <i class="mdi mdi-file-edit-outline me-1"></i>Available Edit
+                                </span>
+                        `;
+                    }
                 },
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
             ],
         });

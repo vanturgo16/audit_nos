@@ -17,6 +17,19 @@
     </div>
 </div>
 <div class="row">
+
+    @if($isAnyHist)
+    <div class="col-12">
+        <a href="javascript:void(0)"
+            class="btn mb-3 btn-secondary waves-effect btn-label waves-light openAjaxModal"
+            data-id="log_sum" 
+            data-size="xl" 
+            data-url="{{ route('listassigned.logDetailSummary', encrypt($checkJar->id)) }}">
+            <i class="mdi mdi-history label-icon"></i> Log Summary Data Before
+        </a>
+    </div>
+    @endif
+
     @php
         function getBadge($value) {
             if (!$value) return '-';
@@ -188,56 +201,72 @@
             </div>
         </div>
     @endif
-
-    <div class="col-lg-12">
+    @if($isPICReview)
+    <div class="col-12">
+        <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editdecision">
+                <span class="mdi mdi-pen"></span> Update PIC Decision
+            </button>
+        </div>
+        <div class="modal fade" id="editdecision" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-top" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Decision</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form class="formLoad" action="{{ route('review.updateDecisionPIC', encrypt($checkJar->id)) }}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="idPeriod" value="{{ $period->id }}">
+                        <div class="modal-body text-start" style="max-height: 65vh; overflow-x:auto;">
+                            <div class="row px-2">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <h5 class="fw-bold">Decision</h5>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="decision" id="approved" value="2" @if(in_array($checkJar->last_decision_pic, [2])) checked @endif required>
+                                            <label class="form-check-label">Approved</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="decision" id="notapproved" value="1" @if($checkJar->last_decision_pic == 1) checked @endif>
+                                            <label class="form-check-label">Reject</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <div class="form-group">
+                                        <h5 class="fw-bold">Note</h5>
+                                        <textarea id="ckeditor-classic" name="note">{!! $checkJar->last_reason_pic !!}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="fas fa-sync label-icon"></i>Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    <div class="col-12">
         <table class="table table-bordered dt-responsive nowrap w-100">
             <thead class="table-light">
                 <tr>
-                    <td colspan="2" class="align-top fw-bold">Last General Note</td>
-                    @if($isReviewer)
-                        <td class="align-top text-center fw-bold">Action</td>
-                    @endif
+                    <td colspan="2" class="align-top fw-bold">Summary Note Result</td>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td class="align-top fw-bold" style="white-space: nowrap; width: 1%;">Assessor</td>
-                    <td class="align-top">{!! $checkJar->last_reason_assessor ?? '-' !!}</td>
-                    @if($isReviewer)
-                        <td class="align-top text-center" style="white-space: nowrap; width: 1%;">
-                            @if($isAssesorReview)
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editnote">
-                                    <span class="mdi mdi-pen"></span> Edit Note
-                                </button>
-                                <div class="modal fade" id="editnote" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-top" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="staticBackdropLabel">Edit Note</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form class="formLoad" action="{{ route('review.updateNoteChecklist', encrypt($checkJar->id)) }}" method="post" enctype="multipart/form-data">
-                                                @csrf
-                                                <div class="modal-body" style="max-height: 65vh; overflow-x:auto;">
-                                                    <div class="row px-2">
-                                                        <div class="col-12">
-                                                            <textarea id="ckeditor-classic" name="note">{!! $checkJar->last_reason_assessor !!}</textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="fas fa-sync label-icon"></i>Update</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                -
-                            @endif
-                        </td>
-                    @endif
+                    <td class="align-top">
+                        <div class="collapsible-text short" id="noteSumAssesor">
+                            {!! $checkJar->last_reason_assessor ?? '-' !!}
+                        </div>
+                        <a href="javascript:void(0);" class="text-primary small toggle-notes" data-target="#noteSumAssesor">View More</a>
+                    </td>
                 </tr>
                 <tr>
                     <td class="align-top fw-bold" style="white-space: nowrap; width: 1%;">PIC NOS MD</td>
@@ -251,58 +280,6 @@
 
                         {!! $checkJar->last_reason_pic ?? '-' !!}
                     </td>
-                    @if($isReviewer)
-                        <td class="align-top text-center" style="white-space: nowrap; width: 1%;">
-                            @if($isPICReview)
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editdecision">
-                                    <span class="mdi mdi-pen"></span> Update Decision
-                                </button>
-                                <div class="modal fade" id="editdecision" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg modal-dialog-top" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="staticBackdropLabel">Decision</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form class="formLoad" action="{{ route('review.updateDecisionPIC', encrypt($checkJar->id)) }}" method="post" enctype="multipart/form-data">
-                                                @csrf
-                                                <input type="hidden" name="idPeriod" value="{{ $period->id }}">
-                                                <div class="modal-body text-start" style="max-height: 65vh; overflow-x:auto;">
-                                                    <div class="row px-2">
-                                                        <div class="col-12">
-                                                            <div class="form-group">
-                                                                <h5 class="fw-bold">Decision</h5>
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio" name="decision" id="approved" value="2" @if(in_array($checkJar->last_decision_pic, [2])) checked @endif required>
-                                                                    <label class="form-check-label">Approved</label>
-                                                                </div>
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio" name="decision" id="notapproved" value="1" @if($checkJar->last_decision_pic == 1) checked @endif>
-                                                                    <label class="form-check-label">Reject</label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-12 mt-4">
-                                                            <div class="form-group">
-                                                                <h5 class="fw-bold">Note</h5>
-                                                                <textarea id="ckeditor-classic" name="note">{!! $checkJar->last_reason_pic !!}</textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-primary waves-effect btn-label waves-light"><i class="fas fa-sync label-icon"></i>Update</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                -
-                            @endif
-                        </td>
-                    @endif
                 </tr>
             </tbody>
         </table>
