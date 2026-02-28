@@ -205,8 +205,9 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/detail/{type}/{typecheck}', 'detail')->name('mapchecklist.detail');
                 Route::post('/add/{type}', 'addtype')->name('mapchecklist.addtype');
                 Route::post('/delete/{type}', 'deletetype')->name('mapchecklist.deletetype');
-                Route::post('/addparent/{type}', 'addparent')->name('mapchecklist.addparent');
-                Route::post('/deleteparent/{id}', 'deleteparent')->name('mapchecklist.deleteparent');
+
+                Route::post('/add-checklist/{typeJaringan}', 'addChecklist')->name('mapchecklist.addChecklist');
+                Route::post('/delete-checklist/{id}', 'deleteChecklist')->name('mapchecklist.deleteChecklist');
             });
         });
     });
