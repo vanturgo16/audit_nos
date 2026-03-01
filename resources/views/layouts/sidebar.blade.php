@@ -87,7 +87,7 @@
                     <li>
                         <a href="{{ route('mapchecklist.index') }}" class="{{ request()->is('mapchecklist*') ? 'bg-light active' : '' }}" id="mappingCheckNav">
                             <i class="mdi mdi-checkbox-multiple-outline"></i>
-                            <span>Master Mapping Checklist</span>
+                            <span>Mapping Checklist</span>
                         </a>
                     </li>
 
@@ -161,7 +161,7 @@
                     <li>
                         <a href="{{ route('mapchecklist.index') }}" class="{{ request()->is('mapchecklist*') ? 'bg-light active' : '' }}" id="mappingCheckNav">
                             <i class="mdi mdi-checkbox-multiple-outline"></i>
-                            <span>Master Mapping Checklist</span>
+                            <span>Mapping Checklist</span>
                         </a>
                     </li>
 

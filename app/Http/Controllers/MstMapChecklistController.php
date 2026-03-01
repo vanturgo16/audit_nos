@@ -108,7 +108,6 @@ class MstMapChecklistController extends Controller
             return back()->with('success', "Successfully added {$addedCount} Type Checklist(s) to Type Jaringan: ".$type);
         } catch (\Throwable $e) {
             DB::rollBack();
-            report($e);
             return back()->with('fail', 'Failed to add Type Checklist!');
         }
     }
@@ -137,7 +136,6 @@ class MstMapChecklistController extends Controller
             return back()->with('success', "Successfully deleted Type Checklist (".$infoString.")");
         } catch (\Throwable $e) {
             DB::rollBack();
-            report($e);
             return back()->with('fail', "Failed to delete Type Checklist: ".$typeChecklist);
         }
     }
@@ -162,7 +160,7 @@ class MstMapChecklistController extends Controller
                     'mst_checklists.sub_point_checklist',
                     'mst_checklists.indikator',
                 ]);
-                
+
             return DataTables::of($mappedChecklists)
                 ->addColumn('action', function ($data) {
                     return view('mapchecklist.typechecklist.manage.action', compact('data'));
@@ -226,7 +224,6 @@ class MstMapChecklistController extends Controller
             return back()->with('success', "Successfully added mapping checklist: ".$infoString);
         } catch (\Throwable $e) {
             DB::rollBack();
-            report($e);
             return back()->with('fail', 'Failed to add mapping checklist!');
         }
     }
@@ -258,7 +255,6 @@ class MstMapChecklistController extends Controller
             return back()->with('success', "Successfully removed mapping checklist: ".$infoString);
         } catch (\Throwable $e) {
             DB::rollBack();
-            report($e);
             return back()->with('fail', 'Failed to remove mapping checklist!');
         }
     }

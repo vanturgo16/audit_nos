@@ -210,3 +210,7 @@ div.dataTables_processing > div:last-child > div {
     overflow-y: auto;
     max-height: 67vh;
 }
+
+.cursor-pointer {
+    cursor: pointer;
+}
