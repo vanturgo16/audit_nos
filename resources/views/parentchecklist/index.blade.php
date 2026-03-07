@@ -1,5 +1,4 @@
 @extends('layouts.master')
-
 @section('konten')
 
 <div class="page-content">
@@ -17,8 +16,7 @@
                     <div class="page-title-right">
                         <a id="backButton" type="button" href="{{ route('parentchecklist.typechecklist') }}"
                             class="btn btn-sm btn-secondary waves-effect btn-label waves-light">
-                            <i class="mdi mdi-arrow-left-circle label-icon"></i>
-                            Back
+                            <i class="mdi mdi-arrow-left-circle label-icon"></i>Back
                         </a>
                     </div>
                 </div>
@@ -29,8 +27,10 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new"><i class="mdi mdi-plus-box label-icon"></i> Add New Parent Checklist</button>
-                        {{-- Modal Add --}}
+                        <button type="button" class="btn btn-primary waves-effect btn-label waves-light" data-bs-toggle="modal" data-bs-target="#add-new">
+                            <i class="mdi mdi-plus-box label-icon"></i> Add New Parent Checklist
+                        </button>
+                        <!-- Modal Add -->
                         <div class="modal fade" id="add-new" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                             <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
@@ -38,7 +38,7 @@
                                         <h5 class="modal-title" id="staticBackdropLabel">Add New Parent Checklist (Type: {{ $type }})</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <form action="{{ route('parentchecklist.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
+                                    <form class="formLoad" action="{{ route('parentchecklist.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                             <div class="row">
@@ -46,16 +46,16 @@
 
                                                 <div class="col-lg-6 mb-3" id="newParent">
                                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
-                                                    <input type="text" name="add_parent" class="form-control" placeholder="Input New Parent">
+                                                    <input type="text" name="parent_point_checklist" class="form-control" placeholder="Input Parent Point Name..">
                                                 </div>
-                                                @if(!in_array($type, $typeChecklistPerCheck))
-                                                    <div class="col-lg-6 mb-3" id="newTumbnail">
+                                                @if($useGuideParent)
+                                                    <div class="col-lg-6 mb-3" id="guide">
                                                         <label class="form-label">Guide Parent Point</label><label style="color: darkred">*</label>
-                                                        <input type="file" name="thumbnail" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail" required>
+                                                        <input type="file" name="guideParent" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Tumbnail" required>
                                                         <div id="warningTumb" style="color: red; display: none;">File size exceeds the maximum limit (3 MB). Please choose another file.</div>
                                                     </div>
                                                     <script>
-                                                        document.getElementById('newTumbnail').addEventListener('change', function () {
+                                                        document.getElementById('guide').addEventListener('change', function () {
                                                             var input = this.querySelector('input[type="file"]');
                                                             var maxSize = 3 * 1024 * 1024;
                                                             var errorDiv = document.getElementById('warningTumb');
@@ -82,21 +82,11 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" id="submitButton" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
+                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
+                                                <i class="mdi mdi-plus-box label-icon"></i>Add
+                                            </button>
                                         </div>
                                     </form>
-                                    <script>
-                                        document.getElementById('formadd').addEventListener('submit', function(event) {
-                                            if (!this.checkValidity()) {
-                                                event.preventDefault(); // Prevent form submission if it's not valid
-                                                return false;
-                                            }
-                                            var submitButton = this.querySelector('button[name="sb"]');
-                                            submitButton.disabled = true;
-                                            submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                            return true; // Allow form submission
-                                        });
-                                    </script>
                                 </div>
                             </div>
                         </div>
@@ -112,6 +102,7 @@
                             </thead>
                         </table>
                     </div>
+                    <div class="card-footer"></div>
                 </div>
             </div>
         </div>
@@ -129,25 +120,22 @@
                 {
                     data: 'order_no',
                     name: 'order_no',
-                    // render: function(data, type, row, meta) {
-                    //     return meta.row + meta.settings._iDisplayStart + 1;
-                    // },
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
                 {
                     data: 'parent_point_checklist',
                     name: 'parent_point_checklist',
                     orderable: true,
-                    className: 'align-middle text-bold'
+                    className: 'align-top text-bold'
                 },
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-middle text-center',
+                    className: 'align-top text-center',
                 },
             ],
         });

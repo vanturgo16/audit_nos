@@ -103,8 +103,8 @@
                                         <u>View Guideline Checklist</u>
                                     </a>
                                 @else
-                                    @if($item->path_guide_parent)
-                                        <a target="_blank" type="button" class="text-info small" href="{{ asset($item->path_guide_parent) }}">
+                                    @if (!empty($item->path_guide_parent) && Storage::disk('s3')->exists($item->path_guide_parent))
+                                        <a target="_blank" type="button" class="text-info small" href="{{ Storage::disk('s3')->temporaryUrl($item->path_guide_parent, now()->addMinutes(60)) }}">
                                             <u>View Guideline Parent</u>
                                         </a>
                                     @else
@@ -139,26 +139,32 @@
                                 <strong>Response</strong><br>
                                 {{ $item->response ?? '-' }}<br>
 
+                                @php
+                                    $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+                                    $fileExtension = $item->path_input_response ? pathinfo($item->path_input_response, PATHINFO_EXTENSION) : null;
+                                    $isImage = $fileExtension && in_array(strtolower($fileExtension), $imageExtensions);
+                                @endphp
+
                                 <div class="mt-3">
-                                    <strong>{{ $perCheck ? 'Photo' : 'Response File' }}</strong>
+                                    <strong>{{ $isImage ? 'Photo' : 'Response File' }}</strong>
                                     @if($item->path_input_response)
-                                        @if($perCheck)
+                                        @if($isImage)
                                             <div class="custom-image-container">
                                                 <div class="card">
                                                     <a href="#" data-bs-toggle="modal" data-bs-target="#detailRspFile{{ $item->id }}">
-                                                        <img src="{{ asset($item->path_input_response) }}" style="width: 100%; height:auto;" 
+                                                        <img src="{{ Storage::disk('s3')->temporaryUrl($item->path_input_response, now()->addMinutes(60)) }}" style="width: 100%; height:auto;"
                                                             onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}'; this.alt='Image not found';">
                                                         <div class="custom-overlay">
-                                                            <div class="custom-text mt-4">Lihat Gambar</div>
+                                                            <div class="custom-text mt-4">View Image</div>
                                                         </div>
                                                     </a>
                                                 </div>
                                             </div>
                                         @else
                                             <br>
-                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#detailRspFile{{ $item->id }}">
-                                                View File Response
-                                            </button>
+                                            <a href="{{ Storage::disk('s3')->temporaryUrl($item->path_input_response, now()->addMinutes(60)) }}" target="_blank" class="btn btn-sm btn-primary">
+                                                Open File
+                                            </a>
                                         @endif
                                     @else
                                         -
@@ -278,7 +284,15 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <img src="{{ asset($item->path_guide_checklist) }}" class="img-fluid" onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}';">
+                            @if (!empty($item->path_guide_checklist) && Storage::disk('s3')->exists($item->path_guide_checklist))
+                                <iframe
+                                    src="{{ Storage::disk('s3')->temporaryUrl($item->path_guide_checklist, now()->addMinutes(60)) }}"
+                                    style="width:100%; height:65vh;"
+                                    frameborder="0">
+                                </iframe>
+                            @else
+                                <img src="{{ asset('assets/images/no-image.png') }}" class="img-fluid">
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -296,35 +310,28 @@
                         </div>
                         <div class="modal-body">
                             @php
-                                $extension = strtolower(pathinfo($item->path_input_response, PATHINFO_EXTENSION));
-                                $imageExtensions = ['png', 'jpg', 'jpeg', 'gif'];
-                                $videoExtensions = ['mp4', 'webm', 'ogg'];
-                                $audioExtensions = ['mp3', 'wav', 'ogg'];
+                                $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+                                $fileExtension = $item->path_input_response ? pathinfo($item->path_input_response, PATHINFO_EXTENSION) : null;
+                                $isImage = $fileExtension && in_array(strtolower($fileExtension), $imageExtensions);
                             @endphp
 
-                            @if ($perCheck || in_array($extension, $imageExtensions))
-                                <img src="{{ asset($item->path_input_response) }}" class="img-fluid"
-                                    onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}';">
-                            @elseif (in_array($extension, $videoExtensions))
-                                <video controls class="custom-video-thumbnail">
-                                    <source src="{{ asset($item->path_input_response) }}" type="video/{{ $extension }}">
-                                    Your browser does not support the video tag.
-                                </video>
-                            @elseif (in_array($extension, $audioExtensions))
-                                <div class="row py-4">
-                                    <div class="col-12 text-center">Preview</div>
-                                    <div class="col-12 mt-2 text-center">
-                                        <audio controls class="custom-audio-thumbnail">
-                                            <source src="{{ asset($item->path_input_response) }}" type="audio/{{ $extension }}">
-                                            Your browser does not support the audio element.
-                                        </audio>
-                                    </div>
-                                </div>
+                            @if($isImage)
+                                @if (!empty($item->path_input_response) && Storage::disk('s3')->exists($item->path_input_response))
+                                    <iframe
+                                        src="{{ Storage::disk('s3')->temporaryUrl($item->path_input_response, now()->addMinutes(60)) }}"
+                                        style="width:100%; height:65vh;"
+                                        frameborder="0">
+                                    </iframe>
+                                @else
+                                    <img src="{{ asset('assets/images/no-image.png') }}" class="img-fluid">
+                                @endif
                             @else
                                 <div class="row py-4">
                                     <div class="col-12 text-center">Preview Not Available</div>
                                     <div class="col-12 mt-2 text-center">
-                                        <a href="{{ asset($item->path_input_response) }}" class="btn btn-primary" download>Download File</a>
+                                        <a href="{{ Storage::disk('s3')->temporaryUrl($item->path_input_response, now()->addMinutes(60)) }}" type="button" class="btn btn-primary" target="_blank">
+                                            Open File
+                                        </a>
                                     </div>
                                 </div>
                             @endif
