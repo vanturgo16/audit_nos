@@ -90,7 +90,6 @@
                     _token: '{{ csrf_token() }}'
                 },
                 success: function (response) {
-                    console.log(response);
                     $('#card-' + id).hide().replaceWith(response.html);
                     $('.static-number-text').text(response.progressReviewed);
                 },

@@ -1,5 +1,4 @@
 @extends('layouts.master')
-
 @section('konten')
 
 <div class="page-content">
@@ -57,15 +56,17 @@
             processing: true,
             serverSide: true,
             ajax: '{!! route('periodname.indexAssesorAssign', encrypt($id)) !!}',
-            columns: [{
-                data: null,
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
-                    },
+            columns: [
+                // Number
+                {
+                    data: null,
                     orderable: false,
                     searchable: false,
-                    className: 'align-top text-center',
+                    className: 'text-center align-top',
+                    render: (data, type, row, meta) =>
+                        meta.row + meta.settings._iDisplayStart + 1
                 },
+                // Dealer
                 {
                     data: null,
                     name: 'dealer',
@@ -77,49 +78,63 @@
                         `;
                     },
                 },
+                // Assessors
                 {
                     data: 'assessors',
                     name: 'assessors',
                     className: 'align-top',
-                    render: function(data, type, row) {
+                    orderable: false,
+                    render: function (data, type, row) {
                         if (!data || data.length === 0) return '-';
-
-                        let maxVisible = 2;
-                        let visible = data.slice(0, maxVisible).map(email => `<span class="badge bg-primary me-1">${email}</span>`).join(' ');
-                        let remaining = data.length - maxVisible;
-                        if (remaining > 0) {
-                            let remainingEmails = data.slice(maxVisible).join(', ');
-                            visible += `<span class="badge bg-secondary" data-bs-toggle="tooltip" title="${remainingEmails}">+${remaining} more</span>`;
+                        const maxVisible = 2;
+                        let html = data
+                            .slice(0, maxVisible)
+                            .map(v => `<span class="badge bg-primary me-1 mb-1">${v}</span>`)
+                            .join('');
+                        if (data.length > maxVisible) {
+                            const encoded = encodeURIComponent(JSON.stringify(data));
+                            html += `
+                                <span class="badge bg-secondary ms-1 mb-1 cursor-pointer show-assessor-modal"
+                                    data-dealer="${row.dealer_name}"
+                                    data-assessors="${encoded}">
+                                    +${data.length - maxVisible} more
+                                </span>
+                            `;
                         }
-                        return visible;
+                        return html;
                     }
                 },
+                // Status
                 {
                     data: 'status',
                     name: 'status',
-                    className: 'align-top text-center',
-                    render: function (data) {
-                        if (data === 0) {
-                            return '<span class="badge bg-secondary-subtle text-dark">Initiate</span>';
-                        }
-                        return '<span class="badge bg-warning text-white">Has starting</span>';
-                    }
+                    className: 'text-center align-top',
+                    render: data =>
+                        data === 0
+                            ? '<span class="badge bg-secondary-subtle text-dark">Initiate</span>'
+                            : '<span class="badge bg-warning text-white">Has starting</span>'
                 },
+                // Last updated
                 {
                     data: 'last_updated_by',
                     name: 'last_updated_by',
                     className: 'align-top',
-                    render: function (data) {
-                        return data ?? '-';
-                    }
+                    render: data => data ?? '-'
                 },
+                // Action
                 {
                     data: 'action',
                     name: 'action',
                     orderable: false,
                     searchable: false,
-                    className: 'align-top',
+                    className: 'align-top'
                 },
+                // Hidden type for search
+                {
+                    data: 'type',
+                    name: 'type',
+                    visible: false
+                }
             ],
         });
 
@@ -136,6 +151,38 @@
         });
 
     });
+</script>
+
+<!-- Modal Assessor Detail -->
+<div class="modal fade" id="assessorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assessor List</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="assessorModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).on('click', '.show-assessor-modal', function () {
+    const dealer = $(this).data('dealer');
+    const assessors = JSON.parse(decodeURIComponent($(this).data('assessors')));
+
+    let content = `
+        <div class="mb-2 fw-semibold">${dealer}</div>
+        <div>
+            ${assessors.map(v =>
+                `<span class="badge bg-primary me-1 mb-1">${v}</span>`
+            ).join('')}
+        </div>
+    `;
+
+    $('#assessorModalBody').html(content);
+    $('#assessorModal').modal('show');
+});
 </script>
 
 @endsection

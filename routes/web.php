@@ -165,13 +165,10 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', 'typechecklist')->name('parentchecklist.typechecklist');
                 Route::get('/{type}', 'index')->name('parentchecklist.index');
                 Route::get('/detail/{id}', 'detail')->name('parentchecklist.detail');
-                Route::post('/detail/{id}', 'updateParent')->name('parentchecklist.updateParent');
-
-                Route::get('/info/{id}', 'info')->name('parentchecklist.info');
-                Route::get('/edit/{id}', 'edit')->name('parentchecklist.edit');
-                Route::get('/order-no/{type_checklist}', 'mappingOrderNo')->name('mappingOrderNo'); //untuk ajax orderno
                 Route::post('/create', 'store')->name('parentchecklist.store');
                 Route::post('/update/{id}', 'update')->name('parentchecklist.update');
+
+                Route::get('/order-no/{type_checklist}', 'mappingOrderNo')->name('mappingOrderNo'); //untuk ajax orderno
             });
         });
         // Checklist
@@ -180,21 +177,13 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', 'typechecklist')->name('checklist.typechecklist');
                 Route::get('/{type}', 'index')->name('checklist.index');
                 Route::get('/detail/{id}', 'detail')->name('checklist.detail');
+                Route::post('/create', 'store')->name('checklist.store');
                 Route::post('/update/headCheck/{id}', 'updateHeadCheck')->name('checklist.updateHeadCheck');
                 Route::post('/update/checklist/{id}', 'updateCheckDetail')->name('checklist.updateCheckDetail');
                 Route::post('/update/mark/{id}', 'updateMark')->name('checklist.updateMark');
 
                 Route::get('/mappingparent/{name}', 'mappingparent')->name('mappingParent');
                 Route::get('/order-no/{parentPoint}/{typeChecklist}', 'mappingOrderNo')->name('mappingOrderNoChecklist'); //untuk ajax orderno
-                Route::get('/info/{id}', 'info')->name('checklist.info');
-                Route::get('/edit/{id}', 'edit')->name('checklist.edit');
-                Route::get('/mark/{id}', 'mark')->name('checklist.mark');
-                Route::get('/exc-order/{id}', 'exchangeOrder')->name('checklist.exchange');
-                Route::post('/create', 'store')->name('checklist.store');
-                Route::post('/update/{id}', 'update')->name('checklist.update');
-                Route::post('/createmark/{id}', 'markstore')->name('checklist.markstore');
-                Route::post('/deletemark/{id}', 'markdelete')->name('checklist.markdelete');
-                Route::post('/exc-order/update/{id}', 'exchangeOrderUpdate')->name('checklist.exc_order.update');
             });
         });
         // Mapping Checklist
@@ -205,8 +194,9 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/detail/{type}/{typecheck}', 'detail')->name('mapchecklist.detail');
                 Route::post('/add/{type}', 'addtype')->name('mapchecklist.addtype');
                 Route::post('/delete/{type}', 'deletetype')->name('mapchecklist.deletetype');
-                Route::post('/addparent/{type}', 'addparent')->name('mapchecklist.addparent');
-                Route::post('/deleteparent/{id}', 'deleteparent')->name('mapchecklist.deleteparent');
+
+                Route::post('/add-checklist/{typeJaringan}', 'addChecklist')->name('mapchecklist.addChecklist');
+                Route::post('/delete-checklist/{id}', 'deleteChecklist')->name('mapchecklist.deleteChecklist');
             });
         });
     });
@@ -326,6 +316,10 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/mappingPostalCode/{subdistrict_id}', 'selectPostalCode')->name('mappingPostalCode');
         });
     });
+
+    // VIEW FILE RESPONSE
+    Route::get('/view/file-response/{path}', [ExportController::class, 'viewFileResponse'])->where('path', '.*')->name('view.fileResponse');
+    Route::get('/minio/temp-url', [ExportController::class, 'temporaryUrl'])->name('minio.temp');
 
     // AUDIT LOG
     Route::get('/auditlog', [AuditLogController::class, 'index'])->name('auditlog')->middleware('role:Super Admin,Admin');

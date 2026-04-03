@@ -17,7 +17,7 @@
                         <div class="row py-4">
                             <div class="col-12 text-center">
                                 File Format Or Size Not Accepted, <br>
-                                Accepted Format <b>(jpeg,png,jpg) Max 2MB</b>
+                                Accepted Format <b>(jpeg,png,jpg) Max 10MB</b>
                             </div>
                         </div>
                     </div>
@@ -29,6 +29,12 @@
 </div>
 
 <script>
+    function isImageFile(path) {
+        if (!path) return false;
+        const ext = path.split('.').pop().toLowerCase();
+        return ['jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext);
+    }
+
     $(document).ready(function () {
         // Initial load with data set to null
         var tabParent = idQuestion = idActive = responseAns = null;
@@ -47,6 +53,17 @@
                     responseAns: responseAns,
                 },
                 success: function (response) {
+                    const baseRoute = "{{ route('minio.temp') }}";
+                    let guideUrl    = '';
+                    let responseUrl = '';
+                    if (response.question.path_guide_checklist) {
+                        guideUrl = `${baseRoute}?path=${encodeURIComponent(response.question.path_guide_checklist)}`;
+                    }
+                    if (response.question.path_input_response) {
+                        responseUrl = `${baseRoute}?path=${encodeURIComponent(response.question.path_input_response)}`;
+                    }
+                    const guideIsImage = isImageFile(response.question.path_guide_checklist);
+
                     // Clear the #buildForm content
                     $('#buildForm').html('');
 
@@ -121,22 +138,34 @@
                                                                 </div>
                                                             </td>
                                                             <td rowspan="2" style="border-left: double 4px black; width: 20%;">
-                                                                ${response.question.path_guide_checklist ? `
                                                                 <div class="row">
                                                                     <div class="col-12">
-                                                                        <label>Gambar Panduan</label>
-                                                                        <div class="custom-image-container">
-                                                                            <div class="card">
-                                                                                <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuideImg">
-                                                                                    <img src="{{ url('${response.question.path_guide_checklist}') }}" style="width: 100%; height: auto;" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
-                                                                                    <div class="custom-overlay">
-                                                                                        <div class="custom-text mt-4">Lihat Gambar</div>
+                                                                        ${response.question.path_guide_checklist ? (
+                                                                            guideIsImage ? `
+                                                                                <label>Gambar Panduan</label>
+                                                                                <div class="custom-image-container">
+                                                                                    <div class="card">
+                                                                                        <a href="#" data-bs-toggle="modal" data-bs-target="#detailGuideImg">
+                                                                                            <img src="${guideUrl}" style="width:100%;height:auto;"
+                                                                                                onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}';">
+                                                                                            <div class="custom-overlay">
+                                                                                                <div class="custom-text mt-4">Lihat Gambar</div>
+                                                                                            </div>
+                                                                                        </a>
                                                                                     </div>
+                                                                                </div>
+                                                                            `
+                                                                            :
+                                                                            `
+                                                                                <label>File Panduan</label>
+                                                                                <br>
+                                                                                <a href="${guideUrl}" target="_blank" class="btn btn-sm btn-primary">
+                                                                                    <i class="mdi mdi-file"></i> Open File
                                                                                 </a>
-                                                                            </div>
-                                                                        </div>
+                                                                            `
+                                                                        ) : ''}
                                                                     </div>
-                                                                </div>` : ''}
+                                                                </div>
                                                             </td>
                                                             <td rowspan="2" style="width: 20%;">
                                                                 <div class="row">
@@ -146,7 +175,7 @@
                                                                         <div class="custom-image-container">
                                                                             <div class="card">
                                                                                 <a href="#" data-bs-toggle="modal" data-bs-target="#detailRspImg">
-                                                                                    <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('path_to_placeholder_image') }}'; this.alt='Image not found';">
+                                                                                    <img src="${responseUrl}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}'; this.alt='Image not found';">
                                                                                     <div class="custom-overlay">
                                                                                         <div class="custom-text mt-4">Lihat Gambar</div>
                                                                                     </div>
@@ -230,7 +259,7 @@
                                 </div>
                                 <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
                                     <div class="row">
-                                        <img src="{{ url('${response.question.path_guide_checklist}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
+                                        <img src="${guideUrl}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
                                     </div>
                                 </div>
                                 <div class="modal-footer"></div>
@@ -248,7 +277,7 @@
                                 </div>
                                 <div class="modal-body" style="max-height: 75vh; overflow-x:auto;">
                                     <div class="row">
-                                        <img src="{{ url('${response.question.path_input_response}') }}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
+                                        <img src="${responseUrl}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">
                                     </div>
                                 </div>
                                 <div class="modal-footer"></div>

@@ -26,6 +26,12 @@
                             </td>
                             <td class="align-top">
                                 {{ $item->response ?? '-' }}
+                                @if($item->path_input_response)
+                                <br>
+                                <a href="{{ Storage::disk('s3')->temporaryUrl($item->path_input_response, now()->addMinutes(60)) }}" type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light" target="_blank">
+                                    <i class="mdi mdi-eye label-icon"></i> Show
+                                </a>
+                                @endif
                             </td>
                             <td class="align-top">
                                 {{ $item->response_correction ?? '-' }}

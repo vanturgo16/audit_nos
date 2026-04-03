@@ -47,7 +47,9 @@
                     <td style="border: 1px solid #000;">{!! $item->note_assesor ?? '-' !!}</td>
                     <td style="border: 1px solid #000;">
                         @if($item->path_input_response)
-                            <a href="{{ url($item->path_input_response) }}">View File</a>
+                            <a href="{{ route('view.fileResponse', ['path' => base64_encode($item->path_input_response)]) }}">
+                                View File
+                            </a>
                         @else 
                             -
                         @endif
@@ -74,7 +76,9 @@
                     <td style="border: 1px solid #000;">{!! $item->note_assesor ?? '-' !!}</td>
                     <td style="border: 1px solid #000;">
                         @if($item->path_input_response)
-                            <a href="{{ url($item->path_input_response) }}">View File</a>
+                            <a href="{{ route('view.fileResponse', ['path' => base64_encode($item->path_input_response)]) }}">
+                                View File
+                            </a>
                         @else 
                             -
                         @endif

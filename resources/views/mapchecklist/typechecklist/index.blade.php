@@ -9,8 +9,8 @@
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                     <div class="page-title-left">
                         <ol class="breadcrumb m-0">
-                            <li class="breadcrumb-item"><a href="{{ route('mapchecklist.index') }}">List Type Jaringan</a></li>
-                            <li class="breadcrumb-item active">List Mapping Parent Checklist (Type: {{ $type }})</li>
+                            <li class="breadcrumb-item"><a href="{{ route('mapchecklist.index') }}">List Mapping Type Jaringan</a></li>
+                            <li class="breadcrumb-item active">List Type Checklist <b>({{ $type }})</b></li>
                         </ol>
                     </div>
 
@@ -40,7 +40,7 @@
                                         <h5 class="modal-title" id="staticBackdropLabel">Add New Type Checklist</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <form action="{{ route('mapchecklist.addtype', encrypt($type)) }}" id="formadd" method="POST" enctype="multipart/form-data">
+                                    <form class="formLoad" action="{{ route('mapchecklist.addtype', encrypt($type)) }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-body">
                                             <div class="row">
@@ -59,21 +59,11 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
+                                            <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
+                                                <i class="mdi mdi-plus-box label-icon"></i>Add
+                                            </button>
                                         </div>
                                     </form>
-                                    <script>
-                                        document.getElementById('formadd').addEventListener('submit', function(event) {
-                                            if (!this.checkValidity()) {
-                                                event.preventDefault(); // Prevent form submission if it's not valid
-                                                return false;
-                                            }
-                                            var submitButton = this.querySelector('button[name="sb"]');
-                                            submitButton.disabled = true;
-                                            submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                            return true; // Allow form submission
-                                        });
-                                    </script>
                                 </div>
                             </div>
                         </div>
@@ -85,6 +75,7 @@
                                     <th class="align-middle text-center">No.</th>
                                     <th class="align-middle text-center">Type Checklist</th>
                                     <th class="align-middle text-center">Total Parent Point Mapped</th>
+                                    <th class="align-middle text-center">Total Checklist Mapped</th>
                                     <th class="align-middle text-center">Action</th>
                                 </tr>
                             </thead>
@@ -119,18 +110,16 @@
                     className: 'align-top text-bold'
                 },
                 {
-                    data: 'countMap',
+                    data: 'total_parent',
                     orderable: true,
                     className: 'align-middle text-center',
-                    render: function(data, type, row) {
-                        var html;
-                        if (row.hasOwnProperty('countMap')) {
-                            html = '<h5><span class="badge bg-success text-white">' + row.countMap + '</span></h5>';
-                        } else {
-                            html = '-';
-                        }
-                        return html;
-                    },
+                    render: data => data ? `<span class="badge bg-success">${data}</span>` : '-'
+                },
+                {
+                    data: 'total_checklist',
+                    orderable: true,
+                    className: 'align-middle text-center',
+                    render: data => data ? `<span class="badge bg-success">${data}</span>` : '-'
                 },
                 {
                     data: 'action',

@@ -27,6 +27,12 @@
                 <tr>
                     <td class="align-top" style="background-color: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;">
                         {{ $logResponse->log_response ?? '-' }}
+                        @if($logResponse->path_input_response)
+                        <br>
+                        <a href="{{ Storage::disk('s3')->temporaryUrl($logResponse->path_input_response, now()->addMinutes(60)) }}" type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light" target="_blank">
+                            <i class="mdi mdi-eye label-icon"></i> Show
+                        </a>
+                        @endif
                     </td>
                     <td class="align-top" style="background-color: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;">
                         {{ $logResponse->log_response_correction ?? '-' }}

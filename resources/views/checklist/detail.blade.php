@@ -25,8 +25,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- @include('layouts.alert') --}}
         
         <div class="row">
             <div class="col-12">
@@ -47,16 +45,18 @@
                                     <h5 class="modal-title" id="staticBackdropLabel">Edit Parent & Order Number Detail</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ route('checklist.updateHeadCheck', encrypt($id)) }}" id="formUpdHeadCheck" method="POST" enctype="multipart/form-data">
+                                <form class="formLoad" action="{{ route('checklist.updateHeadCheck', encrypt($id)) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
+                                    <input type="hidden" name="parent_point_checklist_current" value="{{ $checklist->id_parent_checklist }}">
+                                    <input type="hidden" name="order_current" value="{{ $checklist->order_no }}">
+
                                     <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                         <div class="row mb-3">
-                                            <input type="hidden" name="type_checklist_before" value="{{ $parent->type_checklist }}">
                                             <div class="col-lg-6">
                                                 <label class="form-label">Type Checklist</label><label style="color: darkred">*</label>
                                                 <select class="form-select js-example-basic-single" style="width: 100%" name="type_checklist" id="type_checklist" required>
                                                     <option value="" selected>-- Select Type --</option>
-                                                    @foreach($type_checklist as $item)
+                                                    @foreach($listTypeChecklists as $item)
                                                         <option value="{{ $item->name_value }}" @if($parent->type_checklist == $item->name_value) selected="selected" @endif> {{ $item->name_value }} </option>
                                                     @endforeach
                                                 </select>
@@ -65,7 +65,7 @@
                                                 <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
                                                 <select class="form-select js-example-basic-single" style="width: 100%" name="parent_point_checklist" id="parentPoint" required>
                                                     <option value="" selected>-- Select Parent --</option>
-                                                    @foreach( $type_parent as $item)
+                                                    @foreach($listTypeParent as $item)
                                                         <option value="{{ $item->id }}" @if($checklist->id_parent_checklist == $item->id) selected="selected" @endif> {{ $item->parent_point_checklist }} </option>
                                                     @endforeach
                                                 </select>
@@ -73,9 +73,6 @@
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-lg-6">
-                                                <input type="hidden" name="order_current" value="{{ $checklist->order_no }}">
-                                                <input type="hidden" name="type_checklist_current" value="{{ $parent->type_checklist }}">
-                                                <input type="hidden" name="parent_point_checklist_current" value="{{ $checklist->id_parent_checklist }}">
                                                 <label class="form-label">Exchange Order Number</label>
                                                 <select class="form-select js-example-basic-single" style="width: 100%" name="order_no" id="order_no">
                                                     <option value="0">Change order to First</option>
@@ -87,9 +84,9 @@
                                             </div>
                                             <div class="col-6" id="guidechceklist">
                                                 <label class="form-label">{{ $checklist->path_guide_checklist ? 'Update' : 'Upload' }} Guide Checklist ({{ $parent->type_checklist }})</label>
-                                                @if($checklist->path_guide_checklist != null)
+                                                @if (!empty($checklist->path_guide_checklist) && Storage::disk('s3')->exists($checklist->path_guide_checklist))
                                                     -> 
-                                                    <a href="{{ url($checklist->path_guide_checklist) }}" target="_blank">
+                                                    <a href="{{ Storage::disk('s3')->temporaryUrl($checklist->path_guide_checklist, now()->addMinutes(60)) }}" target="_blank">
                                                         <u>Show File Before</u>
                                                     </a>
                                                 @endif
@@ -99,10 +96,10 @@
                                         <script>
                                             var type = '{{ $parent->type_checklist }}';
                                             var path = '{{ $checklist->path_guide_checklist }}';
-                                            var typeChecklistPerCheck = @json($typeChecklistPerCheck);
+                                            var typePerCheck = @json($typePerCheck);
 
                                             function updateGuideChecklist(typeChecklist) {
-                                                if (typeChecklistPerCheck.includes(typeChecklist)) {
+                                                if (typePerCheck.includes(typeChecklist)) {
                                                     $('#guidechceklist').show();
                                                     if(path){
                                                         $('input[name="guide_checklist"]').attr("required", false);
@@ -186,21 +183,11 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" id="btnUpdHeadCheck" class="btn btn-success waves-effect btn-label waves-light">
+                                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
                                             <i class="mdi mdi-update label-icon"></i>Update
                                         </button>
                                     </div>
                                 </form>
-                                <script>
-                                    document.getElementById('formUpdHeadCheck').addEventListener('submit', function(event) {
-                                        if (!this.checkValidity()) {
-                                            event.preventDefault(); return false;
-                                        }
-                                        var submitButton = this.querySelector('button[id="btnUpdHeadCheck"]');
-                                        submitButton.disabled = true; submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                        return true;
-                                    });
-                                </script>
                             </div>
                         </div>
                     </div>
@@ -230,18 +217,20 @@
                                     </span>
                                 </div>
                             </div>
-                            @if($checklist->path_guide_checklist != null)
-                                <div class="col-lg-6">
-                                    <label class="form-label">File Guide Checklist :</label>
-                                    <br>
-                                    <span>
-                                        <a href="{{ url($checklist->path_guide_checklist) }}" type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light" target="_blank">
-                                            <i class="mdi mdi-eye label-icon"></i> Show
-                                        </a>
-                                    </span>
-                                </div>
-                            @else
-                                <div class="col-lg-6"></div>
+                            @if(in_array($parent->type_checklist, $typePerCheck))
+                                @if (!empty($checklist->path_guide_checklist) && Storage::disk('s3')->exists($checklist->path_guide_checklist))
+                                    <div class="col-lg-6">
+                                        <label class="form-label">File Guide Checklist :</label>
+                                        <br>
+                                        <span>
+                                            <a href="{{ Storage::disk('s3')->temporaryUrl($checklist->path_guide_checklist, now()->addMinutes(60)) }}" type="button" class="btn btn-sm btn-info waves-effect btn-label waves-light" target="_blank">
+                                                <i class="mdi mdi-eye label-icon"></i> Show
+                                            </a>
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="col-lg-6"></div>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -265,14 +254,14 @@
                                     <h5 class="modal-title" id="staticBackdropLabel">Edit Checklist Detail</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ route('checklist.updateCheckDetail', encrypt($id)) }}" id="formUpdChecklist" method="POST" enctype="multipart/form-data">
+                                <form class="formLoad" action="{{ route('checklist.updateCheckDetail', encrypt($id)) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                         <div class="row">
                                             <div class="row mb-3">
                                                 <div class="col-lg-6">
                                                     <label class="form-label">Child Point (Optional)</label>
-                                                    <input class="form-control" name="child_checklist" type="text" value="{{ $checklist->child_point_checklist }}" placeholder="Optional Input Child Point..">
+                                                    <input class="form-control" name="child_point_checklist" type="text" value="{{ $checklist->child_point_checklist }}" placeholder="Optional Input Child Point..">
                                                 </div>
                                                 <div class="col-lg-6">
                                                     <label class="form-label">Sub Point</label><label style="color: darkred">*</label>
@@ -338,21 +327,11 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" id="btnUpdChecklist" class="btn btn-success waves-effect btn-label waves-light">
+                                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
                                             <i class="mdi mdi-update label-icon"></i>Update
                                         </button>
                                     </div>
                                 </form>
-                                <script>
-                                    document.getElementById('formUpdChecklist').addEventListener('submit', function(event) {
-                                        if (!this.checkValidity()) {
-                                            event.preventDefault(); return false;
-                                        }
-                                        var submitButton = this.querySelector('button[id="btnUpdChecklist"]');
-                                        submitButton.disabled = true; submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                        return true;
-                                    });
-                                </script>
                             </div>
                         </div>
                     </div>
@@ -428,12 +407,12 @@
                                     <h5 class="modal-title" id="staticBackdropLabel">Edit Mark</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
-                                <form action="{{ route('checklist.updateMark', encrypt($id)) }}" id="formUpdMark" method="POST" enctype="multipart/form-data">
+                                <form class="formLoad" action="{{ route('checklist.updateMark', encrypt($id)) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
                                         <div class="row">
                                             <div class="col-lg-9 mb-3">
-                                                @foreach($typeMark as $item)
+                                                @foreach($listMarks as $item)
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="meta_name[]" value="{{ $item->id }}" id="checkbox_{{ $item->id }}" @if($mark->contains('meta_name', $item->name_value)) checked @endif>
                                                         <label class="form-check-label" for="checkbox_{{ $item->id }}">{{ $item->name_value }}</label>
@@ -463,21 +442,11 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" id="btnUpdMark" class="btn btn-success waves-effect btn-label waves-light">
+                                        <button type="submit" class="btn btn-success waves-effect btn-label waves-light">
                                             <i class="mdi mdi-update label-icon"></i>Update
                                         </button>
                                     </div>
                                 </form>
-                                <script>
-                                    document.getElementById('formUpdMark').addEventListener('submit', function(event) {
-                                        if (!this.checkValidity()) {
-                                            event.preventDefault(); return false;
-                                        }
-                                        var submitButton = this.querySelector('button[id="btnUpdMark"]');
-                                        submitButton.disabled = true; submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                        return true;
-                                    });
-                                </script>
                             </div>
                         </div>
                     </div>
