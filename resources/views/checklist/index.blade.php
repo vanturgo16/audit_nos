@@ -38,7 +38,7 @@
                                         <h5 class="modal-title" id="staticBackdropLabel">Add New Checklist (Type : {{ $type }})</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <form action="{{ route('checklist.store') }}" id="formadd" method="POST" enctype="multipart/form-data">
+                                    <form class="formLoad" action="{{ route('checklist.store') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
                                         <input type="hidden" name="type_checklist" value="{{ $type }}">
                                         <div class="modal-body py-8 px-4" style="max-height: 67vh; overflow-y: auto;">
@@ -47,14 +47,14 @@
                                                     <label class="form-label">Parent Point</label><label style="color: darkred">*</label>
                                                     <select class="form-select js-example-basic-single" style="width: 100%" name="parent_point_checklist" required>
                                                         <option value="" selected>-- Select Parent --</option>
-                                                        @foreach( $typeParent as $item)
+                                                        @foreach($listParents as $item)
                                                             <option value="{{ $item->id }}" {{ old('parent_point_checklist') == $item->parent_point_checklist ? 'selected' : '' }}> {{ $item->parent_point_checklist }} </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                @if(in_array($type, $typeChecklistPerCheck))
+                                                @if($useGuideChecklist)
                                                     <div class="col-lg-6 mb-3">
                                                         <label class="form-label">Guide Checklist</label><label style="color: darkred">*</label>
                                                         <input type="file" name="guide_checklist" accept="image/png, image/jpeg, image/jpg" class="form-control" placeholder="Input Guide" required>
@@ -63,7 +63,7 @@
                                                 @endif
                                                 <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Child Point (Optional)</label>
-                                                    <input class="form-control" name="child_checklist" type="text" value="" placeholder="Optional Input Child Point..">
+                                                    <input class="form-control" name="child_point_checklist" type="text" value="" placeholder="Optional Input Child Point..">
                                                 </div>
                                                 <div class="col-lg-6 mb-3">
                                                     <label class="form-label">Sub Point</label><label style="color: darkred">*</label>
@@ -119,7 +119,7 @@
                                                 </div>
                                                 <div class="col-lg-9 mb-3">
                                                     <label class="form-label">Mark</label><label style="color: darkred">*</label>
-                                                    @foreach($typeMark as $item)
+                                                    @foreach($listMarks as $item)
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="checkbox" name="meta_name[]" value="{{ $item->id }}" id="checkbox_{{ $item->id }}">
                                                             <label class="form-check-label" for="checkbox_{{ $item->id }}">{{ $item->name_value }}</label>
@@ -149,25 +149,17 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" id="submitButton" class="btn btn-success waves-effect btn-label waves-light" name="sb"><i class="mdi mdi-plus-box label-icon"></i>Add</button>
+                                            <button type="submit" id="submitButton" class="btn btn-success waves-effect btn-label waves-light">
+                                                <i class="mdi mdi-plus-box label-icon"></i>Add
+                                            </button>
                                         </div>
                                     </form>
-                                    <script>
-                                        document.getElementById('formadd').addEventListener('submit', function(event) {
-                                            if (!this.checkValidity()) {
-                                                event.preventDefault(); return false;
-                                            }
-                                            var submitButton = this.querySelector('button[name="sb"]');
-                                            submitButton.disabled = true; submitButton.innerHTML  = '<i class="mdi mdi-reload label-icon"></i>Please Wait...';
-                                            return true;
-                                        });
-                                    </script>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <table class="table table-bordered table-hover table-striped dt-responsive w-100" id="ssTable">
+                        <table class="table table-bordered table-hover dt-responsive w-100" id="ssTable">
                             <thead class="table-light">
                                 <tr>
                                     <th class="align-middle text-center">Parent Point</th>

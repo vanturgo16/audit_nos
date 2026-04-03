@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChecklistResponse;
-use App\Models\MstAssignChecklists;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 // Trait
 use App\Traits\AuditLogsTrait;
@@ -18,7 +18,8 @@ use App\Models\MstPeriodeChecklists;
 use App\Models\MstRules;
 use App\Models\User;
 use App\Models\ChecklistJaringan;
-use Carbon\Carbon;
+use App\Models\ChecklistResponse;
+use App\Models\MstAssignChecklists;
 
 // Mail
 use App\Mail\SubmitChecklist;
@@ -187,27 +188,33 @@ class FormChecklistController extends Controller
     {
         // Validation Format File Upload Image Max 2mb
         $request->validate([
-            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'responseFile' => 'nullable|image|mimes:jpeg,png,jpg|max:10240'
         ]);
 
         DB::beginTransaction();
         try {
             // Save Response 
             if ($request->responseFile != null) {
-                $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
-                if ($exist) {
-                    if (File::exists($exist->path_input_response)) {
-                        File::delete($exist->path_input_response);
-                    }
-                }
-                $file = $request->file('responseFile');
-                $name = $file->hashName();
-                $file->move(public_path('assets/images/response_checklist'), $name);
-                $url = 'assets/images/response_checklist/' . $name;
+                // $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+                // if ($exist) {
+                //     if (File::exists($exist->path_input_response)) {
+                //         File::delete($exist->path_input_response);
+                //     }
+                // }
+                // $file = $request->file('responseFile');
+                // $name = $file->hashName();
+                // $file->move(public_path('assets/images/response_checklist'), $name);
+                // $url = 'assets/images/response_checklist/' . $name;
+
+                // Store File Without Delete Old File
+                $file         = $request->file('responseFile');
+                $pathResponse = Storage::disk('s3')->putFileAs(
+                    'response', $file, time() . '-1_' . $file->getClientOriginalName()
+                );
 
                 ChecklistResponses::updateOrCreate(
                     ['id_assign_checklist' => $request->idActive],
-                    ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $url]
+                    ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $pathResponse]
                 );
             }
             DB::commit();
@@ -319,7 +326,7 @@ class FormChecklistController extends Controller
     }
     public function storeFileFormPerParent(Request $request)
     {
-        // Validation Format File Upload Max 2mb
+        // Validation Format File Upload Max 20mb
         $request->validate([
             'responseFile' => 'nullable|file|mimes:jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar|max:20480'
         ]);
@@ -328,16 +335,22 @@ class FormChecklistController extends Controller
         try {
             // Save Response 
             if ($request->responseFile != null) {
-                $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
-                if ($exist) {
-                    if (File::exists($exist->path_input_response)) {
-                        File::delete($exist->path_input_response);
-                    }
-                }
-                $file = $request->file('responseFile');
-                $name = $file->hashName();
-                $file->move(public_path('assets/images/response_checklist'), $name);
-                $url = 'assets/images/response_checklist/' . $name;
+                // $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+                // if ($exist) {
+                //     if (File::exists($exist->path_input_response)) {
+                //         File::delete($exist->path_input_response);
+                //     }
+                // }
+                // $file = $request->file('responseFile');
+                // $name = $file->hashName();
+                // $file->move(public_path('assets/images/response_checklist'), $name);
+                // $url = 'assets/images/response_checklist/' . $name;
+
+                // Store File Without Delete Old File
+                $file         = $request->file('responseFile');
+                $pathResponse = Storage::disk('s3')->putFileAs(
+                    'response', $file, time() . '-1_' . $file->getClientOriginalName()
+                );
 
                 $parent = MstAssignChecklists::where('id', $request->idActive)->first()->parent_point_checklist;
                 $checkJar = ChecklistJaringan::where('id', $request->idCheckJar)->first();
@@ -347,7 +360,7 @@ class FormChecklistController extends Controller
                 foreach ($assigns as $item) {
                     ChecklistResponses::updateOrCreate(
                         ['id_assign_checklist' => $item->id],
-                        ['path_input_response' => $url]
+                        ['path_input_response' => $pathResponse]
                     );
                 }
             }
@@ -381,21 +394,27 @@ class FormChecklistController extends Controller
         try {
             // Save Response File
             if ($request->hasFile('responseFile')) {
-                $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
-                if ($exist) {
-                    if (File::exists($exist->path_input_response)) {
-                        File::delete($exist->path_input_response);
-                    }
-                }
-                $file = $request->file('responseFile');
-                $name = $file->hashName();
-                $file->move(public_path('assets/images/response_checklist'), $name);
-                $url = 'assets/images/response_checklist/' . $name;
+                // $exist = ChecklistResponses::where('id_assign_checklist', $request->idActive)->first();
+                // if ($exist) {
+                //     if (File::exists($exist->path_input_response)) {
+                //         File::delete($exist->path_input_response);
+                //     }
+                // }
+                // $file = $request->file('responseFile');
+                // $name = $file->hashName();
+                // $file->move(public_path('assets/images/response_checklist'), $name);
+                // $url = 'assets/images/response_checklist/' . $name;
+
+                // Store File Without Delete Old File
+                $file         = $request->file('responseFile');
+                $pathResponse = Storage::disk('s3')->putFileAs(
+                    'response', $file, time() . '-1_' . $file->getClientOriginalName()
+                );
 
                 if($model == 'perCheck'){
                     ChecklistResponses::updateOrCreate(
                         ['id_assign_checklist' => $request->idActive],
-                        ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $url]
+                        ['id_checklist_jaringan' => $request->idCheckJar, 'path_input_response' => $pathResponse]
                     );
                 } else {
                     $parent = MstAssignChecklists::where('id', $request->idActive)->first()->parent_point_checklist;
@@ -406,7 +425,7 @@ class FormChecklistController extends Controller
                     foreach ($assigns as $item) {
                         ChecklistResponses::updateOrCreate(
                             ['id_assign_checklist' => $item->id],
-                            ['path_input_response' => $url]
+                            ['path_input_response' => $pathResponse]
                         );
                     }
                 }

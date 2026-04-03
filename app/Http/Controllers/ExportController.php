@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Exports\PeriodExport;
 use App\Traits\AuditLogsTrait;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 // Model
 use App\Models\MstPeriodeChecklists;
@@ -43,5 +45,24 @@ class ExportController extends Controller
 
         $fileName = 'Period_' . $periodInfo->period . '_' . $periodInfo->dealer_name . '_' . $periodInfo->type . '_' . date('YmdHis') . '.xlsx';
         return Excel::download(new PeriodExport($dataCheck), $fileName);
+    }
+
+    public function viewFileResponse($path)
+    {
+        $path = base64_decode($path);
+        return view('view_file.index', compact('path'));
+    }
+
+    public function temporaryUrl(Request $request)
+    {
+        $path = $request->query('path');
+
+        if (!$path) {
+            abort(404);
+        }
+
+        $url = Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(60));
+
+        return redirect()->away($url);
     }
 }

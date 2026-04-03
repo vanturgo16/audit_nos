@@ -7,7 +7,7 @@
                 <strong class="me-auto">Success</strong><small>just now</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body">{{ session('success') }}</div>
+            <div class="toast-body bg-white">{{ session('success') }}</div>
         </div>
     @endif
     @if (session('fail'))
@@ -17,7 +17,7 @@
                 <strong class="me-auto">Failed</strong><small>just now</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body">{{ session('fail') }}</div>
+            <div class="toast-body bg-white">{{ session('fail') }}</div>
         </div>
     @endif
     @if (session('info'))
@@ -27,7 +27,7 @@
                 <strong class="me-auto">Info</strong><small>just now</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body">{{ session('info') }}</div>
+            <div class="toast-body bg-white">{{ session('info') }}</div>
         </div>
     @endif
     @if (session('warning'))
@@ -37,7 +37,7 @@
                 <strong class="me-auto">Warning</strong><small>just now</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body">{{ session('warning') }}</div>
+            <div class="toast-body bg-white">{{ session('warning') }}</div>
         </div>
     @endif
     @if (count($errors)>0)
@@ -47,7 +47,7 @@
                 <strong class="me-auto">Failed</strong><small>just now</small>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body">
+            <div class="toast-body bg-white">
                 <ul class="mb-0">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>

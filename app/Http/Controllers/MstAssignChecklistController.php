@@ -242,6 +242,7 @@ class MstAssignChecklistController extends Controller
                 $detailMstCheck = MstChecklists::select(
                     'mst_parent_checklists.type_checklist',
                     'mst_parent_checklists.parent_point_checklist',
+                    'mst_parent_checklists.path_guide_premises',
                     'mst_checklists.*',
                     'mst_parent_checklists.order_no as orderParent',
                     'mst_checklists.order_no as orderCheck',

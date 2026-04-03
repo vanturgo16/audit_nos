@@ -211,6 +211,7 @@ class ListAssignedChecklistController extends Controller
                 'mst_assign_checklists.sub_point_checklist',
                 'mst_assign_checklists.note_assesor',
                 'checklist_responses.response',
+                'checklist_responses.path_input_response',
                 'checklist_responses.response_correction',
             )
             ->leftjoin('checklist_responses', 'mst_assign_checklists.id', 'checklist_responses.id_assign_checklist')

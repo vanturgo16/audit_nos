@@ -17,7 +17,7 @@
                         <div class="row py-4">
                             <div class="col-12 text-center">
                                 File Format Or Size Not Accepted, <br>
-                                Accepted Format <b>(jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar) Max 2MB</b>
+                                Accepted Format <b>(jpeg,png,jpg,mp4,mov,ogg,mp3,wav,pdf,doc,docx,xls,xlsx,zip,rar) Max 20MB</b>
                             </div>
                         </div>
                     </div>
@@ -50,6 +50,8 @@
                     // Clear the #buildForm content
                     $('#buildForm').html('');
 
+                    const minioTempRoute = "{{ route('minio.temp') }}";
+
                     // Extract file path and extension
                     var guideFilePath = response.question.path_guide_parent;
                     var responseFilePath = response.question.path_input_response;
@@ -58,29 +60,51 @@
 
                     // Helper function to determine media type for the modal content
                     function getModalContent(filePath, extension) {
-                        let fullPath = `{{ url('${filePath}') }}`;
-                        if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
-                            return `<img src="${fullPath}" class="custom-img-thumbnail" onerror="this.onerror=null;this.src='{{ url('assets/images/no-image.png') }}'; this.alt='Image not found';">`;
-                        } else if (['mp4', 'webm', 'ogg'].includes(extension)) {
-                            return `<video controls class="custom-video-thumbnail"><source src="${fullPath}" type="video/${extension}">Your browser does not support the video tag.</video>`;
-                        } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
-                            return `<div class="row py-4">
-                                        <div class="col-12 text-center">
-                                            Preview
-                                        </div>
-                                        <div class="col-12 mt-2 text-center">
-                                            <audio controls class="custom-audio-thumbnail"><source src="${fullPath}" type="audio/${extension}">Your browser does not support the audio element.</audio>
-                                        </div>
-                                    </div>`;
-                        } else {
-                            return `<div class="row py-4">
-                                        <div class="col-12 text-center">
-                                            Preview Not Available
-                                        </div>
-                                        <div class="col-12 mt-2 text-center">
-                                            <a href="${fullPath}" class="btn btn-primary" download>Download File</a>
-                                        </div>
-                                    </div>`;
+                        const fullPath = filePath
+                            ? `${minioTempRoute}?path=${encodeURIComponent(filePath)}`
+                            : '';
+                        if (['png','jpg','jpeg','gif','webp'].includes(extension)) {
+                            return `
+                                <img src="${fullPath}" class="custom-img-thumbnail"
+                                    onerror="this.onerror=null;this.src='{{ asset('assets/images/no-image.png') }}'; this.alt='Image not found';">
+                            `;
+                        }
+                        else if (['mp4','webm','ogg'].includes(extension)) {
+                            return `
+                                <video controls class="custom-video-thumbnail" style="width:100%">
+                                    <source src="${fullPath}" type="video/${extension}">
+                                    Your browser does not support the video tag.
+                                </video>
+                            `;
+                        }
+                        else if (['mp3','wav','ogg'].includes(extension)) {
+                            return `
+                                <div class="row py-4">
+                                    <div class="col-12 text-center">
+                                        Preview
+                                    </div>
+                                    <div class="col-12 mt-2 text-center">
+                                        <audio controls class="custom-audio-thumbnail">
+                                            <source src="${fullPath}" type="audio/${extension}">
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        else {
+                            return `
+                                <div class="row py-4">
+                                    <div class="col-12 text-center">
+                                        Preview Not Available
+                                    </div>
+                                    <div class="col-12 mt-2 text-center">
+                                        <a href="${fullPath}" target="_blank" class="btn btn-primary">
+                                            Open File
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
                         }
                     }
 

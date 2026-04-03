@@ -22,6 +22,7 @@ use App\Models\MstPeriodName;
 
 // Mail
 use App\Mail\UpdateExpired;
+use App\Models\MstChecklists;
 use App\Models\MstEmployees;
 use App\Models\PeriodDealerAssesor;
 
@@ -60,71 +61,74 @@ class MstPeriodChecklistController extends Controller
 
     public function store(Request $request)
     {
+        $today = now()->startOfDay();
+
         $request->validate([
-            'period' => 'required',
-            'id_branch' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required'
+            'period'     => 'required',
+            'id_branch'  => 'required',
+            'start_date' => ['required', 'date', 'after_or_equal:' . $today->toDateString()],
+            'end_date'   => ['required', 'date', 'after:start_date'],
+        ], [
+            'start_date.after_or_equal' => 'Failed, You cannot fill start date less than today',
+            'end_date.after'            => 'Failed, End date must be greater than start date',
         ]);
 
-        $start_date = Carbon::parse($request->start_date);
-        $end_date = Carbon::parse($request->end_date);
-        $today = Carbon::today();
-        if ($end_date < $start_date) {
-            $message = 'Failed, Start Date Must Be Earlier Than End Date';
-        } elseif ($start_date < $today) {
-            $message = 'Failed, You Cannot Fill Start Date Less as Today';
-        } elseif ($end_date <= $today) {
-            $message = 'Failed, You Cannot Fill End Date Less or Same as Today';
-        }
-        if (isset($message)) {
-            return redirect()->back()->withInput()->with(['fail' => $message]);
-        }
-
+        // Get period name id
         $mstPeriodNameId = MstPeriodName::where('period_name', $request->period)->value('id');
+
+        // Get mapping assessor
         $mappingPDA = PeriodDealerAssesor::where('mst_period_name_id', $mstPeriodNameId)
             ->where('mst_dealers_id', $request->id_branch)
             ->first();
-        $assesorIds = json_decode($mappingPDA->assesor_ids, true);
-        if (!$mappingPDA || empty($assesorIds)) {
-            return redirect()->back()->withInput()->with('fail', 'Dealer / Jaringan in this period has no assessor assigned yet');
+
+        if (!$mappingPDA || empty(json_decode($mappingPDA->assesor_ids, true))) {
+            $dealerName = MstJaringan::where('id', $request->id_branch)->value('dealer_name');
+            return back()->withInput()->with('fail',
+                "No assessor has been assigned for dealer {$dealerName} in period {$request->period}. 
+                Please assign the assessor first."
+            );
         }
 
         DB::beginTransaction();
         try {
+            // Create period
             $period = MstPeriodeChecklists::create([
-                'period' => $request->period,
-                'id_branch' => $request->id_branch,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
-                'created_by' => auth()->user()->email,
-                'is_active' => 1,
-                'status' => 0
+                'period'      => $request->period,
+                'id_branch'   => $request->id_branch,
+                'start_date'  => $request->start_date,
+                'end_date'    => $request->end_date,
+                'created_by'  => auth()->user()->email,
+                'is_active'   => 1,
+                'status'      => 0
             ]);
 
-            PeriodDealerAssesor::where('id', $mappingPDA->id)->update([
-                'status' => 1
-            ]);
-            MstPeriodName::where('period_name', $request->period)->where('status', 0)->update([
-                'status' => 1
-            ]);
+            // Update statuses
+            $mappingPDA->update(['status' => 1]);
+            MstPeriodName::where('id', $mstPeriodNameId)
+                ->where('status', 0)
+                ->update(['status' => 1]);
 
-            // Get Mapping Checklist
-            $type = MstJaringan::where('id', $request->id_branch)->first()->type;
-            $mapCheck = MstMapChecklists::select('mst_checklists.id')
-                ->leftjoin('mst_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_checklists.id_parent_checklist')
-                ->where('mst_mapchecklists.type_jaringan', $type)
-                ->get();
-            foreach ($mapCheck as $item) {
-                if($item->id){
-                    MstAssignChecklists::create([
-                        'id_periode_checklist' => $period->id,
-                        'id_mst_checklist' => $item->id
-                    ]);
-                }
-            }
+            // Get type jaringan
+            $type = MstJaringan::where('id', $request->id_branch)->value('type');
+            // Get checklist IDs only
+            $checklistIds = MstMapChecklists::where('type_jaringan', $type)
+                ->pluck('id_mst_checklist')
+                ->filter();
+            // Validate checklist exists in ONE query
+            $validChecklistIds = MstChecklists::whereIn('id', $checklistIds)->pluck('id');
+            // Prepare bulk insert
+            $assignData = $validChecklistIds->map(function ($id) use ($period) {
+                return [
+                    'id_periode_checklist' => $period->id,
+                    'id_mst_checklist'     => $id,
+                    'created_at'           => now(),
+                    'updated_at'           => now(),
+                ];
+            })->toArray();
+
+            MstAssignChecklists::insert($assignData);
             
-            // // Dummy Testing 
+            // // Small Data For Testing 
             // $testShort = ['47','49','52','353','354','366'];
             // foreach ($testShort as $item) {
             //     MstAssignChecklists::create([
@@ -133,92 +137,129 @@ class MstPeriodChecklistController extends Controller
             //     ]);
             // }
 
-            //Log Period
+            // Log
             $this->storeLogPeriod($period->id, 0, 'Initiate');
-
-            //Audit Log
-            $this->auditLogsShort('Create New Period Checklist');
+            $this->auditLogsShort('Create New Period Checklist ID: ' . $period->id);
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Create New Period Checklist']);
-        } catch (Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with(['fail' => 'Failed to Create New Period Checklist!']);
+            return back()->with('success', 'Success Create New Period Checklist');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->withInput()->with('fail', 'Failed to Create New Period Checklist!');
         }
     }
 
     public function update(Request $request, $id)
     {
-        $id = decrypt($id);
+        $id    = decrypt($id);
+        $today = now()->startOfDay();
 
         $request->validate([
-            'period' => 'required',
-            'id_branch' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required'
+            'period'     => 'required',
+            'id_branch'  => 'required',
+            'start_date' => ['required', 'date', 'after_or_equal:' . $today->toDateString()],
+            'end_date'   => ['required', 'date', 'after:start_date'],
+        ], [
+            'start_date.after_or_equal' => 'Failed, You cannot fill start date less than today',
+            'end_date.after'            => 'Failed, End date must be greater than start date',
         ]);
 
-        $start_date = Carbon::parse($request->start_date);
-        $end_date = Carbon::parse($request->end_date);
-        $today = Carbon::today();
-        if ($end_date < $start_date) {
-            $message = 'Failed, Start Date Must Be Earlier Than End Date';
-        } elseif ($start_date < $today) {
-            $message = 'Failed, You Cannot Fill Start Date Less as Today';
-        } elseif ($end_date <= $today) {
-            $message = 'Failed, You Cannot Fill End Date Less or Same as Today';
-        }
-        if (isset($message)) {
-            return redirect()->back()->withInput()->with(['fail' => $message]);
+        $period = MstPeriodeChecklists::findOrFail($id);
+
+        // Detect changes
+        $period->fill([
+            'period'     => $request->period,
+            'id_branch'  => $request->id_branch,
+            'start_date' => $request->start_date,
+            'end_date'   => $request->end_date,
+        ]);
+        if (!$period->isDirty()) {
+            return back()->with('info', 'Nothing Change, The data entered is the same as the previous one!');
         }
 
-        $databefore = MstPeriodeChecklists::where('id', $id)->first();
-        $databefore->period = $request->period;
-        $databefore->id_branch = $request->id_branch;
-        $databefore->start_date = $request->start_date;
-        $databefore->end_date = $request->end_date;
+        DB::beginTransaction();
+        try {
+            $oldBranch = $period->getOriginal('id_branch');
+            $newBranch = $request->id_branch;
 
-        if ($databefore->isDirty()) {
-            DB::beginTransaction();
-            try {
-                // IF Jaringan Update
-                $databefore = MstPeriodeChecklists::where('id', $id)->first();
-                if ($databefore->id_branch != $request->id_branch) {
-                    // Delete Assign Before
-                    MstAssignChecklists::where('id_periode_checklist', $id)->delete();
-                    // Get Mapping Checklist
-                    $type = MstJaringan::where('id', $request->id_branch)->first()->type;
-                    $mapCheck = MstMapChecklists::select('mst_checklists.id')
-                        ->leftjoin('mst_checklists', 'mst_mapchecklists.id_parent_checklist', 'mst_checklists.id_parent_checklist')
-                        ->where('mst_mapchecklists.type_jaringan', $type)
-                        ->get();
-                    foreach ($mapCheck as $item) {
-                        if ($item->id) {
-                            MstAssignChecklists::create([
-                                'id_periode_checklist' => $id,
-                                'id_mst_checklist' => $item->id
-                            ]);
-                        }
-                    }
+            $oldPeriodName = $period->getOriginal('period');
+            $newPeriodName = $request->period;
+
+            // Handle Period Status Change
+            if ($oldPeriodName != $newPeriodName) {
+                $oldPeriodNameId = MstPeriodName::where('period_name', $oldPeriodName)->value('id');
+                $remainingOld = MstPeriodeChecklists::where('period', $oldPeriodName)
+                    ->where('id', '!=', $id)
+                    ->count();
+                if ($remainingOld == 0) {
+                    MstPeriodName::where('id', $oldPeriodNameId)
+                        ->update(['status' => 0]);
                 }
-                MstPeriodeChecklists::where('id', $id)->update([
-                    'period' => $request->period,
-                    'id_branch' => $request->id_branch,
-                    'start_date' => $request->start_date,
-                    'end_date' => $request->end_date,
-                ]);
-
-                //Audit Log
-                $this->auditLogsShort('Update Period Checklist');
-
-                DB::commit();
-                return redirect()->back()->with(['success' => 'Success Update Period Checklist']);
-            } catch (Exception $e) {
-                DB::rollback();
-                return redirect()->back()->with(['fail' => 'Failed to Update Period Checklist!']);
+                $newPeriodNameId = MstPeriodName::where('period_name', $newPeriodName)->value('id');
+                MstPeriodName::where('id', $newPeriodNameId)
+                    ->where('status', 0)
+                    ->update(['status' => 1]);
             }
-        } else {
-            return redirect()->back()->with(['info' => 'Nothing Change, The data entered is the same as the previous one!']);
+
+            // If branch changed → regenerate checklist
+            if ($oldBranch != $newBranch) {
+                // Check mapping assesor in new branch
+                $mstPeriodNameId = MstPeriodName::where('period_name', $request->period)->value('id');
+                $mappingPDA = PeriodDealerAssesor::where('mst_period_name_id', $mstPeriodNameId)
+                    ->where('mst_dealers_id', $newBranch)
+                    ->first();
+                $assesorIds = $mappingPDA ? json_decode($mappingPDA->assesor_ids, true) : [];
+                if (!$mappingPDA || empty($assesorIds)) {
+                    $dealerName = MstJaringan::where('id', $newBranch)->value('dealer_name');
+                    DB::rollBack();
+                    return back()->withInput()->with('fail',
+                        "Failed to change dealer to {$dealerName}. 
+                        No assessor has been assigned for this dealer in period {$request->period}. 
+                        Please assign the assessor first."
+                    );
+                }
+
+                // Reset old mapping assessor status 
+                PeriodDealerAssesor::where('mst_period_name_id', $mstPeriodNameId)
+                    ->where('mst_dealers_id', $oldBranch)
+                    ->update(['status' => 0]);
+                // Activate new mapping assessor status 
+                $mappingPDA->update(['status' => 1]);
+
+                // Delete old assign
+                MstAssignChecklists::where('id_periode_checklist', $id)->delete();
+                // Get type jaringan
+                $type = MstJaringan::where('id', $newBranch)->value('type');
+                // Get mapped checklist ids
+                $checklistIds = MstMapChecklists::where('type_jaringan', $type)
+                    ->pluck('id_mst_checklist')
+                    ->filter();
+                // Validate in one query
+                $validChecklistIds = MstChecklists::whereIn('id', $checklistIds)->pluck('id');
+                // Bulk insert
+                $assignData = $validChecklistIds->map(function ($checklistId) use ($id) {
+                    return [
+                        'id_periode_checklist' => $id,
+                        'id_mst_checklist'     => $checklistId,
+                        'created_at'           => now(),
+                        'updated_at'           => now(),
+                    ];
+                })->toArray();
+
+                MstAssignChecklists::insert($assignData);
+            }
+
+            // Save period
+            $period->save();
+
+            // Audit Log
+            $this->auditLogsShort('Update Period Checklist ID: ' . $id);
+
+            DB::commit();
+            return back()->with('success', 'Success Update Period Checklist');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('fail', 'Failed to Update Period Checklist!');
         }
     }
 
@@ -284,30 +325,37 @@ class MstPeriodChecklistController extends Controller
 
         DB::beginTransaction();
         try {
-            $data = MstPeriodeChecklists::where('id', $id)->first();
-            $count = MstPeriodeChecklists::where('period', $data->period)->count();
-            $mst_period_name_id = MstPeriodName::where('period_name', $data->period)->first()->id;
-            $mappingPDA = PeriodDealerAssesor::where('mst_period_name_id', $mst_period_name_id)->where('mst_dealers_id', $data->id_branch)->first();
-            PeriodDealerAssesor::where('id', $mappingPDA->id)->update([
-                'status' => 0
-            ]);
-            if($count == 1) {
-                MstPeriodName::where('period_name', $data->period)->update([
-                    'status' => 0
-                ]);
+            $period     = MstPeriodeChecklists::findOrFail($id);
+            $periodName = $period->period;
+            $branchId   = $period->id_branch;
+
+            // Count remaining period with same name
+            $remainingCount = MstPeriodeChecklists::where('period', $periodName)->count();
+            // Get mst_period_name_id
+            $mstPeriodNameId = MstPeriodName::where('period_name', $periodName)->value('id');
+            // Reset mapping PDA status (if exists)
+            PeriodDealerAssesor::where('mst_period_name_id', $mstPeriodNameId)
+                ->where('mst_dealers_id', $branchId)
+                ->update(['status' => 0]);
+            // If this is the last period → reset master period status
+            if ($remainingCount == 1) {
+                MstPeriodName::where('id', $mstPeriodNameId)
+                    ->update(['status' => 0]);
             }
 
-            MstPeriodeChecklists::where('id', $id)->delete();
+            // Delete period
+            $period->delete();
 
-            //Audit Log
-            $this->auditLogsShort('Delete Period Checklist');
+            // Audit log
+            $this->auditLogsShort('Delete Period Checklist ID: ' . $id);
 
             DB::commit();
-            return redirect()->back()->with(['success' => 'Success Delete Period Checklist']);
-        } catch (Exception $e) {
-            DB::rollback();
-            $name = MstPeriodeChecklists::where('id', $id)->first();
-            return redirect()->back()->with(['fail' => 'Failed to Delete Period Checklist ' . $name->period . '!']);
+            return back()->with('success', 'Success Delete Period Checklist');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('fail',
+                "Failed to delete period checklist for period {$periodName}."
+            );
         }
     }
 }

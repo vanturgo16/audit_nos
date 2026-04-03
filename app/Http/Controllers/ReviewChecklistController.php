@@ -219,7 +219,7 @@ class ReviewChecklistController extends Controller
         $progressReviewed = $reviewedCount.'/'.$totalCount;
 
         return response()->json([
-            'html' => view('review.card_item', [
+            'html' => view('list_assigned.detail.checklist.card_item', [
                 'item' => $updatedItem,
                 'perCheck' => $perCheck,
                 'statusCorrection' => $statusCorrection,

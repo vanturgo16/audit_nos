@@ -13,36 +13,27 @@
         <div class="modal-dialog modal-dialog-top" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">Delete Type Checklist</h5>
+                    <h5 class="modal-title" id="staticBackdropLabel">Remove Type Checklist</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('mapchecklist.deletetype', encrypt($data->type_checklist)) }}" id="formDelete{{ $data->idUnique }}" method="POST" enctype="multipart/form-data">
+                <form class="formLoad" action="{{ route('mapchecklist.deletetype', encrypt($data->type_checklist)) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" value="{{ $type }}" name="typeJaringan">
                     <div class="modal-body">
                         <div class="text-center">
-                            Are You Sure to <b>Delete</b> This Type Checklist In This Mapping?
+                            Are You Sure to <b>Remove</b> This Type Checklist In This Mapping?
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light" id="btnDelete{{ $data->idUnique }}"><i class="mdi mdi-close-circle label-icon"></i>delete</button>
+                        <button type="submit" class="btn btn-danger waves-effect btn-label waves-light">
+                            <i class="mdi mdi-close-circle label-icon"></i>Remove
+                        </button>
                     </div>
                 </form>
-                <script>
-                    $(document).ready(function() {
-                        let idList = "{{ $data->idUnique }}";
-                        $('#formDelete' + idList).submit(function(e) {
-                            if (!$('#formDelete' + idList).valid()){
-                                e.preventDefault();
-                            } else {
-                                $('#btnDelete' + idList).attr("disabled", "disabled");
-                                $('#btnDelete' + idList).html('<i class="mdi mdi-reload label-icon"></i>Please Wait...');
-                            }
-                        });
-                    });
-                </script>
             </div>
         </div>
     </div>
 </div>
+
+<script src="{{ asset('assets/js/formLoad.js') }}"></script>
